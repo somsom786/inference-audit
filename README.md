@@ -37,7 +37,7 @@ The [Qwen load sweep](https://somsom786.github.io/inference-audit/reports/qwen3-
 
 ## Staging pilots
 
-Discuss an authorized endpoint, a representative workload, and the service target you need to check. [Contact Rayn Hasan on LinkedIn](https://www.linkedin.com/in/rayn-hasan/)
+Discuss an authorized endpoint, a representative workload, and the service target you need to check. [Contact on LinkedIn](https://www.linkedin.com/in/rayn-hasan/)
 
 ## Operating scope
 

@@ -90,7 +90,7 @@ def check(site, browser, screenshot_dir):
         page.get_by_role("link", name="Discuss a staging pilot", exact=True).click()
         assert page.evaluate("location.hash === '#pilot'")
         assert (
-            page.get_by_role("link", name="Contact Rayn Hasan on LinkedIn", exact=False).get_attribute("href")
+            page.get_by_role("link", name="Contact on LinkedIn", exact=False).get_attribute("href")
             == "https://www.linkedin.com/in/rayn-hasan/"
         )
         comparison = page.locator("[data-comparison]")
