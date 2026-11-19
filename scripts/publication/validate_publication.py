@@ -17,11 +17,15 @@ from jsonschema import Draft202012Validator
 ROOT = Path(__file__).resolve().parents[2]
 ASSET_TAGS = {"img", "link", "audio", "video", "source", "input", "track"}
 BLOCKED_TAGS = {"script", "iframe", "object", "embed", "base", "form", "foreignobject"}
+INTERACTIVE_PAGES = {"index.html", "case-study.html", "samples.html"}
+CANONICAL_ROOT = "https://somsom786.github.io/inference-audit/"
 
 
 class Page(HTMLParser):
-    def __init__(self):
+    def __init__(self, filename):
         super().__init__()
+        self.filename = filename
+        self.in_script = False
         self.tags = Counter()
         self.anchors = set()
         self.links = []
@@ -38,16 +42,40 @@ class Page(HTMLParser):
             self.language = attrs.get("lang") == "en"
         if tag == "meta":
             self.viewport |= attrs.get("name") == "viewport"
-        if tag in BLOCKED_TAGS or any(key.startswith("on") for key in attrs):
+        permitted_script = (
+            tag == "script"
+            and self.filename in INTERACTIVE_PAGES
+            and self.tags[tag] == 1
+            and attrs == {"src": "assets/story.js", "defer": None}
+        )
+        if tag == "script":
+            self.in_script = True
+        if (tag in BLOCKED_TAGS and not permitted_script) or any(key.startswith("on") for key in attrs):
             self.errors.append(f"Active content in {tag}")
         if tag == "meta" and attrs.get("http-equiv", "").lower() == "refresh":
             self.errors.append("Automatic navigation")
         if tag == "img" and not attrs.get("alt"):
             self.errors.append("Missing image alternative")
         for name in ("href", "src", "xlink:href"):
+            if (
+                tag == "link"
+                and name == "href"
+                and attrs.get("rel") == "canonical"
+                and "/" not in self.filename
+                and attrs.get(name)
+                == CANONICAL_ROOT + ("" if self.filename == "index.html" else self.filename)
+            ):
+                continue
             if attrs.get(name):
-                resource = tag in ASSET_TAGS and attrs.get("rel") != "canonical"
-                self.links.append((resource or name != "href", attrs[name]))
+                self.links.append((tag in ASSET_TAGS or name != "href", attrs[name]))
+
+    def handle_endtag(self, tag):
+        if tag == "script":
+            self.in_script = False
+
+    def handle_data(self, data):
+        if self.in_script and data.strip():
+            self.errors.append("Inline script")
 
     handle_startendtag = handle_starttag
 
@@ -63,14 +91,20 @@ def local_link(origin, href, root, pages, asset=False):
         target /= "index.html"
     if not target.is_relative_to(root.resolve()) or not target.is_file():
         raise ValueError(f"Broken link in {origin.relative_to(root)}: {href}")
-    if parts.fragment and target in pages and unquote(parts.fragment) not in pages[target].anchors:
-        raise ValueError(f"Missing HTML anchor in {origin.relative_to(root)}: {href}")
+    if parts.fragment and target in pages:
+        fragment = unquote(parts.fragment)
+        if fragment.startswith(":~:text=") and target.parent == root / "public/reports":
+            heading = re.escape(fragment.removeprefix(":~:text="))
+            if re.search(rf"<h[23]>{heading}</h[23]>", target.read_text(encoding="utf-8")):
+                return
+        if fragment not in pages[target].anchors:
+            raise ValueError(f"Missing HTML anchor in {origin.relative_to(root)}: {href}")
 
 
 def check_html(web, root):
     pages = {}
     for file in sorted(web.rglob("*.html")):
-        page = Page()
+        page = Page(file.relative_to(web).as_posix())
         page.feed(file.read_text(encoding="utf-8"))
         if page.errors or not page.language or not page.viewport or page.tags["h1"] != 1:
             raise ValueError(f"Invalid or unsafe {file.name}: {page.errors}")
@@ -179,16 +213,18 @@ def check_data(root):
             math.isclose(item["delta_pct"], 100 * (candidates / controls - 1)), "Transfer ratio disagrees"
         )
     rows = [r for r in data["phase4"]["rows"] if r["window"] == 3 and r["family"] == "all"]
-    for key in ("ttft_p95", "e2e_p95", "goodput_rps"):
-        for arm in ("A", "B"):
-            low, high = (fn(r[key] for r in rows if r["stage"].startswith(arm)) for fn in (min, max))
-            span = f"{low:.3f}" if round(low, 3) == round(high, 3) else f"{low:.3f}–{high:.3f}"
-            require(span in page, f"Landing metric is out of sync: {key} ({arm})")
+    for arm in ("A", "B"):
+        low, high = (fn(r["ttft_p95"] for r in rows if r["stage"].startswith(arm)) for fn in (min, max))
+        span = f"{low:.3f}" if round(low, 3) == round(high, 3) else f"{low:.3f}–{high:.3f}"
+        require(span in page, f"Landing TTFT fallback is out of sync ({arm})")
     for pool in ("Chat burst standard c2", "Chat burst selected c4"):
         result = data["phase2"]["comparisons"][pool]
         raw_rate = sum(r["tokens"] for r in result["launches"]) / sum(r["wall_s"] for r in result["launches"])
         require(math.isclose(raw_rate, result["tok_s"]), "Phase 2 pooled rate disagrees")
-        require(f"{raw_rate:.2f}" in page, "Landing burst rate is out of sync")
+        require(
+            f"{raw_rate:.2f}" in (root / "public/case-study.html").read_text(encoding="utf-8"),
+            "Case study burst rate is out of sync",
+        )
 
 
 def main():

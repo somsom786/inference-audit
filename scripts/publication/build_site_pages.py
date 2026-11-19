@@ -13,7 +13,7 @@ WEB = ROOT / "public"
 SITE_URL = "https://somsom786.github.io/inference-audit/"
 PAGES = {
     "docs/case-study/INFERENCE_OPTIMIZATION_CASE_STUDY.md": (
-        "case-study.html",
+        "research.html",
         "RTX 4070 inference case study",
     ),
     "docs/publication/CLAIMS_LEDGER.md": ("claims.html", "Public measurement claims"),
@@ -22,11 +22,11 @@ PAGES = {
     "docs/publication/PUBLICATION_CHECKLIST.md": ("publication-checklist.html", "Publication checks"),
     "docs/publication/PUBLISH.md": ("publish.html", "Publication instructions"),
     "docs/publication/SITE_INSTALL.md": ("install.html", "Install Inference Audit"),
-    "public/reports/README.md": ("samples.html", "Measured sample audits"),
     "validation/INDEPENDENT_REPLICATION.md": ("replication.html", "Independent workload replication"),
     "docs/VALIDATION.md": ("validation.html", "Product acceptance checks"),
 }
 ASSET_ALIASES = {
+    "public/reports/README.md": "samples.html",
     "validation/phase3-recount.json": "evidence/measurements.json",
     "validation/replication-recount.json": "evidence/measurements.json",
     "README.md": "install.html",
@@ -105,18 +105,19 @@ def main():
   <meta property="og:title" content="{name} | Inference Audit">
   <title>{name} | Inference Audit</title>
   <link rel="canonical" href="{SITE_URL}{page}">
-  <link rel="stylesheet" href="assets/site.css">
+  <link rel="stylesheet" href="assets/story.css">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
-  <header class="site-header"><div class="wrap header-inner">
-    <a class="wordmark" href="./index.html"><span class="mark" aria-hidden="true"></span>Inference Audit</a>
-    <nav aria-label="Main"><a href="case-study.html">Case study</a><a href="reports/qwen3-8b-audit.html">Sample audit</a><a href="install.html">Source &amp; install</a></nav>
+  <header class="v-header"><div class="v-wrap v-header-row">
+    <a class="v-brand" href="index.html"><span class="v-mark" aria-hidden="true"></span>Inference Audit</a>
+    <nav aria-label="Main"><a href="case-study.html">Case study</a><a href="samples.html">Sample audits</a><a href="install.html">Install</a></nav>
+    <a class="v-source" href="https://github.com/somsom786/inference-audit">GitHub <span aria-hidden="true">↗</span></a>
   </div></header>
-  <main class="wrap article" id="main" tabindex="-1">
+  <main class="v-wrap v-article" id="main" tabindex="-1">
 {body}
   </main>
-  <footer class="site-footer"><div class="wrap footer-inner"><span>Inference Audit</span><a href="claims.html">Claims ledger</a><a href="reproduce.html">Reproduction</a></div></footer>
+  <footer class="v-footer"><div class="v-wrap v-footer-row"><a class="v-brand" href="index.html"><span class="v-mark" aria-hidden="true"></span>Inference Audit</a><nav aria-label="Research sources"><a href="research.html">Full research</a><a href="claims.html">Claims ledger</a><a href="reproduce.html">Reproduce</a><a href="license.txt">MIT license</a></nav><span>Public preview <a href="https://github.com/somsom786/inference-audit/releases/tag/v0.2.1">0.2.1</a></span></div></footer>
 </body>
 </html>
 """,

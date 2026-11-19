@@ -21,7 +21,7 @@ VALIDATION = {
     "replication-recount.json",
     "verify_release_capture.py",
 }
-TEXT_SUFFIXES = {".html", ".svg", ".css", ".txt", ".md", ".json", ".py", ".toml", ".yaml", ".yml", ""}
+TEXT_SUFFIXES = {".html", ".svg", ".css", ".js", ".txt", ".md", ".json", ".py", ".toml", ".yaml", ".yml", ""}
 SECRET = (
     (
         "provider token",
@@ -52,6 +52,7 @@ KNOWN_HOSTS = {
     "docs.github.com",
     "github.com",
     "somsom786.github.io",
+    "www.linkedin.com",
 }
 URL = re.compile(r"https?://[^\s\"'<>),\x60\\]+")
 EXPECTED_WHEEL = "ccfd1f812ae86ced5aea94fac9af1d5ced2fa7a32548185a827a688663851843"

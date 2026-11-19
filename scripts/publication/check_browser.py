@@ -4,17 +4,23 @@ import argparse
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from threading import Thread
 from urllib.parse import urlsplit
 
-from PIL import Image
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[2]
 
 
 class StaticHandler(SimpleHTTPRequestHandler):
+    def do_GET(self):
+        prefix = "/inference-audit/"
+        if not self.path.startswith(prefix):
+            self.send_error(404)
+            return
+        self.path = "/" + self.path.removeprefix(prefix)
+        super().do_GET()
+
     def log_message(self, format, *args):
         pass
 
@@ -22,13 +28,15 @@ class StaticHandler(SimpleHTTPRequestHandler):
 def check(site, browser, screenshot_dir):
     for viewport in (
         {"width": 1440, "height": 1000},
+        {"width": 820, "height": 1180},
         {"width": 390, "height": 844},
         {"width": 320, "height": 720},
     ):
-        context = browser.new_context(viewport=viewport, locale="en-US")
+        context = browser.new_context(viewport=viewport, locale="en-US", reduced_motion="reduce")
         page = context.new_page()
         errors = []
         page.on("pageerror", lambda error: errors.append(str(error)))
+        page.on("console", lambda message: errors.append(message.text) if message.type == "error" else None)
         page.on(
             "response",
             lambda response: errors.append(str(response.status)) if response.status >= 400 else None,
@@ -45,32 +53,87 @@ def check(site, browser, screenshot_dir):
         for endpoint in (
             "",
             "case-study.html",
+            "samples.html",
+            "research.html",
             "claims.html#p4-goodput",
             "reports/qwen3-8b-audit.html",
             "reports/gemma4-12b-audit.html",
         ):
-            page.goto(site + endpoint)
-            page.wait_for_load_state("networkidle")
+            response = page.goto(site + endpoint)
+            assert response and response.ok, endpoint
+            page.locator("img").evaluate_all("(images) => images.forEach(img => img.loading = 'eager')")
+            page.wait_for_function("( ) => [...document.images].every(i => i.complete && i.naturalWidth > 0)")
             assert page.locator("img").evaluate_all(
                 "(images) => images.every(i => i.complete && i.naturalWidth > 0)"
             )
             assert page.locator("h1").count() == 1, endpoint
             assert page.evaluate("document.documentElement.scrollWidth <= innerWidth"), (viewport, endpoint)
-            if viewport["width"] >= 390:
+            if viewport["width"] in {390, 1440} and endpoint in {"", "case-study.html", "samples.html"}:
                 alias = endpoint.split("/")[-1].split(".")[0] or "landing"
-                page.screenshot(path=screenshot_dir / f"{alias}-{viewport['width']}.png", full_page=True)
+                page.screenshot(path=screenshot_dir / f"{alias}-{viewport['width']}.png")
 
         page.goto(site)
+        assert page.locator(".skip").evaluate("(node) => getComputedStyle(node).pointerEvents === 'none'")
         page.keyboard.press("Tab")
         assert page.get_by_role("link", name="Skip to content").evaluate(
             "(node) => node === document.activeElement"
         )
         page.keyboard.press("Enter")
         assert page.evaluate("location.hash === '#main'")
-        page.get_by_role("link", name="Read the case study").click()
-        assert page.get_by_role("heading", name="More tokens, less useful work", exact=True).count() == 1
-        page.get_by_role("link", name="P4-GOODPUT", exact=True).first.click()
-        assert page.locator("#p4-goodput").count() == 1
+        assert page.locator(".skip").evaluate("(node) => getComputedStyle(node).pointerEvents === 'none'")
+        replay = page.get_by_role("button", name="1.10 txn/s", exact=True)
+        replay.click()
+        assert page.locator(".demo-score strong").inner_text() == "200 / 210"
+        assert "Agent tasks passed 12 of 20" in page.locator(".demo-reading").inner_text()
+        page.get_by_role("button", name="0.65 txn/s", exact=True).click()
+        assert page.locator(".demo-score strong").inner_text() == "198 / 210"
+        page.get_by_role("link", name="Discuss a staging pilot", exact=True).click()
+        assert page.evaluate("location.hash === '#pilot'")
+        assert (
+            page.get_by_role("link", name="Contact Rayn Hasan on LinkedIn", exact=False).get_attribute("href")
+            == "https://www.linkedin.com/in/rayn-hasan/"
+        )
+        comparison = page.locator("[data-comparison]")
+        for label, values in (
+            ("Completion", ("3.714–3.820 s", "4.523–4.678 s")),
+            ("Output rate", ("103.78–103.92", "103.79–104.04")),
+            ("Goodput", ("1.050–1.057 txn/s", "0.947–0.977 txn/s")),
+            ("Context", ("8,192", "4,096")),
+            ("First token", ("1.616–1.741 s", "0.753 s")),
+        ):
+            control = comparison.get_by_role("button", name=label, exact=True)
+            page.wait_for_function("(button) => !button.disabled", arg=control.element_handle())
+            control.press("Enter")
+            assert comparison.locator(".plot-row strong").all_text_contents() == list(values)
+            assert control.get_attribute("aria-pressed") == "true"
+        page.get_by_role("button", name="Report", exact=False).click()
+        assert page.locator("#workflow-report").is_visible() and page.locator("#workflow-inspect").is_hidden()
+        page.get_by_role("link", name="Explore the case study").click()
+        page.get_by_role("button", name="Prefill", exact=True).click()
+        assert page.locator("#life-prefill").is_visible() and page.locator("#life-queue").is_hidden()
+        for rate, cohort in (("0.80", "96 offers"), ("1.00", "120 offers"), ("1.15", "137 offers")):
+            page.get_by_role("button", name=rate, exact=True).click()
+            assert cohort in page.locator(".family-card").first.inner_text()
+        for model, gain in (("Forge 9B", "+4.6%"), ("Gemma 12B", "+9.5%"), ("Qwen3-8B", "+19.2%")):
+            page.get_by_role("button", name=model, exact=True).click()
+            assert page.locator(".model-delta").inner_text() == gain
+        page.get_by_text("What interrupted the endurance study?", exact=True).click()
+        assert page.get_by_text("Windows suspended during Qwen", exact=False).is_visible()
+        if viewport["width"] in {390, 1440}:
+            page.locator("#experiment").scroll_into_view_if_needed()
+            page.locator("#experiment").screenshot(
+                path=screenshot_dir / f"experiment-{viewport['width']}.png"
+            )
+        page.get_by_role("link", name="Sample audits", exact=True).click()
+        page.get_by_role("button", name="1.10 txn/s", exact=True).click()
+        assert page.locator(".demo-score strong").inner_text() == "200 / 210"
+        assert page.get_by_role("heading", name="Start with the decision.").is_visible()
+        assert page.get_by_text("Captured with Inference Audit 0.2.0", exact=False).is_visible()
+        page.get_by_role("link", name="Open Qwen audit", exact=False).click()
+        assert "Local demonstration audit" in page.locator("h1").inner_text()
+        page.goto(site + "case-study.html#measurement-design")
+        page.wait_for_url("**/research.html#measurement-design")
+        assert page.locator("#measurement-design").is_visible()
         assert not errors, errors
         context.close()
 
@@ -86,7 +149,7 @@ def main():
         thread = Thread(target=server.serve_forever, daemon=True)
         thread.start()
         try:
-            origin = f"http://127.0.0.1:{server.server_port}/"
+            origin = f"http://127.0.0.1:{server.server_port}/inference-audit/"
             browser = playwright.chromium.launch(
                 headless=True,
                 executable_path=args.browser,
@@ -99,19 +162,12 @@ def main():
                 ],
             )
             try:
-                with TemporaryDirectory() as tmp:
-                    preview = Path(tmp) / "report.png"
-                    page = browser.new_page(viewport={"width": 1050, "height": 620}, locale="en-US")
-                    page.goto(origin + "reports/qwen3-8b-audit.html")
-                    page.screenshot(path=preview)
-                    page.close()
-                    with Image.open(preview) as raw:
-                        raw.convert("RGB").save(ROOT / "public/assets/qwen-report-preview.png", optimize=True)
                 check(origin, browser, args.screenshots)
-                page = browser.new_page()
-                page.goto((ROOT / "public/index.html").as_uri())
-                page.get_by_role("link", name="View a measured audit", exact=True).click()
-                assert "Local demonstration audit" in page.locator("h1").inner_text()
+                page = browser.new_page(java_script_enabled=False)
+                page.goto(origin)
+                assert "1.616–1.741" in page.locator("[data-plot]").inner_text()
+                assert "198 / 210" in page.locator("[data-replay-result]").inner_text()
+                assert page.get_by_role("link", name="full research", exact=True).first.is_visible()
                 page.close()
             finally:
                 browser.close()
@@ -119,7 +175,7 @@ def main():
             server.shutdown()
             thread.join()
     print(
-        "Static landing, case study, ledger and both reports passed at 1440, 390 and 320 px. File preview passed."
+        "Pages subpath and interaction checks passed at 1440, 820, 390 and 320 px. No-script fallback passed."
     )
 
 

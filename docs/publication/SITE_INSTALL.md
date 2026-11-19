@@ -1,8 +1,8 @@
 # Install and run a scoped audit
 
-Inference Audit 0.2.1 is a Python CLI released under the [MIT license](../../LICENSE). [View source on GitHub](https://github.com/somsom786/inference-audit) · [Download the release assets](https://github.com/somsom786/inference-audit/releases/tag/v0.2.1)
+Inference Audit 0.2.1 is a Python CLI released under the [MIT license](../../LICENSE). See the [public preview release](https://github.com/somsom786/inference-audit/releases/tag/v0.2.1).
 
-From the repository root, use Python 3.11 or later. Set the model and traffic limits in `configs/local.yaml` to match an endpoint approved for the workload. This example enables the llama.cpp adapter.
+From a checkout of the public release, use Python 3.14 on Windows for the verified pilot setup. Set the model and traffic limits in `configs/local.yaml` to match an endpoint approved for the workload. This example enables the llama.cpp adapter.
 
 ```powershell
 python -m venv .venv
@@ -15,8 +15,8 @@ python -m venv .venv
 
 On Linux use `.venv/bin/python` and `.venv/bin/inference-audit`. Review the approved rate, concurrency and runtime before starting. Inference requests can affect other users. Open `runs/first-local/report/audit.html` when the run finishes.
 
-[Read the case study](../case-study/INFERENCE_OPTIMIZATION_CASE_STUDY.md) · [View the generated sample audit](../../public/reports/qwen3-8b-audit.html)
+[Explore the case study](../../public/case-study.html) · [View the generated sample audits](../../public/samples.html) · [Known issues](https://github.com/somsom786/inference-audit/blob/main/docs/KNOWN_ISSUES.md)
 
 ## Contact
 
-Use [GitHub Issues](https://github.com/somsom786/inference-audit/issues) for technical questions and reproducibility reports.
+Use [GitHub Issues](https://github.com/somsom786/inference-audit/issues) for technical questions and reproducibility notes.

@@ -3,120 +3,99 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Inference Audit measures latency, throughput and correct on-time work under bounded, reproducible workloads. Explore the RTX 4070 experiments and a real local audit.">
-  <meta name="theme-color" content="#102338">
+  <meta name="description" content="Measure latency, throughput and correct on-time answers on an authorized inference endpoint. Explore the RTX 4070 experiments behind the open-source CLI.">
   <meta property="og:type" content="website">
+  <meta property="og:title" content="Inference Audit | Measure useful inference capacity">
+  <meta property="og:description" content="Measure latency, throughput and correct on-time answers on an authorized inference endpoint. Explore the RTX 4070 experiments behind the open-source CLI.">
   <meta property="og:url" content="https://somsom786.github.io/inference-audit/">
-  <meta property="og:image" content="https://somsom786.github.io/inference-audit/assets/qwen-report-preview.png">
-  <meta property="og:title" content="Inference Audit · Reproducible LLM performance audits">
-  <meta property="og:description" content="What changes when a self-hosted inference server takes more requests? Read the RTX 4070 case study and explore a measured sample audit.">
-  <title>Inference Audit · Reproducible LLM performance audits</title>
   <link rel="canonical" href="https://somsom786.github.io/inference-audit/">
-  <link rel="stylesheet" href="assets/site.css">
+  <title>Inference Audit | Measure useful inference capacity</title>
+  <link rel="stylesheet" href="assets/story.css">
+  <script src="assets/story.js" defer></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
-  <header class="site-header">
-    <div class="wrap header-inner">
-      <a class="wordmark" href="./index.html"><span class="mark" aria-hidden="true"></span>Inference Audit</a>
-      <nav aria-label="Main">
-        <a href="case-study.html">Case study</a>
-        <a href="reports/qwen3-8b-audit.html">Sample audit</a>
-        <a href="#get-started">Source &amp; install</a>
-      </nav>
-    </div>
-  </header>
+  <header class="v-header"><div class="v-wrap v-header-row">
+    <a class="v-brand" href="index.html"><span class="v-mark" aria-hidden="true"></span>Inference Audit</a>
+    <nav aria-label="Main"><a href="case-study.html" >Case study</a><a href="samples.html" >Sample audits</a><a href="install.html">Install</a></nav>
+    <a class="v-source" href="https://github.com/somsom786/inference-audit">GitHub <span aria-hidden="true">↗</span></a>
+  </div></header>
   <main id="main" tabindex="-1">
-    <section class="hero" aria-labelledby="intro">
-      <div class="wrap hero-grid">
-        <div class="hero-copy">
-          <h1 id="intro">Know what your inference server can actually handle.</h1>
-          <p>Inference Audit measures how much correct work an LLM server delivers on time. Run bounded workloads against an authorized endpoint and share an audit another engineer can check.</p>
-          <div class="actions">
-            <a class="button primary" href="case-study.html">Read the case study</a>
-            <a class="button secondary" href="reports/qwen3-8b-audit.html">View a measured audit</a>
-          </div>
+    <section class="hero"><div class="v-wrap hero-grid">
+      <div class="hero-copy">
+        <p class="eyeline"><span></span> Open-source inference benchmarking</p>
+        <h1>What can your inference server handle?</h1>
+        <p class="lead">Send a bounded workload to your LLM endpoint. See which requests miss their deadlines and what to investigate before raising traffic.</p>
+        <div class="actions"><a class="v-button primary" href="#pilot">Discuss a staging pilot</a><a class="v-button secondary" href="samples.html">View a sample audit</a></div>
+      </div>
+<section class="audit-demo" data-audit-demo aria-label="Replay a measured Qwen audit">
+  <div class="demo-top">
+    <svg aria-hidden="true" viewBox="0 0 92 48" width="92" height="48" fill="none"><path d="M4 24h29m22 0h31M23 10l10 14-10 14m43-28L56 24l10 14" stroke="#c7b5ff" stroke-width="2"/><rect x="34" y="13" width="21" height="22" rx="4" fill="#ffc0a6"/><path d="M39 25h3l2-6 3 10 2-5h2" stroke="#281a38" stroke-width="1.6"/><circle cx="5" cy="24" r="4" fill="#c7b5ff"/><circle cx="86" cy="24" r="4" fill="#c7b5ff"/></svg>
+    <span>Recorded Qwen3-8B audit</span>
+  </div>
+  <h2>Would you serve at this load?</h2>
+  <p class="demo-intro">Replay either traffic level from the same two-slot RTX 4070 server.</p>
+  <div class="metric-tabs" role="group" aria-label="Replay traffic level">
+    <button type="button" data-replay="mixed_low" aria-pressed="true" disabled>0.65 txn/s</button>
+    <button type="button" data-replay="mixed_high" aria-pressed="false" disabled>1.10 txn/s</button>
+    <span>configured load</span>
+  </div>
+  <div class="demo-result" data-replay-result aria-live="polite">
+    <div class="demo-score"><strong>198 / 210</strong><span>correct and on time</span></div>
+    <div class="demo-reading"><span>Below the audit&rsquo;s strict target</span><p>Agent tasks passed 10 of 20 offers. The family breakdown shows where to investigate.</p></div>
+  </div>
+  <a class="demo-link" href="samples.html#read-the-result">See what the report tells you <span aria-hidden="true">&#8599;</span></a>
+</section>
+    </div></section>
+    <div class="v-wrap signal-strip" aria-label="What the audit measures">
+      <div><strong>Speed</strong><span>First token and full response</span></div>
+      <div><strong>Useful capacity</strong><span>Correct answers within your deadlines</span></div>
+      <div><strong>Evidence</strong><span>Saved observations and replayable reports</span></div>
+    </div>
+    <section class="v-section v-wrap workflow" id="workflow">
+      <div class="section-copy"><h2>From endpoint to evidence</h2><p>Follow an audit from the first connection to a report you can check offline.</p></div>
+      <div class="workflow-body">
+        <div class="workflow-nav" role="group" aria-label="Audit workflow">
+          <button data-show="workflow-inspect" aria-pressed="true" type="button"><span>01</span> Inspect</button>
+          <button data-show="workflow-test" aria-pressed="false" type="button"><span>02</span> Benchmark</button>
+          <button data-show="workflow-verify" aria-pressed="false" type="button"><span>03</span> Verify</button>
+          <button data-show="workflow-report" aria-pressed="false" type="button"><span>04</span> Report</button>
         </div>
-        <figure class="hero-data" aria-labelledby="tradeoff">
-          <figcaption><strong id="tradeoff">The fresh workload test</strong><span>Qwen3-8B on RTX 4070 · 1.15 offered transactions/s</span></figcaption>
-          <table>
-            <thead><tr><th scope="col">Measure</th><th scope="col">Two slots</th><th scope="col">Four slots</th></tr></thead>
-            <tbody>
-              <tr><th scope="row">P95 first token <span>(s)</span></th><td>1.616–1.741</td><td>0.753</td></tr>
-              <tr><th scope="row">P95 completion <span>(s)</span></th><td>3.714–3.820</td><td>4.523–4.678</td></tr>
-              <tr><th scope="row">Correct, on-time <span>(txn/s)</span></th><td>1.050–1.057</td><td>0.947–0.977</td></tr>
-            </tbody>
-          </table>
-          <p>Two fresh launches per profile. Neither passed the strict per-family service target. <a href="claims.html#p4-tail">Trace the measurements</a>.</p>
-        </figure>
-      </div>
-    </section>
-
-    <section class="wrap section research" aria-labelledby="research">
-      <div>
-        <h2 id="research">More tokens can mean less useful work.</h2>
-        <p>On repeated chat bursts, four serving slots raised output throughput from 143.77 to 226.70 tokens/s. With fresh chat, code, retrieval and agent traffic, first tokens arrived sooner while fewer transactions finished correctly and on time.</p>
-        <p>The trials held the total KV allocation fixed. Four slots divided it into smaller context windows, which changes what the server can accept per request.</p>
-        <a class="text-link" href="case-study.html">Read the experiment and its limits</a>
-      </div>
-      <figure class="plot">
-        <a href="assets/replication-goodput.svg" aria-label="Open the full-size goodput figure">
-          <img src="assets/replication-goodput.svg" width="920" height="430" alt="Correct on-time goodput on the fresh Qwen workload at all three tested loads. Both two-slot launches deliver more on-time work at the two higher loads.">
-        </a>
-        <figcaption>Correct on-time goodput across four fresh launches. <a href="claims.html#p4-goodput">Source and denominators</a></figcaption>
-      </figure>
-    </section>
-
-    <section class="workflow" aria-labelledby="workflow">
-      <div class="wrap section">
-        <h2 id="workflow">From workload to shareable audit</h2>
-        <ol>
-          <li><h3>Scope the test</h3><p>Record an authorized OpenAI-compatible endpoint and the approved traffic budget. Choose synthetic workload families and service objectives.</p></li>
-          <li><h3>Measure service</h3><p>Track first-token and completion latency, usage-based throughput, task checks and failures. Capture NVIDIA board telemetry when available.</p></li>
-          <li><h3>Replay the evidence</h3><p>Regenerate HTML, JSON and Markdown from saved observations. Compare performance per workload and document the conditions behind each result.</p></li>
-        </ol>
-      </div>
-    </section>
-
-    <section class="wrap section output" aria-labelledby="output">
-      <div>
-        <h2 id="output">Read the audit, then check the evidence.</h2>
-        <p>The Qwen sample covers a measured local load sweep on an RTX 4070. It includes the throughput probes, workload gates, recorded failures and an inconclusive capacity result.</p>
-        <a class="button dark" href="reports/qwen3-8b-audit.html">Open the Qwen audit</a>
-        <div class="formats">
-          <a href="reports/qwen3-8b-audit.json">Qwen JSON</a>
-          <a href="reports/gemma4-12b-audit.html">Gemma compatibility audit</a>
+        <div class="workflow-panels" data-panel-list="workflow" aria-live="polite">
+          <div class="workflow-panel" id="workflow-inspect"><h3>Check the endpoint</h3><p>Point the CLI at an endpoint you control or have permission to test. Inspect its discovery routes before approving traffic.</p><pre><code>inference-audit inspect --url http://127.0.0.1:8080</code></pre></div>
+          <div class="workflow-panel" id="workflow-test"><h3>Send bounded test traffic</h3><p>Set the model, workload mix, arrival rate and deadlines. The audit records completed, late, rejected and failed work.</p><pre><code>inference-audit benchmark --config configs/local.yaml --run first-local --approve-load</code></pre></div>
+          <div class="workflow-panel" id="workflow-verify"><h3>Check the saved evidence</h3><p>Validate local digests and the structure of the recorded transactions. The report retains the original task-check outcomes.</p><pre><code>inference-audit verify --run first-local</code></pre></div>
+          <div class="workflow-panel" id="workflow-report"><h3>Rebuild the report offline</h3><p>Review latency, throughput, useful capacity and the limits of each comparison. Share the standalone HTML report.</p><pre><code>inference-audit report --run first-local</code></pre></div>
         </div>
       </div>
-      <figure class="sample">
-        <a href="reports/qwen3-8b-audit.html" aria-label="Open the measured Qwen audit report">
-          <img src="assets/qwen-report-preview.png" width="1050" height="620" alt="Generated Qwen audit title and the audit scope and verdict table.">
-        </a>
-        <figcaption>Generated from archived GPU measurements. The public export omits request and response text.</figcaption>
-      </figure>
+      <a class="text-link" href="install.html">Install and run an audit <span aria-hidden="true">↗</span></a>
     </section>
-
-    <section class="scope" id="get-started" aria-labelledby="release">
-      <div class="wrap section scope-grid">
-        <div>
-          <h2 id="release">Inference Audit 0.2.1</h2>
-          <p>Local-first Python CLI, MIT licensed. The intended scope is a read-only configuration audit of authorized staging services with explicit request, rate and concurrency limits. Benchmark traffic still uses server capacity. Controlled process management is experimental and native CUDA shutdown remains unverified.</p>
-          <div class="formats">
-            <a href="https://github.com/somsom786/inference-audit" id="repository-link">View GitHub repository</a>
-            <a href="install.html">Installation</a>
-            <a href="evidence.html">Evidence inventory</a>
-            <a href="claims.html">Claims ledger</a>
-          </div>
-        </div>
-        <pre aria-label="Inspect and benchmark an authorized local endpoint"><code>inference-audit inspect --url http://127.0.0.1:8080
-inference-audit benchmark --config configs/local.yaml \
-  --run first-local --approve-load
-inference-audit report --run first-local</code></pre>
-      </div>
-    </section>
+    <section class="v-wrap study-preview"><div class="section-copy"><h2>What changes when you add serving slots?</h2><p>A separate mixed-workload experiment found faster first tokens with four slots, while two slots finished sooner and completed more correct work on time.</p><a class="text-link" href="case-study.html">Explore the case study &#8599;</a></div>      <div class="comparison" data-comparison>
+  <div class="comparison-head"><div><div class="caption"><span class="signal"></span> Measured on RTX 4070</div><h2>Two slots or four?</h2></div><span class="chip">Qwen3-8B</span></div>
+  <div class="metric-tabs" role="group" aria-label="Comparison metric">
+    <button type="button" disabled data-metric="ttft_p95" aria-pressed="true">First token</button>
+    <button type="button" disabled data-metric="e2e_p95" aria-pressed="false">Completion</button>
+    <button type="button" disabled data-metric="output_tps" aria-pressed="false">Output rate</button>
+    <button type="button" disabled data-metric="goodput_rps" aria-pressed="false">Goodput</button>
+    <button type="button" disabled data-metric="context" aria-pressed="false">Context</button>
+  </div>
+  <div class="plot" data-plot aria-live="polite">
+    <div class="plot-meta"><span>p95 first-token latency</span><span>Lower is better</span></div>
+    <div class="plot-row"><span>2 slots</span><div class="track"><meter class="two" aria-label="Two slots, maximum launch value" min="0" max="2" value="1.741"></meter></div><strong>1.616–1.741 s</strong></div>
+    <div class="plot-row"><span>4 slots</span><div class="track"><meter class="four" aria-label="Four slots, maximum launch value" min="0" max="2" value="0.753"></meter></div><strong>0.753 s</strong></div>
+    <div class="plot-axis"><span>0</span><span>1</span><span>2 s</span></div>
+    <p class="chart-note">Four slots started faster at 1.15 offered transactions/s. Values show the range across fresh launches.</p>
+  </div>
+  <div class="chart-footer"><a data-source href="claims.html#p4-tail">Measurement source <span aria-hidden="true">↗</span></a><span>Mixed-workload replication</span></div>
+  <noscript><p class="chart-note">See the <a href="research.html">full research</a> for the other metrics.</p></noscript>
+</div>
+</section>
+    <section class="v-wrap pilot" id="pilot"><div><h2>Discuss a staging pilot</h2><p>Bring an approved inference endpoint, a representative workload, and the latency or correctness target you need to meet. We'll scope the traffic limits and review the evidence together.</p></div><a class="v-button primary" href="https://www.linkedin.com/in/rayn-hasan/">Contact Rayn Hasan on LinkedIn <span aria-hidden="true">&#8599;</span></a></section>
   </main>
-  <footer class="site-footer">
-    <div class="wrap footer-inner"><span>Inference Audit</span><a href="install.html#contact">Project contact</a><a href="claims.html">Sources and limitations</a></div>
-  </footer>
+  <footer class="v-footer"><div class="v-wrap v-footer-row">
+    <a class="v-brand" href="index.html"><span class="v-mark" aria-hidden="true"></span>Inference Audit</a>
+    <nav aria-label="Research sources"><a href="research.html">Full research</a><a href="claims.html">Claims ledger</a><a href="reproduce.html">Reproduce</a><a href="license.txt">MIT license</a></nav>
+    <span>Public preview <a href="https://github.com/somsom786/inference-audit/releases/tag/v0.2.1">0.2.1</a></span>
+  </div></footer>
 </body>
 </html>
