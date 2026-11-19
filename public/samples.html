@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Measured sample audits from the Inference Audit public proof package.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://somsom786.github.io/inference-audit/samples.html">
+  <meta property="og:title" content="Measured sample audits | Inference Audit">
+  <title>Measured sample audits | Inference Audit</title>
+  <link rel="canonical" href="https://somsom786.github.io/inference-audit/samples.html">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header"><div class="wrap header-inner">
+    <a class="wordmark" href="./index.html"><span class="mark" aria-hidden="true"></span>Inference Audit</a>
+    <nav aria-label="Main"><a href="case-study.html">Case study</a><a href="reports/qwen3-8b-audit.html">Sample audit</a><a href="install.html">Source &amp; install</a></nav>
+  </div></header>
+  <main class="wrap article" id="main" tabindex="-1">
+<h1 id="local-demonstration-audits">Local demonstration audits</h1>
+<p>These are real captures on an NVIDIA RTX 4070 with synthetic workloads. The Qwen load sweep includes two offered-load tiers. The Gemma capture is a shorter compatibility run.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Capture</th>
+<th>Formats</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Qwen3-8B Q4_K_M</td>
+<td><a href="reports/qwen3-8b-audit.html">HTML</a> · <a href="reports/qwen3-8b-audit.json">JSON</a> · <a href="reports/qwen3-8b-audit.md">Markdown</a></td>
+</tr>
+<tr>
+<td>Gemma 4 12B IT QAT</td>
+<td><a href="reports/gemma4-12b-audit.html">HTML</a> · <a href="reports/gemma4-12b-audit.json">JSON</a> · <a href="reports/gemma4-12b-audit.md">Markdown</a></td>
+</tr>
+</tbody>
+</table></div>
+<p>The installed 0.2.1 renderer replays captures recorded with 0.2.0. Original sealed observations were verified before export. The public label and run ID are aliases, precise start/end timestamps were removed, and the original optional cost scenario was left out. Metrics and scoped task-check outcomes were retained. The derived public files carry no raw messages or answers. Local integrity seals cover the original native evidence and do not authenticate the operator or re-grade responses that were withheld.</p>
+
+  </main>
+  <footer class="site-footer"><div class="wrap footer-inner"><span>Inference Audit</span><a href="claims.html">Claims ledger</a><a href="reproduce.html">Reproduction</a></div></footer>
+</body>
+</html>

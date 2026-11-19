@@ -1,0 +1,24 @@
+local:
+  approved: false
+  executable: C:/path/to/llama-server.exe
+  model: C:/path/to/model.gguf
+  total_context: 16384
+  required_context: 3800
+  baseline_slots: 2
+  candidate_slots: 4
+  max_vram_mib: 10500
+  min_free_mib: 1450
+  max_temp_c: 82
+acceptance:
+  min_goodput_gain: 0.10
+  max_p95_regression: 0.10
+audit:
+  label: Owned local slot bracket
+  target: {url: 'http://127.0.0.1:18085', model: audit-local}
+  authorization: {approved: true}
+  engine: llama.cpp
+  gpu_index: 0
+  limits: {max_requests: 160, runtime_s: 360, timeout_s: 20, max_concurrency: 6, max_rps: 2, dispatch_slack_s: 0.5}
+  stages:
+    - {name: mixed, pattern: mixed, count: 120, mode: open, workers: 6, rate: 1.0, max_output: 192}
+

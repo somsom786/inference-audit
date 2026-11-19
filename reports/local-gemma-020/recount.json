@@ -1,0 +1,87 @@
+{
+  "stages": {
+    "single": {
+      "planned": 6,
+      "completed": 6,
+      "correct": 6,
+      "on_time": 6,
+      "duration_s": 11.795872299997427,
+      "outputs_s": 53.83239016584967,
+      "p50_ttft_s": 0.06803650000074413,
+      "p95_ttft_s": null,
+      "p95_completion_s": null,
+      "streams_with_matched_prediction_count": 6,
+      "completed_streams": 6,
+      "outcomes": {
+        "ok": 6
+      }
+    },
+    "parallel": {
+      "planned": 12,
+      "completed": 12,
+      "correct": 12,
+      "on_time": 3,
+      "duration_s": 11.631181199998537,
+      "outputs_s": 90.3605559855032,
+      "p50_ttft_s": 1.7707079999963753,
+      "p95_ttft_s": null,
+      "p95_completion_s": null,
+      "streams_with_matched_prediction_count": 12,
+      "completed_streams": 12,
+      "outcomes": {
+        "ok": 12
+      }
+    },
+    "cold": {
+      "planned": 4,
+      "completed": 4,
+      "correct": 4,
+      "on_time": 4,
+      "duration_s": 3.9367886,
+      "outputs_s": 11.684650783636185,
+      "p50_ttft_s": 0.7693895000011253,
+      "p95_ttft_s": null,
+      "p95_completion_s": null,
+      "streams_with_matched_prediction_count": 4,
+      "completed_streams": 4,
+      "outcomes": {
+        "ok": 4
+      }
+    },
+    "warm": {
+      "planned": 4,
+      "completed": 4,
+      "correct": 4,
+      "on_time": 4,
+      "duration_s": 2.802880899998854,
+      "outputs_s": 32.823371125058365,
+      "p50_ttft_s": 0.2269841999950586,
+      "p95_ttft_s": null,
+      "p95_completion_s": null,
+      "streams_with_matched_prediction_count": 8,
+      "completed_streams": 8,
+      "outcomes": {
+        "ok": 4
+      }
+    },
+    "mixed": {
+      "planned": 24,
+      "completed": 24,
+      "correct": 21,
+      "on_time": 21,
+      "duration_s": 36.836359099997935,
+      "outputs_s": 24.70385299289937,
+      "p50_ttft_s": 0.14987114139148616,
+      "p95_ttft_s": null,
+      "p95_completion_s": null,
+      "streams_with_matched_prediction_count": 26,
+      "completed_streams": 26,
+      "outcomes": {
+        "ok": 24
+      }
+    }
+  },
+  "matched": true,
+  "gpu_samples": 44,
+  "peak_device_mib": 9683.0
+}

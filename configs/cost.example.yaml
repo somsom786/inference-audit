@@ -1,0 +1,9 @@
+usd_per_gpu_hour: 0.5
+productive_fraction: 0.5
+peak_rps: 2
+headroom: 0.25
+reserve_workers: 1
+worker_count: 4
+billing_minutes: 60
+provisioned_hours: 730
+

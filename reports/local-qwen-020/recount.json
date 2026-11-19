@@ -1,0 +1,103 @@
+{
+  "stages": {
+    "single": {
+      "planned": 6,
+      "completed": 6,
+      "correct": 6,
+      "on_time": 6,
+      "duration_s": 6.905254800003604,
+      "outputs_s": 83.26991786019249,
+      "p50_ttft_s": 0.02652450000095996,
+      "p95_ttft_s": null,
+      "p95_completion_s": null,
+      "streams_with_matched_prediction_count": 6,
+      "completed_streams": 6,
+      "outcomes": {
+        "ok": 6
+      }
+    },
+    "parallel": {
+      "planned": 12,
+      "completed": 12,
+      "correct": 12,
+      "on_time": 12,
+      "duration_s": 6.096420099998795,
+      "outputs_s": 139.09802574139658,
+      "p50_ttft_s": 0.841322799999034,
+      "p95_ttft_s": null,
+      "p95_completion_s": null,
+      "streams_with_matched_prediction_count": 12,
+      "completed_streams": 12,
+      "outcomes": {
+        "ok": 12
+      }
+    },
+    "cold": {
+      "planned": 4,
+      "completed": 4,
+      "correct": 4,
+      "on_time": 4,
+      "duration_s": 1.7208735999993223,
+      "outputs_s": 27.31170958751329,
+      "p50_ttft_s": 0.2529796999988321,
+      "p95_ttft_s": null,
+      "p95_completion_s": null,
+      "streams_with_matched_prediction_count": 4,
+      "completed_streams": 4,
+      "outcomes": {
+        "ok": 4
+      }
+    },
+    "warm": {
+      "planned": 4,
+      "completed": 4,
+      "correct": 4,
+      "on_time": 4,
+      "duration_s": 2.913496100001794,
+      "outputs_s": 34.32302517924717,
+      "p50_ttft_s": 0.4813331000004837,
+      "p95_ttft_s": null,
+      "p95_completion_s": null,
+      "streams_with_matched_prediction_count": 8,
+      "completed_streams": 8,
+      "outcomes": {
+        "ok": 4
+      }
+    },
+    "mixed_low": {
+      "planned": 210,
+      "completed": 210,
+      "correct": 198,
+      "on_time": 198,
+      "duration_s": 322.701099599999,
+      "outputs_s": 21.56794633990154,
+      "p50_ttft_s": 0.06527625663147774,
+      "p95_ttft_s": 0.4991702956504014,
+      "p95_completion_s": 1.1999940544155834,
+      "streams_with_matched_prediction_count": 230,
+      "completed_streams": 230,
+      "outcomes": {
+        "ok": 210
+      }
+    },
+    "mixed_high": {
+      "planned": 210,
+      "completed": 210,
+      "correct": 200,
+      "on_time": 200,
+      "duration_s": 190.7812414,
+      "outputs_s": 36.37150041104618,
+      "p50_ttft_s": 0.05744345895800507,
+      "p95_ttft_s": 0.5069707051989099,
+      "p95_completion_s": 1.327000707588013,
+      "streams_with_matched_prediction_count": 230,
+      "completed_streams": 230,
+      "outcomes": {
+        "ok": 210
+      }
+    }
+  },
+  "matched": true,
+  "gpu_samples": 344,
+  "peak_device_mib": 7541.0
+}

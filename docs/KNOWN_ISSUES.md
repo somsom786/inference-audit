@@ -1,0 +1,10 @@
+# Known issues and deferred scope
+
+- **Capacity** depends on the measured workload, admitted traffic, latency gates and validated context. The highest passing point is an observed lower bound within that contract. One run cannot establish long-term service or prove capacity on a new workload.
+- **Adapter compatibility** requires text SSE and standard chat-completion requests. Providers that reject the usage request or require nonstandard authentication or request shapes need a compatibility adapter. An unavailable token count with a valid completed stream retains latency and task-check evidence.
+- **Timing** uses client observations and supported counters. Content chunks can contain multiple tokens. First output for agents includes the first tool-call delta, and server-internal queue time is unavailable from client timings.
+- **Evidence recovery** resumes at a stage boundary in a new run ID. An unfinished stage is replayed in full and the earlier partial attempt remains separate. Forced interruption can leave an unsealed run and an incomplete final JSONL record. Use status and resume for that case. No automatic merge.
+- **Histories** read saved 0.1.0 bundles and selected Phase 1–3 summary revisions. Old data lacks some instrumented fields and cannot establish a 0.2.0 passing capacity point. Native 0.1.0 captures cannot resume with 0.2.0.
+- **GPU scope** covers measured NVIDIA board data. Background users contribute to board activity. Kernel causality, private GPU allocation, achieved memory bandwidth, other vendors and actual fleet consolidation are deferred.
+- **Owned ABBA** remains experimental. Its fixed local llama.cpp slot comparison is unsuitable for ordinary external audits. Windows work is verified. Native Linux GPU servers, actual customer infrastructure and external TLS enterprise deployments need scoped acceptance.
+- **Scope enforcement** relies on an authorized operator, an isolated output directory and an approved environment. There is no persistent supervisor or credential vault, archive import, user prompt ingestion or general optimizer.

@@ -1,0 +1,23 @@
+label: Local Qwen3 audit
+target:
+  url: http://127.0.0.1:8080
+  model: qwen3-8b
+authorization:
+  approved: true
+engine: llama.cpp
+gpu_index: 0
+seed: 407
+limits:
+  max_requests: 80
+  runtime_s: 180
+  timeout_s: 20
+  max_concurrency: 4
+  max_rps: 2
+  dispatch_slack_s: 1
+stages:
+  - {name: single, pattern: decode, count: 6, mode: closed, workers: 1, max_output: 128}
+  - {name: concurrent, pattern: concurrent, count: 12, mode: closed, workers: 4, max_output: 128}
+  - {name: cold, pattern: cold, count: 4, mode: closed, workers: 1, fixture_set: cache-pair}
+  - {name: warm, pattern: warm, count: 4, mode: closed, workers: 1, fixture_set: cache-pair}
+  - {name: mixed, pattern: mixed, count: 28, mode: open, workers: 4, rate: 0.8, max_output: 192}
+

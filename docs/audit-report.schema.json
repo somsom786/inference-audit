@@ -1,0 +1,272 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Inference Audit native report",
+  "type": "object",
+  "required": [
+    "schema",
+    "evidence_schema",
+    "tool_version",
+    "verdict",
+    "run",
+    "state",
+    "approved_limits",
+    "integrity",
+    "stages",
+    "gpu",
+    "findings"
+  ],
+  "properties": {
+    "schema": {
+      "const": 2
+    },
+    "evidence_schema": {
+      "enum": [
+        1,
+        2
+      ]
+    },
+    "tool_version": {
+      "type": "string"
+    },
+    "verdict": {
+      "type": "string"
+    },
+    "run": {
+      "type": "string"
+    },
+    "state": {
+      "enum": [
+        "complete",
+        "incomplete",
+        "interrupted"
+      ]
+    },
+    "approved_limits": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "integrity": {
+      "type": "object",
+      "required": [
+        "state",
+        "planned",
+        "recorded",
+        "algorithm",
+        "source"
+      ],
+      "properties": {
+        "planned": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "recorded": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "source": {
+          "const": "native"
+        }
+      }
+    },
+    "stages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "mode",
+          "pattern",
+          "workers",
+          "metrics",
+          "families",
+          "strict_qualifies",
+          "complete"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "mode": {
+            "enum": [
+              "open",
+              "closed"
+            ]
+          },
+          "pattern": {
+            "type": "string"
+          },
+          "workers": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "metrics": {
+            "$ref": "#/$defs/metrics"
+          },
+          "families": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/$defs/metrics"
+            }
+          },
+          "strict_qualifies": {
+            "type": "boolean"
+          },
+          "complete": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "gpu": {
+      "type": "object",
+      "required": [
+        "state",
+        "samples"
+      ],
+      "properties": {
+        "state": {
+          "enum": [
+            "measured",
+            "unavailable"
+          ]
+        },
+        "samples": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "diagnosis",
+          "evidence",
+          "confidence",
+          "caveat",
+          "experiment",
+          "tradeoff",
+          "falsifier"
+        ]
+      }
+    },
+    "economics": {
+      "type": "object"
+    },
+    "highest_passing_tested_goodput_rps": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    }
+  },
+  "$defs": {
+    "metrics": {
+      "type": "object",
+      "required": [
+        "offered",
+        "recorded",
+        "admitted",
+        "dispatched",
+        "completed",
+        "valid",
+        "on_time",
+        "status_counts",
+        "output_tps",
+        "goodput_rps",
+        "ttft_s",
+        "latency_s"
+      ],
+      "properties": {
+        "offered": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "recorded": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "admitted": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "dispatched": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "completed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "valid": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "on_time": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "output_tps": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "goodput_rps": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "ttft_s": {
+          "$ref": "#/$defs/quantiles"
+        },
+        "latency_s": {
+          "$ref": "#/$defs/quantiles"
+        }
+      }
+    },
+    "quantiles": {
+      "type": "object",
+      "required": [
+        "n",
+        "p50",
+        "p95",
+        "p99"
+      ],
+      "properties": {
+        "n": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "p50": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "p95": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "p99": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

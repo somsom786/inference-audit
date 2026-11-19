@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Reproduce the proof package from the Inference Audit public proof package.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://somsom786.github.io/inference-audit/reproduce.html">
+  <meta property="og:title" content="Reproduce the proof package | Inference Audit">
+  <title>Reproduce the proof package | Inference Audit</title>
+  <link rel="canonical" href="https://somsom786.github.io/inference-audit/reproduce.html">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header"><div class="wrap header-inner">
+    <a class="wordmark" href="./index.html"><span class="mark" aria-hidden="true"></span>Inference Audit</a>
+    <nav aria-label="Main"><a href="case-study.html">Case study</a><a href="reports/qwen3-8b-audit.html">Sample audit</a><a href="install.html">Source &amp; install</a></nav>
+  </div></header>
+  <main class="wrap article" id="main" tabindex="-1">
+<h1 id="reproduce-the-proof-package">Reproduce the proof package</h1>
+<h2 id="recalculate-published-figures-without-a-model">Recalculate published figures without a model</h2>
+<p>From the repository root, in a Python environment with the publication dependencies installed:</p>
+<pre><code class="language-powershell">python -m pip install -r scripts/publication/requirements.txt
+python scripts/publication/build_figures.py
+python scripts/publication/build_site_pages.py
+python scripts/publication/validate_publication.py
+</code></pre>
+<p>The <a href="evidence/measurements.json">measurement JSON</a> contains the sanitized inputs. It includes all four launch rows at all mixed-load points, plus family breakdowns, selected Phase 1 panel measurements and per-launch Phase 2 quantities. The Phase 3 transfer chart uses the same within-model control groups declared in the original study.</p>
+<h2 id="replay-from-the-original-local-archives">Replay from the original local archives</h2>
+<p>This step needs the separate research archive, native product captures and Phase 4 replication. It never starts a server or edits those archives. Install the original validated 0.2.1 wheel for the report step.</p>
+<pre><code class="language-powershell">python scripts/publication/collect_evidence.py --research ../inference-bench --replication validation/runs/replication-01
+python -m pip install dist/inference_audit-0.2.1-py3-none-any.whl
+python scripts/publication/build_reports.py --runs .runs
+</code></pre>
+<p>The collector verifies matching designs and source topic groups. It recounts eligible Phase 1 panels, Phase 2 launch pools, Phase 3 and 4 matched strata, and transfer counts against their original summaries. The report script compares the offline analysis to the archived report before applying the public aliases. Response bodies were omitted from the public export. Offline analysis cannot regrade withheld text.</p>
+<h2 id="preview-the-static-site">Preview the static site</h2>
+<pre><code class="language-powershell">python -m http.server 8090 --bind 127.0.0.1 --directory public
+</code></pre>
+<p>Open <code>http://127.0.0.1:8090/</code>. The site also works by opening <code>public/index.html</code> directly. To run browser QA, supply the local Chromium/Chrome/Edge executable to <code>python scripts/publication/check_browser.py --browser PATH_TO_BROWSER</code>. It serves the static files on an ephemeral localhost port, uses software rendering, checks desktop and mobile viewports, and refreshes the cropped screenshot from the real Qwen report.</p>
+<p>Review the <a href="publication-checklist.html">scope and approval checklist</a> before putting any files on a public host. Use the <a href="install.html#install-and-run-a-scoped-audit">project quick start</a> to benchmark an authorized endpoint with a workload of your own.</p>
+
+  </main>
+  <footer class="site-footer"><div class="wrap footer-inner"><span>Inference Audit</span><a href="claims.html">Claims ledger</a><a href="reproduce.html">Reproduction</a></div></footer>
+</body>
+</html>
