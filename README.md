@@ -45,6 +45,8 @@ The [Qwen load-sweep report](https://somsom786.github.io/inference-audit/reports
 
 ## Operating scope
 
+**0.2.1 is a public preview.** Use Python 3.14 for the verified Windows pilot setup. A hosted Windows/Python 3.12 run exposed an open-loop scheduling edge case that can cause evidence verification to reject a run. Review the [known issues](docs/KNOWN_ISSUES.md) before collecting pilot evidence.
+
 **0.2.1** is intended for scoped, customer-approved staging audits. This mode leaves server configuration unchanged and requires explicit load approval. Local CUDA acceptance covers pinned llama.cpp on Windows. The CPU-only suite was also exercised on WSL in 0.2.0. Native Linux CUDA, arbitrary adapter behavior and external production infrastructure remain unverified. The fixed local `experiment` mode requires separate process authorization. Native CUDA shutdown after the 0.2.1 changes remains unverified.
 
 [Security model](docs/SECURITY.md) · [Pilot runbook](docs/PILOT_RUNBOOK.md) · [Validation](docs/VALIDATION.md) · [Known limitations](docs/KNOWN_ISSUES.md)

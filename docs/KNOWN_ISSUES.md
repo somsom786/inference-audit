@@ -1,5 +1,7 @@
 # Known issues and deferred scope
 
+- **Open-loop timing on Windows/Python 3.12:** The hosted checkpoint/resume test recorded timing that the verifier rejected as out of order. The scheduler waits for the planned arrival once before dispatch and can continue before that time. The failing run remains public. Python 3.14 is the Windows acceptance environment. Check `verify` before using or sharing a capture. [Hosted regression](https://github.com/somsom786/inference-audit/actions/runs/44443247185)
+
 - **Capacity** depends on the measured workload, admitted traffic, latency gates and validated context. The highest passing point is an observed lower bound within that contract. One run cannot establish long-term service or prove capacity on a new workload.
 - **Adapter compatibility** requires text SSE and standard chat-completion requests. Providers that reject the usage request or require nonstandard authentication or request shapes need a compatibility adapter. An unavailable token count with a valid completed stream retains latency and task-check evidence.
 - **Timing** uses client observations and supported counters. Content chunks can contain multiple tokens. First output for agents includes the first tool-call delta, and server-internal queue time is unavailable from client timings.
