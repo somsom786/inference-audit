@@ -9,15 +9,16 @@
   <meta property="og:title" content="Publication checks | Inference Audit">
   <title>Publication checks | Inference Audit</title>
   <link rel="canonical" href="https://somsom786.github.io/inference-audit/publication-checklist.html">
-  <link rel="stylesheet" href="assets/site.css">
+  <link rel="stylesheet" href="assets/story.css">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
-  <header class="site-header"><div class="wrap header-inner">
-    <a class="wordmark" href="./index.html"><span class="mark" aria-hidden="true"></span>Inference Audit</a>
-    <nav aria-label="Main"><a href="case-study.html">Case study</a><a href="reports/qwen3-8b-audit.html">Sample audit</a><a href="install.html">Source &amp; install</a></nav>
+  <header class="v-header"><div class="v-wrap v-header-row">
+    <a class="v-brand" href="index.html"><span class="v-mark" aria-hidden="true"></span>Inference Audit</a>
+    <nav aria-label="Main"><a href="case-study.html">Case study</a><a href="samples.html">Sample audits</a><a href="install.html">Install</a></nav>
+    <a class="v-source" href="https://github.com/somsom786/inference-audit">GitHub <span aria-hidden="true">↗</span></a>
   </div></header>
-  <main class="wrap article" id="main" tabindex="-1">
+  <main class="v-wrap v-article" id="main" tabindex="-1">
 <h1 id="publication-checklist">Publication checklist</h1>
 <p>The release surface is the curated repository snapshot, the static <code>public/</code> tree and the preserved 0.2.1 wheel. Private working history and the review handoff remain local.</p>
 <div class="table-scroll"><table>
@@ -76,13 +77,13 @@
 </tr>
 <tr>
 <td>Public source host, canonical URL and contact</td>
-<td>Passed</td>
-<td>The release snapshot uses the approved repository and includes canonical Pages metadata and a GitHub Issues link.</td>
+<td>Needs approval</td>
+<td>No remote is configured. Confirm the GitHub owner/repository, Pages URL and Issues settings.</td>
 </tr>
 <tr>
-<td>Public release authorization</td>
-<td>Passed</td>
-<td>The owner approved release of the curated source, the verified wheel and the static Pages site.</td>
+<td>Public release and Pages deployment</td>
+<td>Needs approval</td>
+<td>Review the snapshot, set actual links and canonical metadata, and explicitly authorize the push and deployment.</td>
 </tr>
 </tbody>
 </table></div>
@@ -93,6 +94,6 @@
 <p><a href="evidence.html">Evidence inventory</a> · <a href="reproduce.html">Reproduction</a> · <a href="publish.html">Publishing procedure</a></p>
 
   </main>
-  <footer class="site-footer"><div class="wrap footer-inner"><span>Inference Audit</span><a href="claims.html">Claims ledger</a><a href="reproduce.html">Reproduction</a></div></footer>
+  <footer class="v-footer"><div class="v-wrap v-footer-row"><a class="v-brand" href="index.html"><span class="v-mark" aria-hidden="true"></span>Inference Audit</a><nav aria-label="Research sources"><a href="research.html">Full research</a><a href="claims.html">Claims ledger</a><a href="reproduce.html">Reproduce</a><a href="license.txt">MIT license</a></nav><span>Public preview <a href="https://github.com/somsom786/inference-audit/releases/tag/v0.2.1">0.2.1</a></span></div></footer>
 </body>
 </html>

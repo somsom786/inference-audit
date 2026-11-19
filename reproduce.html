@@ -9,15 +9,16 @@
   <meta property="og:title" content="Reproduce the proof package | Inference Audit">
   <title>Reproduce the proof package | Inference Audit</title>
   <link rel="canonical" href="https://somsom786.github.io/inference-audit/reproduce.html">
-  <link rel="stylesheet" href="assets/site.css">
+  <link rel="stylesheet" href="assets/story.css">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
-  <header class="site-header"><div class="wrap header-inner">
-    <a class="wordmark" href="./index.html"><span class="mark" aria-hidden="true"></span>Inference Audit</a>
-    <nav aria-label="Main"><a href="case-study.html">Case study</a><a href="reports/qwen3-8b-audit.html">Sample audit</a><a href="install.html">Source &amp; install</a></nav>
+  <header class="v-header"><div class="v-wrap v-header-row">
+    <a class="v-brand" href="index.html"><span class="v-mark" aria-hidden="true"></span>Inference Audit</a>
+    <nav aria-label="Main"><a href="case-study.html">Case study</a><a href="samples.html">Sample audits</a><a href="install.html">Install</a></nav>
+    <a class="v-source" href="https://github.com/somsom786/inference-audit">GitHub <span aria-hidden="true">↗</span></a>
   </div></header>
-  <main class="wrap article" id="main" tabindex="-1">
+  <main class="v-wrap v-article" id="main" tabindex="-1">
 <h1 id="reproduce-the-proof-package">Reproduce the proof package</h1>
 <h2 id="recalculate-published-figures-without-a-model">Recalculate published figures without a model</h2>
 <p>From the repository root, in a Python environment with the publication dependencies installed:</p>
@@ -41,6 +42,6 @@ python scripts/publication/build_reports.py --runs .runs
 <p>Review the <a href="publication-checklist.html">scope and approval checklist</a> before putting any files on a public host. Use the <a href="install.html#install-and-run-a-scoped-audit">project quick start</a> to benchmark an authorized endpoint with a workload of your own.</p>
 
   </main>
-  <footer class="site-footer"><div class="wrap footer-inner"><span>Inference Audit</span><a href="claims.html">Claims ledger</a><a href="reproduce.html">Reproduction</a></div></footer>
+  <footer class="v-footer"><div class="v-wrap v-footer-row"><a class="v-brand" href="index.html"><span class="v-mark" aria-hidden="true"></span>Inference Audit</a><nav aria-label="Research sources"><a href="research.html">Full research</a><a href="claims.html">Claims ledger</a><a href="reproduce.html">Reproduce</a><a href="license.txt">MIT license</a></nav><span>Public preview <a href="https://github.com/somsom786/inference-audit/releases/tag/v0.2.1">0.2.1</a></span></div></footer>
 </body>
 </html>

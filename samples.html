@@ -3,44 +3,61 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Measured sample audits from the Inference Audit public proof package.">
-  <meta property="og:type" content="article">
-  <meta property="og:url" content="https://somsom786.github.io/inference-audit/samples.html">
+  <meta name="description" content="Explore two generated audits from real RTX 4070 captures, with a guide to latency, throughput and verified evidence.">
+  <meta property="og:type" content="website">
   <meta property="og:title" content="Measured sample audits | Inference Audit">
-  <title>Measured sample audits | Inference Audit</title>
+  <meta property="og:description" content="Explore two generated audits from real RTX 4070 captures, with a guide to latency, throughput and verified evidence.">
+  <meta property="og:url" content="https://somsom786.github.io/inference-audit/samples.html">
   <link rel="canonical" href="https://somsom786.github.io/inference-audit/samples.html">
-  <link rel="stylesheet" href="assets/site.css">
+  <title>Measured sample audits | Inference Audit</title>
+  <link rel="stylesheet" href="assets/story.css">
+  <script src="assets/story.js" defer></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
-  <header class="site-header"><div class="wrap header-inner">
-    <a class="wordmark" href="./index.html"><span class="mark" aria-hidden="true"></span>Inference Audit</a>
-    <nav aria-label="Main"><a href="case-study.html">Case study</a><a href="reports/qwen3-8b-audit.html">Sample audit</a><a href="install.html">Source &amp; install</a></nav>
+  <header class="v-header"><div class="v-wrap v-header-row">
+    <a class="v-brand" href="index.html"><span class="v-mark" aria-hidden="true"></span>Inference Audit</a>
+    <nav aria-label="Main"><a href="case-study.html" >Case study</a><a href="samples.html" aria-current="page">Sample audits</a><a href="install.html">Install</a></nav>
+    <a class="v-source" href="https://github.com/somsom786/inference-audit">GitHub <span aria-hidden="true">↗</span></a>
   </div></header>
-  <main class="wrap article" id="main" tabindex="-1">
-<h1 id="local-demonstration-audits">Local demonstration audits</h1>
-<p>These are real captures on an NVIDIA RTX 4070 with synthetic workloads. The Qwen load sweep includes two offered-load tiers. The Gemma capture is a shorter compatibility run.</p>
-<div class="table-scroll"><table>
-<thead>
-<tr>
-<th>Capture</th>
-<th>Formats</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Qwen3-8B Q4_K_M</td>
-<td><a href="reports/qwen3-8b-audit.html">HTML</a> · <a href="reports/qwen3-8b-audit.json">JSON</a> · <a href="reports/qwen3-8b-audit.md">Markdown</a></td>
-</tr>
-<tr>
-<td>Gemma 4 12B IT QAT</td>
-<td><a href="reports/gemma4-12b-audit.html">HTML</a> · <a href="reports/gemma4-12b-audit.json">JSON</a> · <a href="reports/gemma4-12b-audit.md">Markdown</a></td>
-</tr>
-</tbody>
-</table></div>
-<p>The installed 0.2.1 renderer replays captures recorded with 0.2.0. Original sealed observations were verified before export. The public label and run ID are aliases, precise start/end timestamps were removed, and the original optional cost scenario was left out. Metrics and scoped task-check outcomes were retained. The derived public files carry no raw messages or answers. Local integrity seals cover the original native evidence and do not authenticate the operator or re-grade responses that were withheld.</p>
-
+  <main id="main" tabindex="-1">
+    <section class="v-wrap sample-intro"><div class="eyeline"><span></span> Measured report library</div><h1>What the audit tells you.</h1><p class="lead">The Qwen load sweep shows where a service can miss its objectives even when most requests succeed. Read the interpretation first, then inspect the underlying report.</p></section>
+    <section class="v-wrap guide-grid" id="read-the-result">
+      <section class="audit-demo" data-audit-demo aria-label="Replay a measured Qwen audit">
+  <div class="demo-top">
+    <svg aria-hidden="true" viewBox="0 0 92 48" width="92" height="48" fill="none"><path d="M4 24h29m22 0h31M23 10l10 14-10 14m43-28L56 24l10 14" stroke="#c7b5ff" stroke-width="2"/><rect x="34" y="13" width="21" height="22" rx="4" fill="#ffc0a6"/><path d="M39 25h3l2-6 3 10 2-5h2" stroke="#281a38" stroke-width="1.6"/><circle cx="5" cy="24" r="4" fill="#c7b5ff"/><circle cx="86" cy="24" r="4" fill="#c7b5ff"/></svg>
+    <span>Recorded Qwen3-8B audit</span>
+  </div>
+  <h2>Would you serve at this load?</h2>
+  <p class="demo-intro">Replay either traffic level from the same two-slot RTX 4070 server.</p>
+  <div class="metric-tabs" role="group" aria-label="Replay traffic level">
+    <button type="button" data-replay="mixed_low" aria-pressed="true" disabled>0.65 txn/s</button>
+    <button type="button" data-replay="mixed_high" aria-pressed="false" disabled>1.10 txn/s</button>
+    <span>configured load</span>
+  </div>
+  <div class="demo-result" data-replay-result aria-live="polite">
+    <div class="demo-score"><strong>198 / 210</strong><span>correct and on time</span></div>
+    <div class="demo-reading"><span>Below the audit&rsquo;s strict target</span><p>Agent tasks passed 10 of 20 offers. The family breakdown shows where to investigate.</p></div>
+  </div>
+  <a class="demo-link" href="claims.html#demo">Read the report provenance <span aria-hidden="true">&#8599;</span></a>
+</section>
+      <div class="guide-copy"><h2>Start with the decision.</h2>
+        <div class="guide-step"><span>01</span><div><h3>Check the workload target</h3><p>Both traffic levels missed the report&rsquo;s strict qualification. The aggregate total can hide which workload needs attention.</p></div></div>
+        <div class="guide-step"><span>02</span><div><h3>Find the family that missed</h3><p>Agent tasks missed the target at both loads. Check their task outcomes and deadlines before deciding what to change.</p><a href="reports/qwen3-8b-audit.html#:~:text=Workload%20objectives">Workload objectives &#8599;</a></div></div>
+        <div class="guide-step"><span>03</span><div><h3>Read latency alongside goodput</h3><p>First-token latency answers when users see a response. Completion latency answers when the work is done. Check both before calling a higher load usable.</p><a href="reports/qwen3-8b-audit.html#:~:text=Response%20latency">Response latency &#8599;</a></div></div>
+      </div>
+    </section>
+    <section class="v-wrap sample-feature archival">
+      <div class="sample-copy"><div class="caption">Qwen3-8B Q4_K_M / RTX 4070</div><h2>Open the source report.</h2><p>Captured with Inference Audit 0.2.0 and re-rendered offline with 0.2.1. Version in the export refers to the original capture. Run labels are public aliases, and exact timestamps and raw answers were omitted.</p><div class="actions"><a class="v-button primary" href="reports/qwen3-8b-audit.html">Open Qwen audit &#8599;</a></div><div class="export-links"><a href="reports/qwen3-8b-audit.json">JSON</a><a href="reports/qwen3-8b-audit.md">Markdown</a><a href="claims.html#demo">Provenance</a></div></div>
+      <a class="report-preview" href="reports/qwen3-8b-audit.html" aria-label="Open the generated Qwen report"><img src="assets/qwen-report-preview.png" alt="Opening section of the generated Qwen audit, showing its scope and verdict." width="1050" height="620"></a>
+    </section>
+    <section class="v-wrap other-report"><div><h2>Gemma 4 12B IT QAT</h2><p>A shorter compatibility capture with measured latency and token usage. Captured with 0.2.0 and rendered with 0.2.1. It did not run the Qwen load sweep.</p></div><div class="actions"><a class="v-button secondary" href="reports/gemma4-12b-audit.html">Open Gemma audit ↗</a><a href="reports/gemma4-12b-audit.json">JSON</a><a href="reports/gemma4-12b-audit.md">Markdown</a></div></section>
+    <section class="v-wrap pilot" id="pilot"><div><h2>Discuss a staging pilot</h2><p>Bring an approved inference endpoint, a representative workload, and the latency or correctness target you need to meet. We'll scope the traffic limits and review the evidence together.</p></div><a class="v-button primary" href="https://www.linkedin.com/in/rayn-hasan/">Contact Rayn Hasan on LinkedIn <span aria-hidden="true">&#8599;</span></a></section>
   </main>
-  <footer class="site-footer"><div class="wrap footer-inner"><span>Inference Audit</span><a href="claims.html">Claims ledger</a><a href="reproduce.html">Reproduction</a></div></footer>
+  <footer class="v-footer"><div class="v-wrap v-footer-row">
+    <a class="v-brand" href="index.html"><span class="v-mark" aria-hidden="true"></span>Inference Audit</a>
+    <nav aria-label="Research sources"><a href="research.html">Full research</a><a href="claims.html">Claims ledger</a><a href="reproduce.html">Reproduce</a><a href="license.txt">MIT license</a></nav>
+    <span>Public preview <a href="https://github.com/somsom786/inference-audit/releases/tag/v0.2.1">0.2.1</a></span>
+  </div></footer>
 </body>
 </html>
