@@ -3,6 +3,7 @@ on: [push, pull_request]
 jobs:
   test:
     strategy:
+      fail-fast: false
       matrix:
         os: [windows-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
@@ -15,5 +16,6 @@ jobs:
       - run: python -m pytest -q
       - run: ruff check src tests examples
       - run: ruff format --check src tests examples
-      - run: mypy src
+      # Use Windows stubs for process-control constants. Runtime tests run on both hosts.
+      - run: mypy --platform win32 src
 
