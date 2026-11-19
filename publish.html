@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Publication instructions from the Inference Audit public proof package.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://somsom786.github.io/inference-audit/publish.html">
+  <meta property="og:title" content="Publication instructions | Inference Audit">
+  <title>Publication instructions | Inference Audit</title>
+  <link rel="canonical" href="https://somsom786.github.io/inference-audit/publish.html">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header"><div class="wrap header-inner">
+    <a class="wordmark" href="./index.html"><span class="mark" aria-hidden="true"></span>Inference Audit</a>
+    <nav aria-label="Main"><a href="case-study.html">Case study</a><a href="reports/qwen3-8b-audit.html">Sample audit</a><a href="install.html">Source &amp; install</a></nav>
+  </div></header>
+  <main class="wrap article" id="main" tabindex="-1">
+<h1 id="publish-the-approved-snapshot">Publish the approved snapshot</h1>
+<p>The release uses <a href="https://github.com/somsom786/inference-audit">somsom786/inference-audit</a> and the <a href="https://somsom786.github.io/inference-audit/">project site</a>. Keep the repository link in <code>docs/publication/SITE_INSTALL.md</code> and the canonical site URL in <code>scripts/publication/build_site_pages.py</code> and <code>public/index.html</code> in sync with hosting settings.</p>
+<ol>
+<li>Review the claims ledger and the <code>repository/</code> folder in the staged release. Create a GitHub repository under the approved account. Use the curated snapshot as a fresh Git working tree with the intended contributor identity. Retain the private working history and research archives locally.</li>
+<li>Commit the approved snapshot, push the default branch and create a <code>v0.2.1</code> tag. Draft a GitHub Release using the staged release notes. Attach the original wheel, source ZIP and site ZIP with their SHA-256 files.</li>
+<li>Serve the contents of the approved site's <code>public/</code> directory at the root of a Pages deployment. If using the standard branch-based Pages setting, create a <code>gh-pages</code> branch from the static site files and configure Pages to use that branch's root. The <code>.nojekyll</code> file is included.</li>
+<li>Check the deployed subpath, metadata, sample audit, source link and downloadable checksums. Publish the draft release after those checks pass.</li>
+</ol>
+<p><a href="https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site">GitHub Pages publishing sources</a> · <a href="https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository">GitHub release management</a></p>
+<p>The staging script uses a new output directory and scans selected source files and the original wheel:</p>
+<pre><code class="language-powershell">python scripts/publication/build_site_pages.py
+python scripts/publication/validate_publication.py
+python scripts/publication/stage_publication.py --output dist/publication/approved-0.2.1
+</code></pre>
+<p>For the final deployment pass, add the reviewed GitHub and Pages hostnames to the publication scanner's allowlist. Never transfer the private evidence archive or the full ChatGPT review bundle to the public repository.</p>
+
+  </main>
+  <footer class="site-footer"><div class="wrap footer-inner"><span>Inference Audit</span><a href="claims.html">Claims ledger</a><a href="reproduce.html">Reproduction</a></div></footer>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Install Inference Audit from the Inference Audit public proof package.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://somsom786.github.io/inference-audit/install.html">
+  <meta property="og:title" content="Install Inference Audit | Inference Audit">
+  <title>Install Inference Audit | Inference Audit</title>
+  <link rel="canonical" href="https://somsom786.github.io/inference-audit/install.html">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header"><div class="wrap header-inner">
+    <a class="wordmark" href="./index.html"><span class="mark" aria-hidden="true"></span>Inference Audit</a>
+    <nav aria-label="Main"><a href="case-study.html">Case study</a><a href="reports/qwen3-8b-audit.html">Sample audit</a><a href="install.html">Source &amp; install</a></nav>
+  </div></header>
+  <main class="wrap article" id="main" tabindex="-1">
+<h1 id="install-and-run-a-scoped-audit">Install and run a scoped audit</h1>
+<p>Inference Audit 0.2.1 is a Python CLI released under the <a href="license.txt">MIT license</a>. <a href="https://github.com/somsom786/inference-audit">View source on GitHub</a> · <a href="https://github.com/somsom786/inference-audit/releases/tag/v0.2.1">Download the release assets</a></p>
+<p>From the repository root, use Python 3.11 or later. Set the model and traffic limits in <code>configs/local.yaml</code> to match an endpoint approved for the workload. This example enables the llama.cpp adapter.</p>
+<pre><code class="language-powershell">python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install .
+.\.venv\Scripts\inference-audit.exe inspect --url http://127.0.0.1:8080
+.\.venv\Scripts\inference-audit.exe benchmark --config configs/local.yaml --run first-local --approve-load
+.\.venv\Scripts\inference-audit.exe verify --run first-local
+.\.venv\Scripts\inference-audit.exe report --run first-local
+</code></pre>
+<p>On Linux use <code>.venv/bin/python</code> and <code>.venv/bin/inference-audit</code>. Review the approved rate, concurrency and runtime before starting. Inference requests can affect other users. Open <code>runs/first-local/report/audit.html</code> when the run finishes.</p>
+<p><a href="case-study.html">Read the case study</a> · <a href="reports/qwen3-8b-audit.html">View the generated sample audit</a></p>
+<h2 id="contact">Contact</h2>
+<p>Use <a href="https://github.com/somsom786/inference-audit/issues">GitHub Issues</a> for technical questions and reproducibility reports.</p>
+
+  </main>
+  <footer class="site-footer"><div class="wrap footer-inner"><span>Inference Audit</span><a href="claims.html">Claims ledger</a><a href="reproduce.html">Reproduction</a></div></footer>
+</body>
+</html>

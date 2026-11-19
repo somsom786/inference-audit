@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Independent workload replication from the Inference Audit public proof package.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://somsom786.github.io/inference-audit/replication.html">
+  <meta property="og:title" content="Independent workload replication | Inference Audit">
+  <title>Independent workload replication | Inference Audit</title>
+  <link rel="canonical" href="https://somsom786.github.io/inference-audit/replication.html">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header"><div class="wrap header-inner">
+    <a class="wordmark" href="./index.html"><span class="mark" aria-hidden="true"></span>Inference Audit</a>
+    <nav aria-label="Main"><a href="case-study.html">Case study</a><a href="reports/qwen3-8b-audit.html">Sample audit</a><a href="install.html">Source &amp; install</a></nav>
+  </div></header>
+  <main class="wrap article" id="main" tabindex="-1">
+<h1 id="independent-replication-of-phase-3">Independent replication of Phase 3</h1>
+<h2 id="decision">Decision</h2>
+<p>On the fresh, low-reuse workload, four slots reproduced the first-token latency benefit and <strong>reduced correct on-time goodput</strong>. Neither profile qualified at any tested rate under the 95% per-family contract. The four-slot configuration trades earlier first tokens for slower chat completion on this workload. The data do not establish higher strict capacity or lower infrastructure cost.</p>
+<h2 id="design-and-integrity">Design and integrity</h2>
+<p>Four freshly owned llama.cpp b12427 CUDA launches followed the A1/B1/B2/A2 order. A uses two slots and B uses four. All used the same Qwen3-8B Q4_K_M weights, f16 KV, 16,384 total positions, greedy sampling, and byte-matched request manifests. Required context was capped at 3,800 tokens including the response allowance. Tokenizer preflight found a maximum of <strong>3,133</strong>. The experiment qualifies both arms only for that request contract. There is no equivalence claim for workloads needing more than 4,096 per slot.</p>
+<p>Each arm spent five minutes at 0.8, 1.0 and 1.15 offered transactions/s. Across the four arms, this was <strong>60 scheduled minutes</strong>, 3,540 offered transactions, 3,823 raw rows including dependent steps, 2,419 GPU samples and 345 metrics samples. The controller ran for 60.74 minutes excluding earlier model hashing and smoke setup. All owned launches exited. Sampled device memory and temperature stayed within the approved envelope at peaks of <strong>8,085 MiB</strong> and <strong>69.5°C</strong>. GPU telemetry measures board activity, including the desktop. The result does not establish overnight stability.</p>
+<p>The selected synthetic task deck used unique receipts, varied document bodies, two-code-function manifests and short dependent agent transcripts. Cache share across the panels was approximately <strong>0.9–1.0%</strong>. This changes both cache locality and workload composition relative to Phase 3. A causal attribution of the different results to caching alone would require a separate experiment.</p>
+<h2 id="matched-results-by-load">Matched results by load</h2>
+<p>Each cell pairs the two independent launches of the profile. The goodput denominator is the scheduled 300 seconds per load window. All offered transactions are included. P95 uses the completed-transaction sample, as in the independent historical recount.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th style="text-align:right">Offered txn/s</th>
+<th>Two slots on time</th>
+<th>Four slots on time</th>
+<th>Two-slot P95 TTFT</th>
+<th>Four-slot P95 TTFT</th>
+<th>Output tok/s across profiles</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right">0.80</td>
+<td>232/240 · 232/240</td>
+<td>229/240 · 227/240</td>
+<td>0.684–0.692 s</td>
+<td>0.669–0.687 s</td>
+<td>71.9–72.1</td>
+</tr>
+<tr>
+<td style="text-align:right">1.00</td>
+<td>286/300 · 287/300</td>
+<td>265/300 · 264/300</td>
+<td>0.856–0.858 s</td>
+<td>0.703–0.715 s</td>
+<td>89.5–90.1</td>
+</tr>
+<tr>
+<td style="text-align:right">1.15</td>
+<td>317/345 · 315/345</td>
+<td>284/345 · 293/345</td>
+<td>1.616–1.741 s</td>
+<td>0.753 s</td>
+<td>103.8–104.0</td>
+</tr>
+</tbody>
+</table></div>
+<p>At 1.15/s, two slots achieved <strong>1.050–1.057</strong> correct on-time transactions/s, versus <strong>0.947–0.977</strong> with four. In every possible launch pairing this is a decline of about <strong>7–10%</strong>. P50 TTFT fell from <strong>0.549–0.568 s to 0.205–0.213 s</strong>. P95 completion rose from <strong>3.714–3.820 s to 4.523–4.678 s</strong>. P95 client dispatch delay was about <strong>24 ms</strong> in all four arms. This cannot explain the completion regression.</p>
+<p>The chat family illustrates the trade. At 1.15/s, p95 first-token time fell from <strong>1.41–1.48 s to 0.19–0.25 s</strong>, while p95 completion grew from <strong>3.99–4.23 s to 5.08–5.17 s</strong>. Median server chat decode time per output token rose from <strong>13.5–13.7 ms to 20.4–21.6 ms</strong>. This supports a concurrent decode contention hypothesis. Per-request timings under mixed scheduling cannot isolate kernel causality.</p>
+<p>Coding and retrieval met the scoped correctness and latency targets in the high-rate windows on all four launches. The agent family missed the target in every window, primarily because of response format and wrong receipts rather than transport. There were 77 failed first agent steps and 80 failed tool-result steps across the four arms, with no recorded HTTP, timeout or admission errors. Testing actual structured tool calling and a separate workload-specific task evaluation is the next discriminating experiment. Relaxing the fixture gate after looking at results would change the contract.</p>
+<p>The Phase 4 primary recount uses the original scoped task checks. A stricter sensitivity rejects capped streams even when a receipt is present. At 1.15/s it counts <strong>305–309/345</strong> on time for two slots and <strong>279–287/345</strong> for four. The direction persists. This does not qualify general response quality.</p>
+<h2 id="historical-audit">Historical audit</h2>
+<p>The Phase 3 paired comparison was recalculated from source transaction rows. All 60 arm/rate/family strata reconciled offer, validity, on-time counts, sampled latency, output token throughput, and goodput. Stream counts reconciled with the server's prediction and cache fields. Client arrivals, dispatch, first token, and completion were checked in order. Rejections and failed responses remained in denominators. For dependent turns, Phase 3 and this replication gate each step separately. The product also exposes an explicit end-to-end transaction SLO, which is a different contract.</p>
+<p>The interrupted original A2 recorded about <strong>10,031 wall-clock seconds</strong> for a nominal 1,800-second window during Windows suspend. Its original completion flag was insufficient. The eligible history excludes that window and uses the fresh A2. The retained windows have matching plans, close elapsed and wall durations, complete accounting and owned process shutdown. The comparison remains eligible as a <strong>segmented replay</strong>. The original history did not establish uninterrupted endurance. Across-session GPU process residency and drift remain limitations.</p>
+<p><a href="reproduce.html">How to reproduce the public comparisons</a></p>
+
+  </main>
+  <footer class="site-footer"><div class="wrap footer-inner"><span>Inference Audit</span><a href="claims.html">Claims ledger</a><a href="reproduce.html">Reproduction</a></div></footer>
+</body>
+</html>
