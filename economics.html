@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Inference Audit Labs | GPU economics</title><link rel="stylesheet" href="assets/labs.css"></head>
+<body>
+<header class="top"><div class="shell navigation"><a class="brand" href="index.html">Inference Audit Labs</a><a href="index.html#economics">Open the calculator</a></div></header>
+<main class="shell section">
+<h1>Capacity economics</h1>
+<div class="section-heading">
+<p>Let <var>g</var> be the improvement in qualified throughput as a fraction. Qualified work meets the agreed correctness, latency and context requirements. A rate gain of <var>g</var> multiplies capacity at a fixed GPU count by <code>1 + g</code>.</p>
+<p>For fixed useful demand, conditional monthly savings equal <code>monthly GPU spend × scalable share × (1 − 1/(1 + g))</code>. Annual savings multiply that result by 12. With all costs scalable, gains of 30%, 50% and 100% imply up to 23.1%, 33.3% and 50% lower GPU cost for that work. Zero scalable spend yields zero savings.</p>
+<p>At hourly price <var>p</var>, <code>p / (1 + g)</code> is the modeled cost of the amount of qualified work one baseline GPU delivered in one hour. An absolute cost per request needs measured baseline requests/hour. The comparison holds workload and unit price constant.</p>
+<p>The optional worker scenario estimates peak demand as current GPUs multiplied by baseline peak load. It divides that demand by <code>(1 + g) × (1 − reserve)</code> and rounds up to a whole GPU, with at least one worker. It ignores redundancy, placement and failure domains. This floor never reduces cash spend on its own.</p>
+<p>Billing terms, reservations, utilization, software overhead and capacity needed for failover can all change the outcome. The calculator is a scenario and makes no prediction about your measured gain or realized bill.</p>
+</div>
+</main></body></html>
