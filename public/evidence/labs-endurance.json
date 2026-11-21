@@ -1,0 +1,38 @@
+{
+  "families": {
+    "agent": {
+      "correct": 776,
+      "correct_on_time": 775,
+      "observed": 1392
+    },
+    "chat": {
+      "correct": 5415,
+      "correct_on_time": 5415,
+      "observed": 5568
+    },
+    "coding": {
+      "correct": 3485,
+      "correct_on_time": 3485,
+      "observed": 3485
+    },
+    "rag": {
+      "correct": 3480,
+      "correct_on_time": 3480,
+      "observed": 3481
+    }
+  },
+  "scope": "Projected aggregate from the archived six-hour Qwen3-8B synthetic study",
+  "source_sha256": {
+    "SLO.md": "07d75aee93650b64e940bacf1802f0b3fef2c3b9dbae7398fae30d74b326716a",
+    "requests.jsonl": "d78ae9b10ed18da5b34dd5dd28a25f2cb8ec5555f1e006baa573f362424bc3fc",
+    "summary.json": "3429e969c204ad05c76786452e7e61edc58df7327ab6b9701af18c3b79278920"
+  },
+  "states": {
+    "ok": 13926
+  },
+  "total": {
+    "correct": 13156,
+    "correct_on_time": 13155,
+    "observed": 13926
+  }
+}

@@ -1,101 +1,104 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Measure latency, throughput and correct on-time answers on an authorized inference endpoint. Explore the RTX 4070 experiments behind the open-source CLI.">
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="Inference Audit | Measure useful inference capacity">
-  <meta property="og:description" content="Measure latency, throughput and correct on-time answers on an authorized inference endpoint. Explore the RTX 4070 experiments behind the open-source CLI.">
-  <meta property="og:url" content="https://somsom786.github.io/inference-audit/">
-  <link rel="canonical" href="https://somsom786.github.io/inference-audit/">
-  <title>Inference Audit | Measure useful inference capacity</title>
-  <link rel="stylesheet" href="assets/story.css">
-  <script src="assets/story.js" defer></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inference Audit Labs | Useful capacity from the GPUs you pay for</title>
+<meta name="description" content="An independent inference performance lab. Measure what your GPU fleet can deliver within latency and correctness targets.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Inference Audit Labs | Useful capacity from the GPUs you pay for">
+<meta property="og:description" content="Explore the measured throughput and deadline trade-offs behind Inference Audit.">
+<meta property="og:image" content="https://somsom786.github.io/inference-audit/assets/labs-social.png">
+<meta property="og:image:alt" content="RTX 4070 and Qwen3-8B research poster comparing chat-burst throughput and mixed-workload goodput">
+<meta property="og:url" content="https://somsom786.github.io/inference-audit/">
+<link rel="canonical" href="https://somsom786.github.io/inference-audit/">
+<link rel="stylesheet" href="assets/labs.css">
+<script src="assets/labs.js" defer></script>
 </head>
 <body>
-  <a class="skip" href="#main">Skip to content</a>
-  <header class="v-header"><div class="v-wrap v-header-row">
-    <a class="v-brand" href="index.html"><span class="v-mark" aria-hidden="true"></span>Inference Audit</a>
-    <nav aria-label="Main"><a href="case-study.html" >Case study</a><a href="samples.html" >Sample audits</a><a href="install.html">Install</a></nav>
-    <a class="v-source" href="https://github.com/somsom786/inference-audit">GitHub <span aria-hidden="true">↗</span></a>
-  </div></header>
-  <main id="main" tabindex="-1">
-    <section class="hero"><div class="v-wrap hero-grid">
-      <div class="hero-copy">
-        <p class="eyeline"><span></span> Open-source inference benchmarking</p>
-        <h1>What can your inference server handle?</h1>
-        <p class="lead">Send a bounded workload to your LLM endpoint. See which requests miss their deadlines and what to investigate before raising traffic.</p>
-        <div class="actions"><a class="v-button primary" href="#pilot">Discuss a staging pilot</a><a class="v-button secondary" href="samples.html">View a sample audit</a></div>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top">
+  <div class="shell navigation">
+    <a class="brand" href="index.html"><span aria-hidden="true" class="mark"></span>Inference Audit <b>Labs</b></a>
+    <nav aria-label="Primary"><a href="#results">Results</a><a href="#economics">Economics</a><a href="research.html">Research</a><a href="install.html">Install</a></nav>
+    <a class="nav-pilot" href="#pilot">Staging pilot <span aria-hidden="true">↗</span></a>
+  </div>
+</header>
+<main id="main" tabindex="-1">
+  <section class="hero">
+    <div class="shell hero-layout">
+      <div>
+        <p class="label">Independent inference performance engineering</p>
+        <h1>Get more useful work from each GPU.</h1>
+        <p class="intro">Before adding GPUs, find out whether the ones you have can serve more correct answers within your deadlines. We benchmark your workload and test promising changes in staging.</p>
+        <div class="actions"><a class="button" href="#pilot">Discuss a scoped pilot</a><a class="quiet" href="labs-case-study.html">Read the case study</a></div>
+        <p class="result-note"><a href="#results">+57.7% chat-burst tok/s</a><span> · Fewer correct on-time answers on a separate mixed trace.</span></p>
       </div>
-<section class="audit-demo" data-audit-demo aria-label="Replay a measured Qwen audit">
-  <div class="demo-top">
-    <svg aria-hidden="true" viewBox="0 0 92 48" width="92" height="48" fill="none"><path d="M4 24h29m22 0h31M23 10l10 14-10 14m43-28L56 24l10 14" stroke="#c7b5ff" stroke-width="2"/><rect x="34" y="13" width="21" height="22" rx="4" fill="#ffc0a6"/><path d="M39 25h3l2-6 3 10 2-5h2" stroke="#281a38" stroke-width="1.6"/><circle cx="5" cy="24" r="4" fill="#c7b5ff"/><circle cx="86" cy="24" r="4" fill="#c7b5ff"/></svg>
-    <span>Recorded Qwen3-8B audit</span>
-  </div>
-  <h2>Would you serve at this load?</h2>
-  <p class="demo-intro">Replay either traffic level from the same two-slot RTX 4070 server.</p>
-  <div class="metric-tabs" role="group" aria-label="Replay traffic level">
-    <button type="button" data-replay="mixed_low" aria-pressed="true" disabled>0.65 txn/s</button>
-    <button type="button" data-replay="mixed_high" aria-pressed="false" disabled>1.10 txn/s</button>
-    <span>configured load</span>
-  </div>
-  <div class="demo-result" data-replay-result aria-live="polite">
-    <div class="demo-score"><strong>198 / 210</strong><span>correct and on time</span></div>
-    <div class="demo-reading"><span>Below the audit&rsquo;s strict target</span><p>Agent tasks passed 10 of 20 offers. The family breakdown shows where to investigate.</p></div>
-  </div>
-  <a class="demo-link" href="samples.html#read-the-result">See what the report tells you <span aria-hidden="true">&#8599;</span></a>
-</section>
-    </div></section>
-    <div class="v-wrap signal-strip" aria-label="What the audit measures">
-      <div><strong>Speed</strong><span>First token and full response</span></div>
-      <div><strong>Useful capacity</strong><span>Correct answers within your deadlines</span></div>
-      <div><strong>Evidence</strong><span>Saved observations and replayable reports</span></div>
+      <div class="hero-art">
+        <img src="assets/labs-silicon.svg" width="730" height="560" alt="Original technical illustration of a GPU package with etched traces and a layered silicon die">
+        <p><span>RTX 4070 / 12 GB</span><span>Qwen3-8B / Q4_K_M</span></p>
+      </div>
     </div>
-    <section class="v-section v-wrap workflow" id="workflow">
-      <div class="section-copy"><h2>From endpoint to evidence</h2><p>Follow an audit from the first connection to a report you can check offline.</p></div>
-      <div class="workflow-body">
-        <div class="workflow-nav" role="group" aria-label="Audit workflow">
-          <button data-show="workflow-inspect" aria-pressed="true" type="button"><span>01</span> Inspect</button>
-          <button data-show="workflow-test" aria-pressed="false" type="button"><span>02</span> Benchmark</button>
-          <button data-show="workflow-verify" aria-pressed="false" type="button"><span>03</span> Verify</button>
-          <button data-show="workflow-report" aria-pressed="false" type="button"><span>04</span> Report</button>
+  </section>
+  <section id="results" class="shell section">
+    <div class="section-heading"><p class="label">Recorded experiments</p><h2>More tokens. Fewer answers on time.</h2><p>Changing from two to four serving slots helped a chat burst. On a separate mixed workload, the same slot change made first tokens arrive sooner and fewer correct answers meet their deadlines.</p></div>
+    <div class="result-grid">
+      <article class="result">
+        <p class="label">Homogeneous chat burst</p>
+        <p class="big">+57.7<span>%</span></p>
+        <p><strong>143.77 → 226.70 output tok/s</strong><br>Two-slot production control vs. four slots</p>
+        <p class="detail">RTX 4070, Qwen3-8B Q4_K_M. 48 offers per launch. Three controls and two candidates. A fixed KV pool halves per-slot context from 8,192 to 4,096 positions.</p>
+        <a href="claims.html#p2-chat">Trace the burst result</a>
+      </article>
+      <article class="result mixed">
+        <p class="label">Mixed workload at 1.15 offers/s</p>
+        <h3 id="metric-title">Correct answers on time</h3>
+        <div class="controls" id="metric-controls" aria-label="Compare mixed-workload metrics" hidden>
+          <button type="button" aria-pressed="true" data-metric="goodput">On time</button>
+          <button type="button" aria-pressed="false" data-metric="first">First token</button>
+          <button type="button" aria-pressed="false" data-metric="complete">Completion</button>
         </div>
-        <div class="workflow-panels" data-panel-list="workflow" aria-live="polite">
-          <div class="workflow-panel" id="workflow-inspect"><h3>Check the endpoint</h3><p>Point the CLI at an endpoint you control or have permission to test. Inspect its discovery routes before approving traffic.</p><pre><code>inference-audit inspect --url http://127.0.0.1:8080</code></pre></div>
-          <div class="workflow-panel" id="workflow-test"><h3>Send bounded test traffic</h3><p>Set the model, workload mix, arrival rate and deadlines. The audit records completed, late, rejected and failed work.</p><pre><code>inference-audit benchmark --config configs/local.yaml --run first-local --approve-load</code></pre></div>
-          <div class="workflow-panel" id="workflow-verify"><h3>Check the saved evidence</h3><p>Validate local digests and the structure of the recorded transactions. The report retains the original task-check outcomes.</p><pre><code>inference-audit verify --run first-local</code></pre></div>
-          <div class="workflow-panel" id="workflow-report"><h3>Rebuild the report offline</h3><p>Review latency, throughput, useful capacity and the limits of each comparison. Share the standalone HTML report.</p><pre><code>inference-audit report --run first-local</code></pre></div>
+        <div id="tradeoff" aria-live="polite">
+          <p><b>2 slots</b> 315–317 of 345</p>
+          <p><b>4 slots</b> 284–293 of 345</p>
         </div>
-      </div>
-      <a class="text-link" href="install.html">Install and run an audit <span aria-hidden="true">↗</span></a>
-    </section>
-    <section class="v-wrap study-preview"><div class="section-copy"><h2>What changes when you add serving slots?</h2><p>A separate mixed-workload experiment found faster first tokens with four slots, while two slots finished sooner and completed more correct work on time.</p><a class="text-link" href="case-study.html">Explore the case study &#8599;</a></div>      <div class="comparison" data-comparison>
-  <div class="comparison-head"><div><div class="caption"><span class="signal"></span> Measured on RTX 4070</div><h2>Two slots or four?</h2></div><span class="chip">Qwen3-8B</span></div>
-  <div class="metric-tabs" role="group" aria-label="Comparison metric">
-    <button type="button" disabled data-metric="ttft_p95" aria-pressed="true">First token</button>
-    <button type="button" disabled data-metric="e2e_p95" aria-pressed="false">Completion</button>
-    <button type="button" disabled data-metric="output_tps" aria-pressed="false">Output rate</button>
-    <button type="button" disabled data-metric="goodput_rps" aria-pressed="false">Goodput</button>
-    <button type="button" disabled data-metric="context" aria-pressed="false">Context</button>
-  </div>
-  <div class="plot" data-plot aria-live="polite">
-    <div class="plot-meta"><span>p95 first-token latency</span><span>Lower is better</span></div>
-    <div class="plot-row"><span>2 slots</span><div class="track"><meter class="two" aria-label="Two slots, maximum launch value" min="0" max="2" value="1.741"></meter></div><strong>1.616–1.741 s</strong></div>
-    <div class="plot-row"><span>4 slots</span><div class="track"><meter class="four" aria-label="Four slots, maximum launch value" min="0" max="2" value="0.753"></meter></div><strong>0.753 s</strong></div>
-    <div class="plot-axis"><span>0</span><span>1</span><span>2 s</span></div>
-    <p class="chart-note">Four slots started faster at 1.15 offered transactions/s. Values show the range across fresh launches.</p>
-  </div>
-  <div class="chart-footer"><a data-source href="claims.html#p4-tail">Measurement source <span aria-hidden="true">↗</span></a><span>Mixed-workload replication</span></div>
-  <noscript><p class="chart-note">See the <a href="research.html">full research</a> for the other metrics.</p></noscript>
-</div>
-</section>
-    <section class="v-wrap pilot" id="pilot"><div><h2>Discuss a staging pilot</h2><p>Bring an approved inference endpoint, a representative workload, and the latency or correctness target you need to meet. We'll scope the traffic limits and review the evidence together.</p></div><a class="v-button primary" href="https://www.linkedin.com/in/rayn-hasan/">Contact on LinkedIn <span aria-hidden="true">&#8599;</span></a></section>
-  </main>
-  <footer class="v-footer"><div class="v-wrap v-footer-row">
-    <a class="v-brand" href="index.html"><span class="v-mark" aria-hidden="true"></span>Inference Audit</a>
-    <nav aria-label="Research sources"><a href="research.html">Full research</a><a href="claims.html">Claims ledger</a><a href="reproduce.html">Reproduce</a><a href="license.txt">MIT license</a></nav>
-    <span>Public preview <a href="https://github.com/somsom786/inference-audit/releases/tag/v0.2.1">0.2.1</a></span>
-  </div></footer>
+        <p class="detail">Each range spans two fresh launches. Both profiles missed the 95% target in at least one workload family. Same model and GPU, with a shared request budget that fits both profiles.</p>
+        <a href="claims.html#p4-goodput">Trace the mixed-workload result</a>
+      </article>
+    </div>
+    <div class="explore"><a href="case-study.html">Explore the full performance comparisons</a><a href="replay.html">Replay a recorded load sweep</a><a href="samples.html">Open the sample audits</a></div>
+  </section>
+  <section id="economics" class="economics">
+    <div class="shell section economics-layout">
+      <div><p class="label">For operators and finance teams</p><h2>What could more capacity be worth?</h2><p>For a fixed amount of useful work, a 30% gain in qualified throughput could use 23.1% fewer GPU hours. If your bill is fixed, the same gain can give you headroom while cash savings remain zero.</p><p class="detail">Qualified throughput means correct tasks finished within your latency and context requirements. Use the improvement measured on your workload.</p><a href="economics.html">See the assumptions and formulas</a></div>
+      <form id="economics-model">
+        <h3>Illustrative cost scenario</h3>
+        <div class="inputs">
+          <label>Monthly GPU spend (USD)<input required name="spend" type="number" min="0" max="1000000000" step="0.01" value="10000"></label>
+          <label>Qualified throughput gain (%)<input required name="gain" type="number" min="0" max="1000" step="any" value="30"></label>
+          <label>Share of spend that scales down (%)<input required name="share" type="number" min="0" max="100" step="any" value="50"></label>
+          <label>Cost per GPU hour (USD)<input required name="hourly" type="number" min="0.01" max="1000000" step="0.01" value="2"></label>
+        </div>
+        <details><summary>Optional worker assumptions</summary>
+          <div class="inputs">
+            <label>Allocated GPUs<input name="workers" type="number" min="1" max="1000000" step="1" placeholder="Optional"></label>
+            <label>Peak fleet load (%)<input required name="util" type="number" min="0" max="100" step="any" value="80"></label>
+            <label>Target capacity reserve (%)<input required name="reserve" type="number" min="0" max="99" step="any" value="20"></label>
+          </div>
+        </details>
+        <div class="totals" id="estimate" aria-live="polite">Enable JavaScript to calculate your scenario. The example applies 23.1% to half of $10,000, for about $1,154/month in conditional savings.</div>
+      </form>
+    </div>
+  </section>
+  <section id="pilot" class="shell section service">
+    <div class="section-heading"><p class="label">Authorized staging engagements</p><h2>Turn a GPU budget question into a measured decision.</h2><p>Bring an approved endpoint, representative traffic and the service target you need to meet. The work can confirm that your current setup is already the right one.</p></div>
+    <div class="service-grid">
+      <article><h3>Efficiency assessment</h3><p>Establish latency, error rates, task correctness and useful capacity from a bounded read-only audit. Get the baseline evidence and the next hypotheses worth testing.</p></article>
+      <article><h3>Controlled optimization pilot</h3><p>Compare an approved staging change with neighboring controls. Check latency, memory, context and correctness before modeling any possible financial impact.</p></article>
+    </div>
+    <div class="actions"><a class="button" href="https://www.linkedin.com/in/rayn-hasan/">Discuss a scoped inference pilot</a><a href="research.html">Inspect the research and methods</a></div>
+  </section>
+</main>
+<footer class="top"><div class="shell navigation"><span>Inference Audit Labs</span><nav aria-label="Footer"><a href="https://github.com/somsom786/inference-audit">Source</a><a href="evidence.html">Evidence</a><a href="license.txt">License</a></nav></div></footer>
 </body>
 </html>

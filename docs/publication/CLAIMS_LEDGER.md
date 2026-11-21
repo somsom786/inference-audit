@@ -86,6 +86,12 @@ Research paths below are relative to the local `inference-bench` archive. Produc
 
 **Evidence / method.** P4-DESIGN source. At the highest rate there are 137 chat, 86 coding, 86 retrieval and 36 agent offers per launch. Family pass share uses correct on-time / all offered transactions. Dependent agent steps receive their own deadlines. Inspect all launch/family cells and retain all failures. High confidence for these gates, with narrow synthetic correctness checks. Used in the case study, executive summary, landing page and SLO figure.
 
+## P6-RECOUNT
+
+**Claim.** The completed Phase 6 Qwen3-8B synthetic study recorded 13,926 completed transactions, of which 13,156 passed correctness and 13,155 passed correctness and deadlines. Among the 1,392 agent transactions, 776 passed correctness and 775 passed both. These fixtures are distinct from the later agent-receipt V2 probes.
+
+**Evidence / method.** [Aggregate and source hashes](../../public/evidence/labs-endurance.json) · [CPU recount](../../scripts/publication/verify_endurance_summary.py). The completed archive is identified as phase6-endurance-01. The private transaction ledger and archived summary and SLO match their sealed hashes. The recount verified unique transaction IDs and counted stored flags by family. This reflects recorded verdicts on one lab host. The underlying answers are not recoverable from the aggregate and the count cannot establish general model quality. The earlier abort and Phase 3 suspended segment are separate records.
+
 ## DEMO
 
 **Claim.** The Qwen and Gemma public reports are offline re-renders through the 0.2.1 product from 0.2.0 captures of 446 and 50 transactions. Report tables/plots use the original measured observations. The Qwen sweep used a fixed two-slot server; its parallel decode probe scales client workers. The archived sweep and the final short restart are separate captures.

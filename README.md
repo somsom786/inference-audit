@@ -1,16 +1,23 @@
-# Inference Audit
+# Inference Audit Labs
 
-**Find out how much useful work your LLM server can deliver.**
+**Find out how much more useful work your existing GPUs can serve.**
 
 Inference Audit is a local-first CLI for self-hosted inference. It sends bounded, synthetic traffic to an authorized OpenAI-compatible endpoint and measures how quickly responses arrive, how many pass their task checks, and how many meet your deadlines. Rebuild a shareable HTML report offline from the saved observations.
 
-[Project site](https://somsom786.github.io/inference-audit/) · [Interactive case study](https://somsom786.github.io/inference-audit/case-study.html) · [Sample audits](https://somsom786.github.io/inference-audit/samples.html) · [Public preview v0.2.1](https://github.com/somsom786/inference-audit/releases/tag/v0.2.1)
+[Labs website](https://somsom786.github.io/inference-audit/) · [Case study](https://somsom786.github.io/inference-audit/labs-case-study.html) · [Interactive measurements](https://somsom786.github.io/inference-audit/case-study.html) · [Sample audits](https://somsom786.github.io/inference-audit/samples.html) · [Public preview v0.2.1](https://github.com/somsom786/inference-audit/releases/tag/v0.2.1)
 
 ## What changed when we added serving slots?
 
-On an RTX 4070, four serving slots improved Qwen3-8B chat-burst throughput by **57.7%** over a two-slot production control. A separate, fresh mixed-workload test found faster first tokens on four slots, slower completions, and fewer correct on-time transactions per second. Neither profile met the 95% target in every workload family. [Burst evidence](docs/publication/CLAIMS_LEDGER.md#p2-chat) · [Mixed-workload evidence](docs/publication/CLAIMS_LEDGER.md#p4-goodput) · [Family qualification](docs/publication/CLAIMS_LEDGER.md#p4-family)
+RTX 4070 12 GB, Qwen3-8B Q4_K_M, llama.cpp CUDA b12427. The fixed KV pool gives two slots 8,192 positions each and four slots 4,096 each.
 
-[![Qwen3-8B on RTX 4070. Four slots improved p95 first-token latency, while two slots had lower p95 completion latency in the fresh mixed-workload replication.](public/assets/replication-tail-latency.svg)](https://somsom786.github.io/inference-audit/case-study.html#experiment)
+| Workload | Two slots | Four slots |
+| --- | ---: | ---: |
+| Homogeneous chat burst, output tok/s | 143.77 | **226.70 (+57.7%)** |
+| Separate mixed trace, correct on time per 345 offers | **315–317** | 284–293 |
+
+Neither profile met the 95% target in every family. The burst result establishes an experimental configuration trade-off. Wider deployment capacity and savings require customer-specific qualification. [Burst evidence](docs/publication/CLAIMS_LEDGER.md#p2-chat) · [Mixed-workload evidence](docs/publication/CLAIMS_LEDGER.md#p4-goodput) · [Technical report](docs/case-study/LABS_TECHNICAL_REPORT.md)
+
+[![Inference Audit Labs research poster showing the chat-burst gain and the mixed-workload decline on Qwen3-8B](public/assets/labs-social.png)](https://somsom786.github.io/inference-audit/labs-case-study.html)
 
 ## Quick start
 

@@ -1,0 +1,30 @@
+{
+  "source": "measurements.json",
+  "burst": {
+    "two": 143.77,
+    "four": 226.7,
+    "gain_pct": 57.7
+  },
+  "mixed": {
+    "A1": {
+      "on_time": 317,
+      "ttft_p95": 1.616,
+      "completion_p95": 3.714
+    },
+    "B1": {
+      "on_time": 284,
+      "ttft_p95": 0.753,
+      "completion_p95": 4.678
+    },
+    "B2": {
+      "on_time": 293,
+      "ttft_p95": 0.753,
+      "completion_p95": 4.523
+    },
+    "A2": {
+      "on_time": 315,
+      "ttft_p95": 1.741,
+      "completion_p95": 3.82
+    }
+  }
+}

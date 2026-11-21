@@ -17,7 +17,7 @@ from jsonschema import Draft202012Validator
 ROOT = Path(__file__).resolve().parents[2]
 ASSET_TAGS = {"img", "link", "audio", "video", "source", "input", "track"}
 BLOCKED_TAGS = {"script", "iframe", "object", "embed", "base", "form", "foreignobject"}
-INTERACTIVE_PAGES = {"index.html", "case-study.html", "samples.html"}
+INTERACTIVE_PAGES = {"replay.html", "case-study.html", "samples.html"}
 CANONICAL_ROOT = "https://somsom786.github.io/inference-audit/"
 
 
@@ -44,13 +44,20 @@ class Page(HTMLParser):
             self.viewport |= attrs.get("name") == "viewport"
         permitted_script = (
             tag == "script"
-            and self.filename in INTERACTIVE_PAGES
             and self.tags[tag] == 1
-            and attrs == {"src": "assets/story.js", "defer": None}
+            and (
+                (self.filename in INTERACTIVE_PAGES and attrs == {"src": "assets/story.js", "defer": None})
+                or (self.filename == "index.html" and attrs == {"src": "assets/labs.js", "defer": None})
+            )
+        )
+        permitted_form = (
+            self.filename == "index.html" and tag == "form" and attrs == {"id": "economics-model"}
         )
         if tag == "script":
             self.in_script = True
-        if (tag in BLOCKED_TAGS and not permitted_script) or any(key.startswith("on") for key in attrs):
+        if (tag in BLOCKED_TAGS and not (permitted_script or permitted_form)) or any(
+            key.startswith("on") for key in attrs
+        ):
             self.errors.append(f"Active content in {tag}")
         if tag == "meta" and attrs.get("http-equiv", "").lower() == "refresh":
             self.errors.append("Automatic navigation")
@@ -200,7 +207,7 @@ def check_data(root):
         data["phase3"]["excluded_a2_wall_seconds"] > data["phase3"]["planned_a2_seconds"] + 3,
         "Suspended A2 was not excluded",
     )
-    page = (root / "public/index.html").read_text(encoding="utf-8")
+    page = (root / "public/replay.html").read_text(encoding="utf-8")
     for r in data["phase4"]["rows"]:
         require(math.isclose(r["goodput_rps"], r["on_time"] / 300), "Replication goodput disagrees")
         require(math.isclose(r["share"], r["on_time"] / r["offered"]), "Replication SLA share disagrees")

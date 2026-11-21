@@ -19,7 +19,11 @@ class StaticHandler(SimpleHTTPRequestHandler):
             self.send_error(404)
             return
         self.path = "/" + self.path.removeprefix(prefix)
-        super().do_GET()
+        try:
+            super().do_GET()
+        except (ConnectionAbortedError, ConnectionResetError, BrokenPipeError):
+            # A browser can close a static transfer while navigating.
+            pass
 
     def log_message(self, format, *args):
         pass
@@ -52,6 +56,9 @@ def check(site, browser, screenshot_dir):
         context.route("**/*", route)
         for endpoint in (
             "",
+            "replay.html",
+            "labs-case-study.html",
+            "economics.html",
             "case-study.html",
             "samples.html",
             "research.html",
@@ -73,6 +80,24 @@ def check(site, browser, screenshot_dir):
                 page.screenshot(path=screenshot_dir / f"{alias}-{viewport['width']}.png")
 
         page.goto(site)
+        page.get_by_role("button", name="First token", exact=True).click()
+        assert "0.753 s" in page.locator("#tradeoff").inner_text()
+        page.get_by_role("button", name="Completion", exact=True).click()
+        assert "4.523–4.678 s" in page.locator("#tradeoff").inner_text()
+        assert "$1,153.85" in page.locator("#estimate").inner_text()
+        page.locator("[name=share]").fill("0")
+        assert "$0.00" in page.locator("#estimate").inner_text()
+        page.get_by_text("Optional worker assumptions", exact=True).click()
+        page.locator("[name=workers]").fill("10")
+        assert "8 under the selected reserve" in page.locator("#estimate").inner_text()
+        page.locator("[name=gain]").fill("-1")
+        assert "stated limits" in page.locator("#estimate").inner_text()
+        page.locator("[name=gain]").fill("30")
+        page.locator("[name=share]").fill("50")
+        if viewport["width"] in {390, 1440}:
+            page.locator("#economics").screenshot(path=screenshot_dir / f"economics-{viewport['width']}.png")
+
+        page.goto(site + "replay.html")
         assert page.locator(".skip").evaluate("(node) => getComputedStyle(node).pointerEvents === 'none'")
         page.keyboard.press("Tab")
         assert page.get_by_role("link", name="Skip to content").evaluate(
@@ -165,6 +190,9 @@ def main():
                 check(origin, browser, args.screenshots)
                 page = browser.new_page(java_script_enabled=False)
                 page.goto(origin)
+                assert "315–317 of 345" in page.locator("#tradeoff").inner_text()
+                assert "$1,154/month" in page.locator("#estimate").inner_text()
+                page.goto(origin + "replay.html")
                 assert "1.616–1.741" in page.locator("[data-plot]").inner_text()
                 assert "198 / 210" in page.locator("[data-replay-result]").inner_text()
                 assert page.get_by_role("link", name="full research", exact=True).first.is_visible()
