@@ -39,7 +39,7 @@ def t(x, y, size, fill, text, family=SANS, weight="normal", anchor="start"):
 
 def frame(title, kicker, headline, sub, body, footer):
     parts = [
-        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">',
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">',
         f"<title>{escape(title)}</title>",
         f'<rect width="1200" height="630" fill="{BG}"/>',
         f'<rect x="0" y="0" width="12" height="630" fill="{LIME}"/>',
@@ -172,7 +172,7 @@ def research_svg(data, ext):
     fit = [q["autofit_controls"][k]["ready_s"] for k in ("A1-fit", "A2-fit")]
     startup = (100 * (1 - win[0] / fit[0]), 100 * (1 - win[1] / fit[1]))
     mine = [
-        (f"+{pct(fit_hi)}% decode", f"Inkling-2-Mini vs auto-fit, RTX 4070"),
+        (f"+{pct(fit_hi)}% decode", "Inkling-2-Mini vs auto-fit, RTX 4070"),
         (f"+{pct(p_hi)}% prefill", f"Inkling-2-Mini 8K; startup \u2212{round(startup[0])}\u2013{round(startup[1])}%"),
         (f"+{pct(structured)}% code", "Forge Qwen3.5-9B MTP k=1, structured Python"),
         ("+57.7% burst", "Qwen3-8B 2\u21924 slots; mixed trace regressed"),
