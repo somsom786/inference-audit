@@ -12,7 +12,7 @@ Inkling-2-Mini (Unsloth `UD-Q4_K_M`, 16.61 GB, 26.4B parameters) is larger than 
 | 8K prefill, tok/s | 97.03–97.96 | 496.09–514.49 | **796.29–798.54** | **+54.8% to +55.2%** | 8.1–8.2× |
 | Startup (ready), s | 7.51–7.76 | 11.73–12.25 | **3.64–3.85** | **−67% to −70%** | not applicable |
 
-The configuration also passed **all 6 of 6** local-ai-registry acceptance gates and a six-request stability soak. The result is specific to this machine, this build, one stream and a 16,384-token context. It is a measured configuration trade-off, not a general guarantee or a verified cost saving.
+The configuration also passed **all 6 of 6** local acceptance checks (modeled on the `local-ai-registry` gate set) and a six-request stability soak. **This is not an officially accepted `local-ai-registry` recipe.** Vision, broader quality benchmarks, production concurrency and external customer infrastructure remain unverified. The result is specific to this machine, this build, one stream and a 16,384-token context—a measured configuration trade-off, not a general guarantee or a verified cost saving.
 
 Everything on this page is recomputable from [`public/evidence/inkling-hybrid.json`](../../public/evidence/inkling-hybrid.json). Claim wording and limits are in the [claims ledger](../publication/CLAIMS_LEDGER.md#p8-inkling).
 
@@ -84,11 +84,11 @@ Controls and candidate alternated (`cpu-moe`, auto-fit, candidate) with a repeat
 
 Gain ranges come from comparing each candidate run against its adjacent control. The candidate placed all non-expert weights (1.82 GB) plus 11 core expert blocks on CUDA0 (7,280.6 MiB model plus 240 MiB KV). The prelude, `blk.17` and the postlude experts (8,549.1 MiB) sat in pinned host RAM.
 
-## Acceptance gates: 6 of 6
+## Local acceptance checks: 6 of 6
 
-Run with the local-ai-registry gate set on the winning configuration.
+Run locally using checks modeled on the `local-ai-registry` gate criteria on the winning configuration. Passing these local checks does **not** make this an officially accepted `local-ai-registry` recipe (which requires a pinned clean Linux/container build and upstream review).
 
-| Gate | Result |
+| Check | Result |
 | --- | --- |
 | Load | Pass |
 | Chat | Pass (113 tokens, 33.93 tok/s, finish `stop`) |
@@ -97,7 +97,7 @@ Run with the local-ai-registry gate set on the winning configuration.
 | Context at 85% | Pass: 13,926-token prompt, needle `CTX85-7749-VQ` found, 812.75 tok/s prefill, 17.33 s TTFT |
 | Speed, 30 s uncapped | Pass: 1,010 tokens in 30.01 s = **33.62 tok/s** |
 
-A six-request soak ran at 33.65–34.21 tok/s (first 33.65, last 34.11, median 34.20), with no degradation.
+A six-request soak ran cleanly (first 33.65, last 34.11, median 34.20 tok/s, min 33.65 tok/s), with no degradation.
 
 ## Explicit VRAM boundary: the 12-core desktop limit
 
@@ -122,4 +122,4 @@ Verify placement in the startup log: roughly 7,280 MiB on `CUDA0`, 8,549 MiB in 
 
 ## Limits
 
-One machine, one session, one stream, 16,384 context, f16 KV, text only. Throughput was measured, not hardware DRAM counters, which are unavailable under Windows WDDM. Server decode medians exclude HTTP overhead. The placement choice depends on free VRAM at run time. No concurrency, production rollout, output-quality benchmark or financial saving was tested. See the [economics model](../../public/economics.html) for conditional scenarios, and the [Forge MTP report](FORGE_MTP.md) for a separate engine-level lever.
+One machine, one session, one stream, 16,384 context, f16 KV, text only. This configuration is **not** an officially accepted `local-ai-registry` recipe. Vision (`--no-mmproj`), broader output-quality benchmarks, production concurrency, external customer infrastructure, and financial savings remain unverified. Throughput was measured, not hardware DRAM counters, which are unavailable under Windows WDDM. Server decode medians exclude HTTP overhead. The placement choice depends on free VRAM at run time. See the [economics model](../../public/economics.html) for conditional scenarios, and the [Forge MTP report](FORGE_MTP.md) for a separate engine-level lever.

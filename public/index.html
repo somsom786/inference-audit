@@ -7,7 +7,7 @@
 <meta name="description" content="Independent inference performance lab. Find out what your existing GPUs can deliver within your latency, context and correctness targets before buying more.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="More inference. Same GPU budget. | Inference Audit Labs">
-<meta property="og:description" content="Inkling-2-Mini loop-aware placement on one RTX 4070: +37.8% decode and +55.2% 8K prefill versus llama.cpp auto-fit, with 6 of 6 acceptance gates passed.">
+<meta property="og:description" content="Inkling-2-Mini loop-aware placement on one RTX 4070: +37.8% decode and +55.2% 8K prefill versus llama.cpp auto-fit, with 6 of 6 local acceptance checks passed.">
 <meta property="og:image" content="https://somsom786.github.io/inference-audit/assets/inkling-hybrid-social.png">
 <meta property="og:image:alt" content="Inkling-2-Mini loop-aware placement on RTX 4070: 37.8% faster decode and 55.2% faster 8K prefill than llama.cpp auto-fit">
 <meta property="og:url" content="https://somsom786.github.io/inference-audit/">
@@ -32,7 +32,7 @@
         <h1>More inference. Same GPU budget.</h1>
         <p class="intro">Before buying more GPUs, find out what your existing hardware can actually deliver within your latency, context, and correctness targets.</p>
         <div class="actions"><a class="button" href="#pilot">Discuss a scoped pilot</a><a class="quiet" href="labs-case-study.html">Read the case study</a></div>
-        <p class="result-note" id="inkling-result"><a href="inkling-hybrid.html">+37.8% decode and +55.2% 8K prefill</a><span> · Inkling-2-Mini loop-aware placement on one RTX 4070 vs llama.cpp auto-fit. 6/6 acceptance gates.</span></p>
+        <p class="result-note" id="inkling-result"><a href="inkling-hybrid.html">+37.8% decode and +55.2% 8K prefill</a><span> · Inkling-2-Mini loop-aware placement on one RTX 4070 vs llama.cpp auto-fit. 6/6 local acceptance checks.</span></p>
         <p class="result-note" id="forge-result"><a href="forge-mtp.html">+7.0% code decode on the same RTX 4070</a><span> · Forge Qwen3.5-9B, one stream, faster neighboring default as baseline. Novel prose was flat.</span></p>
         <p class="result-note">Illustrative: at $50,000/month, a 30% qualified-throughput gain means 23.1% fewer GPU-hours, up to about $138,462/year if 100% of spend scales. <a href="#economics">Explore the scenario</a></p>
       </div>
@@ -50,14 +50,14 @@
         <div>
           <p class="label">Strongest verified result</p>
           <h3>Inkling-2-Mini: place the looped core on the GPU.</h3>
-          <p>Loop-aware expert placement beat llama.cpp auto-fit by +36.5% to +37.8% decode and +54.8% to +55.2% at 8K prefill. It ran 2.1x faster decode and 8.1–8.2x faster prefill than --cpu-moe, and passed 6 of 6 acceptance gates at 85% context.</p>
+          <p>Loop-aware expert placement beat llama.cpp auto-fit by +36.5% to +37.8% decode and +54.8% to +55.2% at 8K prefill. It ran 2.1x faster decode and 8.1–8.2x faster prefill than --cpu-moe, and passed 6 of 6 local acceptance checks (not an official registry recipe; vision, concurrency and production infra unverified).</p>
           <div class="actions"><a class="button" href="inkling-hybrid.html">Read the Inkling experiment</a><a href="evidence/inkling-hybrid.json">Download evidence</a></div>
         </div>
         <ul class="stat-list">
           <li><strong>+37.8%</strong>decode vs llama.cpp auto-fit</li>
           <li><strong>+55.2%</strong>8K prefill vs auto-fit</li>
           <li><strong>2.1x / 8.1–8.2x</strong>decode / prefill vs --cpu-moe</li>
-          <li><strong>6 / 6</strong>acceptance gates passed</li>
+          <li><strong>6 / 6</strong>local acceptance checks</li>
         </ul>
       </div>
       <div class="grid-2">

@@ -39,7 +39,7 @@ Inkling-2-Mini (Unsloth UD-Q4_K_M, 16.61 GB) does not fit in 12 GB of VRAM, so p
 | 8K prefill tok/s | 496.09–514.49 | 97.03–97.96 | **796.29–798.54** | +54.8% to +55.2% vs auto-fit; 8.1–8.2× vs `--cpu-moe` |
 | Startup, s | 11.73–12.25 | 7.51–7.76 | **3.64–3.85** | −67% to −70% vs auto-fit |
 
-The winner passed all six local-ai-registry gates and a six-request soak (33.62 tok/s in the 30-second uncapped test, 13,926-token needle at 85% of context). A twelve-block variant decoded at 37.00 tok/s but left only 954 MiB free on a desktop board and is recorded as the boundary, not the recommendation. The GGUF has no embedded DSpark tensors, so speculative drafting was deferred. Full method, screens and launch command: [Inkling report](INKLING_HYBRID.md). Claim: [`P8-INKLING`](../publication/CLAIMS_LEDGER.md#p8-inkling).
+The winner passed all six local acceptance checks (modeled on the `local-ai-registry` gate set) and a six-request soak (33.62 tok/s in the 30-second uncapped test, 13,926-token needle at 85% of context). It is not an officially accepted `local-ai-registry` recipe; vision, broader quality benchmarks, production concurrency and customer infrastructure remain unverified. A twelve-block variant decoded at 37.00 tok/s but left only 954 MiB free on a desktop board and is recorded as the boundary, not the recommendation. The GGUF has no embedded DSpark tensors, so speculative drafting was deferred. Full method, screens and launch command: [Inkling report](INKLING_HYBRID.md). Claim: [`P8-INKLING`](../publication/CLAIMS_LEDGER.md#p8-inkling).
 
 ## Forge MTP, extended
 

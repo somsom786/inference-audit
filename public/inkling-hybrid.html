@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Loop-aware expert placement for Inkling-2-Mini on one RTX 4070: +37.8% decode and +55.2% 8K prefill over llama.cpp auto-fit, 6 of 6 acceptance gates."><title>Place the looped core on the GPU: Inkling-2-Mini on one RTX 4070 | Inference Audit Labs</title>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Loop-aware expert placement for Inkling-2-Mini on one RTX 4070: +37.8% decode and +55.2% 8K prefill over llama.cpp auto-fit, 6 of 6 local acceptance checks."><title>Place the looped core on the GPU: Inkling-2-Mini on one RTX 4070 | Inference Audit Labs</title>
 <meta property="og:type" content="article"><meta property="og:title" content="Inkling-2-Mini loop-aware placement on one RTX 4070"><meta property="og:description" content="+37.8% decode and +55.2% 8K prefill versus llama.cpp auto-fit; 2.1x decode and 8.2x prefill versus --cpu-moe."><meta property="og:image" content="https://somsom786.github.io/inference-audit/assets/inkling-hybrid-social.png"><meta property="og:url" content="https://somsom786.github.io/inference-audit/inkling-hybrid.html">
 <link rel="canonical" href="https://somsom786.github.io/inference-audit/inkling-hybrid.html"><link rel="stylesheet" href="assets/labs.css"></head>
 <body>
@@ -19,7 +19,7 @@
 <tr><th scope="row">seq-postlude-6</th><td>19.25</td><td>94.8 at 1K</td><td>Screening run. Postlude experts on GPU. Not carried forward.</td></tr>
 <tr><th scope="row">moe-cache-6g</th><td>22.47</td><td>93.3 at 1K</td><td>Screening run. Expert cache. Not carried forward.</td></tr>
 <tr><th scope="row">llama.cpp auto-fit</th><td>25.14, 25.15</td><td>514.5, 496.1 at 8K</td><td>Two qualified controls. Startup 11.7 to 12.3 s.</td></tr>
-<tr class="win"><th scope="row">loop-core-11 (qualified winner)</th><td>34.34, 34.66</td><td>798.5, 796.3 at 8K</td><td>Two qualified runs. Startup 3.6 to 3.8 s. 6/6 gates.</td></tr>
+<tr class="win"><th scope="row">loop-core-11 (qualified winner)</th><td>34.34, 34.66</td><td>798.5, 796.3 at 8K</td><td>Two qualified runs. Startup 3.6 to 3.8 s. 6/6 local checks.</td></tr>
 <tr><th scope="row">loop-core-12 (boundary)</th><td>37.00</td><td>682.7 at 8K</td><td>Faster, but hit the VRAM safety stop with 954 MiB free. Rejected.</td></tr>
 </tbody></table></div>
 <p class="detail">Screening runs use a shorter 1K prefill probe and a single pass, so they are not directly comparable with the 8K qualified runs.</p>
@@ -33,8 +33,8 @@
 </div>
 </div>
 <div class="shell section category">
-<div class="section-heading"><h2>Six of six acceptance gates passed.</h2><p>Speed is only useful if the model still works. The winning configuration was held to the same checks as a production candidate.</p></div>
-<ol class="steps" aria-label="Acceptance gates">
+<div class="section-heading"><h2>Six of six local acceptance checks passed.</h2><p>Speed is only useful if the model still works. The winning configuration passed six local checks modeled on the local-ai-registry criteria. This is not an officially accepted local-ai-registry recipe.</p></div>
+<ol class="steps" aria-label="Local acceptance checks">
 <li><strong>Load</strong><span>Model loads and serves with the safety margin intact.</span></li>
 <li><strong>Chat</strong><span>Coherent completion, finish reason stop, about 33.9 tok/s.</span></li>
 <li><strong>Reasoning</strong><span>Correct short reasoning answer at low effort.</span></li>
@@ -49,7 +49,7 @@
 -ot "blk\.([0-5]|1[7-9]|2[0-3])\.ffn_.*_exps\.=CPU"
 --load-mode none -fa on -b 512 -ub 512 -t 8 -tb 8</pre>
 <p class="detail">Model: Unsloth Inkling-2-Mini UD-Q4_K_M GGUF, 16,610,543,328 bytes. Hardware: RTX 4070 12 GB, Ryzen 7 7800X3D, 64 GB DDR5-6000. Engine: llama.cpp b12588.</p>
-<div class="callout"><strong>Scope.</strong> One machine, one model, single stream, 16K context, f16 KV and low reasoning effort. This is a hardware-specific placement result. It does not establish multi-user capacity or a customer cost saving. The block split that wins on a 12 GB card will differ on other GPUs.</div>
+<div class="callout"><strong>Scope.</strong> One machine, one model, single stream, 16K context, f16 KV, text only and low reasoning effort. This is a hardware-specific placement result—not an officially accepted local-ai-registry recipe. Vision, broader output-quality benchmarks, production concurrency, external customer infrastructure and cost savings remain unverified. The block split that wins on a 12 GB card will differ on other GPUs.</div>
 <div class="explore"><a href="evidence/inkling-hybrid.json">Download measured results</a><a href="https://github.com/somsom786/inference-audit/blob/main/docs/case-study/INKLING_HYBRID.md">Read the technical report</a><a href="forge-mtp.html">See the Forge MTP experiment</a><a href="index.html#economics">Model conditional savings</a></div>
 </div>
 </main></body></html>

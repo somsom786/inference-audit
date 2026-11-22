@@ -112,7 +112,7 @@ def inkling_svg(data, ext=None):
             t(250 + width + 14, y + 23, 17, CREAM, f"{fmt(lo)}\u2013{fmt(hi)}", MONO, "bold"),
         ]
     footer = [
-        (566, 15, CREAM, f"6/6 local-ai-registry gates \u00b7 loop core blk.6..17 = {data['architecture']['loop_core_share_of_expert_traffic_pct']}% of active expert bytes \u00b7 vs --cpu-moe: +{round(cpu_d_hi)}% decode, {fmt(prefill_lo, 1)}\u2013{fmt(prefill_hi, 1)}x 8K prefill"),
+        (566, 15, CREAM, f"6/6 local checks (not an official registry recipe) \u00b7 loop core blk.6..17 = {data['architecture']['loop_core_share_of_expert_traffic_pct']}% of active expert bytes \u00b7 vs --cpu-moe: +{round(cpu_d_hi)}% decode, {fmt(prefill_lo, 1)}\u2013{fmt(prefill_hi, 1)}x 8K prefill"),
         (592, 13, MUTED, "RTX 4070 12 GB + 64 GB DDR5-6000, llama.cpp b12588, 16K context, f16 KV. Single stream, one machine; not a general guarantee."),
     ]
     sub = f"Inkling-2-Mini UD-Q4_K_M ({fmt(data['weight_bytes'] / 1e9)} GB) \u00b7 RTX 4070 12 GB \u00b7 llama.cpp {data['engine']['build']}"
