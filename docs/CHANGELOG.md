@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Add opt-in, same-origin vLLM metrics for approved benchmarks. Reports show bounded stage observations, separate label series, and histogram bucket intervals. The 0.2.1 release asset is unchanged.
+
 ## 0.2.1
 
 - Reject resealed observations with missing or extra dependent steps, contradictory transport outcomes, invalid finishes, or inconsistent cache claims. Agent tool round trips and warm-cache receipt probes are covered.

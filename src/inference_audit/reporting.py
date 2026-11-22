@@ -102,6 +102,13 @@ def trend(samples: list[dict[str, Any]], key: str, label: str, units: str) -> st
     )
 
 
+def latency_bucket(bucket: dict[str, float | None] | None) -> str | None:
+    if bucket is None:
+        return None
+    low, high = bucket["low_s"], bucket["high_s"]
+    return f"{fmt(low)}–{fmt(high)}" if high is not None else f"above {fmt(low)}"
+
+
 def render(report: dict[str, Any], output: Path) -> None:
     if report.get("source") == "legacy_summary":
         title = f"Phase {report['phase']} historical evidence"
@@ -333,6 +340,69 @@ def render(report: dict[str, Any], output: Path) -> None:
             samples, "temp_c", "Board temperature", "°C"
         )
         sections.append(("GPU telemetry · sampled maxima where applicable", graphs + sheet, md))
+        if (server := report.get("vllm_observability")) is not None:
+            status = ", ".join(f"{key}: {value}" for key, value in sorted(server["states"].items()))
+            note = (
+                "Server observations can include other traffic. Label series stay separate. "
+                "Counters cover compatible samples within a stage. Histogram p95 is a bucket interval. "
+                "Unavailable data has no implied zero."
+            )
+            values = [
+                [
+                    stage,
+                    row["metric"],
+                    row["series"],
+                    (
+                        row.get("max")
+                        if row["kind"] == "gauge"
+                        else row.get("observed_delta")
+                        if row["kind"] == "counter"
+                        else row.get("observations")
+                    ),
+                    latency_bucket(row.get("p95_bucket")),
+                    row.get("detected_resets"),
+                    row.get("gaps"),
+                ]
+                for stage, phase in server["phases"].items()
+                for row in phase["series"]
+            ]
+            headers = ["Stage", "Metric", "Label ID", "Peak / delta / n", "p95 bounds (s)", "Resets", "Gaps"]
+            sheet, md = table(headers, values)
+            reuse_values = [
+                [
+                    stage,
+                    row["series"],
+                    row["hits_delta"],
+                    row["queries_delta"],
+                    f"{row['observed_hit_fraction']:.1%}",
+                ]
+                for stage, phase in server["phases"].items()
+                for row in phase["prefix_reuse"]
+            ]
+            if reuse_values:
+                cache_html, cache_md = table(
+                    ["Stage", "Label ID", "Hits", "Queries", "Observed reuse"], reuse_values
+                )
+                sheet += "<h3>Prefix reuse over matched scrape intervals</h3>" + cache_html
+                md += "\n\n### Prefix reuse over matched scrape intervals\n\n" + cache_md
+            tracks = "".join(
+                trend(
+                    line["points"],
+                    "gauge",
+                    f"{stage} {line['metric']} · {line['series']}",
+                    "fraction" if line["metric"] == "kv_usage_fraction" else "requests",
+                )
+                for stage, phase in server["phases"].items()
+                for line in phase["gauge_timeline"]
+            )
+            sections.append(
+                (
+                    "vLLM server observability",
+                    f"<p>{html.escape(note)}</p>"
+                    f"<p>{html.escape(status or 'No scrapes completed.')}</p>{sheet}{tracks}",
+                    note + "\n\n" + (status or "No scrapes completed.") + "\n\n" + md,
+                )
+            )
         findings = report["findings"]
         rendered = "".join(
             "<h3>"

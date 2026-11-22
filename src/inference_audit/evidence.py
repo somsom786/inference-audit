@@ -225,8 +225,18 @@ def verify(run: Path) -> dict[str, Any]:
         raise ValueError("Unsupported schema or unsealed run state.")
     if not isinstance(plan.get("label"), str) or not re.fullmatch(r"[\w .()-]{1,80}", plan["label"]):
         raise ValueError("Run label is not a shareable alias.")
-    if plan.get("engine_hint") not in {"openai", "llama.cpp"} or type(plan.get("seed")) is not int:
+    if plan.get("engine_hint") not in {"openai", "llama.cpp", "vllm"} or type(plan.get("seed")) is not int:
         raise ValueError("Invalid engine or seed.")
+    if "server_observability" in plan:
+        if plan["engine_hint"] != "vllm" or plan["server_observability"] != {
+            "backend": "vllm",
+            "schema": 1,
+            "sample_interval_s": 5,
+        }:
+            raise ValueError("Invalid server observability contract.")
+        from .vllm_metrics import validate_snapshots
+
+        validate_snapshots(rows(run / "server.jsonl"))
     for key in ("parent_run", "tool_version"):
         value = plan.get(key)
         if value is not None and (

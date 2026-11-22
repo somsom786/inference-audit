@@ -1,5 +1,7 @@
 # Inference Audit Labs
 
+**vLLM staging audits (experimental on main).** The existing OpenAI-compatible benchmark can capture approved, same-origin vLLM metrics with phase-aligned queue, KV, preemption, prefix and latency evidence. [Local setup and configuration](docs/VLLM_LOCAL.md) · [Staging playbook](docs/VLLM_OPTIMIZATION_PLAYBOOK.md) · [Internals guide](docs/VLLM_INTERNALS_GUIDE.md) ? [RTX 4070 lab results](docs/case-study/VLLM_PHASE9.md) ? [Generated sample audit](https://somsom786.github.io/inference-audit/reports/vllm-qwen3-8b-audit.html)
+
 **More inference. Same GPU budget.**
 
 Inference Audit is a local-first CLI and research practice for self-hosted inference. It sends bounded, synthetic traffic to an authorized OpenAI-compatible endpoint, measures speed, correctness and deadline-qualified capacity, and rebuilds a shareable HTML report offline from the saved observations. We then qualify configuration changes against your workload before any claim is made.

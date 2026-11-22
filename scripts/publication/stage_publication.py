@@ -10,7 +10,16 @@ from urllib.parse import urlsplit
 from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 
 ROOT = Path(__file__).resolve().parents[2]
-SINGLE = {".gitignore", "LICENSE", "README.md", "pyproject.toml", ".github/workflows/ci.yml"}
+SINGLE = {
+    ".gitattributes",
+    ".gitignore",
+    ".github/workflows/ci.yml",
+    "LICENSE",
+    "README.md",
+    "pyproject.toml",
+    "scripts/probe_vllm_prefix.py",
+    "scripts/vllm_local.sh",
+}
 TREES = {"src", "tests", "configs", "examples", "docs", "public"}
 SOURCE_REPORTS = {"local-qwen-020", "local-qwen-restart-020", "local-gemma-020"}
 VALIDATION = {
@@ -21,7 +30,22 @@ VALIDATION = {
     "replication-recount.json",
     "verify_release_capture.py",
 }
-TEXT_SUFFIXES = {".html", ".svg", ".css", ".js", ".txt", ".md", ".json", ".py", ".toml", ".yaml", ".yml", ""}
+TEXT_SUFFIXES = {
+    ".html",
+    ".svg",
+    ".css",
+    ".js",
+    ".txt",
+    ".md",
+    ".json",
+    ".py",
+    ".toml",
+    ".yaml",
+    ".yml",
+    ".lock",
+    ".sh",
+    "",
+}
 SECRET = (
     (
         "provider token",
@@ -51,6 +75,10 @@ KNOWN_HOSTS = {
     "www.json.org",
     "docs.github.com",
     "github.com",
+    "docs.vllm.ai",
+    "docs.nvidia.com",
+    "huggingface.co",
+    "www.nvidia.com",
     "somsom786.github.io",
     "www.linkedin.com",
 }

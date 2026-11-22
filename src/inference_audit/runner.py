@@ -62,7 +62,10 @@ class Pacer:
 
 
 def fingerprint(config: Config) -> str:
-    return hashlib.sha256(stable(asdict(config)).encode()).hexdigest()
+    values = asdict(config)
+    if not config.vllm_metrics:
+        del values["vllm_metrics"]
+    return hashlib.sha256(stable(values).encode()).hexdigest()
 
 
 def resume_from(previous: Path, config: Config) -> set[str]:
@@ -358,12 +361,17 @@ async def watch_runtime(run: Path, stop: asyncio.Event, checkpoint: dict[str, An
 
 async def monitor_server(engine: Engine, handle: TextIO, end: asyncio.Event) -> None:
     sample = getattr(engine, "counters", None)
-    if sample is None:
+    snapshot = getattr(engine, "engine_snapshot", None)
+    if sample is None and snapshot is None:
         await end.wait()
         return
     while not end.is_set():
-        values = await sample()
-        if values is not None:
+        began = now()
+        detail = await snapshot() if snapshot else None
+        values = await sample() if detail is None and sample else None
+        if detail is not None:
+            append(handle, {"t": now(), "start_s": began, "vllm_schema": 1, "counters": {}, **detail})
+        elif values is not None:
             append(handle, {"t": now(), "counters": values})
         try:
             async with asyncio.timeout(5):
@@ -431,8 +439,14 @@ async def run_benchmark(
         ],
     }
     # Reserve space before side effects. Response content is never written to evidence.
+    if config.vllm_metrics:
+        plan["server_observability"] = {"backend": "vllm", "schema": 1, "sample_interval_s": 5}
     bound: float = len(stable(plan)) + 4096 * sum(t.steps for s in stages for t in tasks[s.name])
     bound += 1024 * (config.runtime_s / 1.5 + config.runtime_s / 5) + 131072
+    if config.vllm_metrics:
+        from .vllm_metrics import MAX_RECORD
+
+        bound += (MAX_RECORD + 1024) * (config.runtime_s / 5 + 1)
     if bound > config.evidence_mib * 1024**2:
         raise ValueError("Planned evidence exceeds the configured storage budget.")
     existing = next(p for p in run.absolute().parents if p.is_dir())

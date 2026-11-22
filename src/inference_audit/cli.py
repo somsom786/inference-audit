@@ -71,7 +71,7 @@ async def invoke(args: argparse.Namespace) -> Any:
         cfg = parse(load(args.config))
         previous = run_path(args.runs_dir, args.resume_from) if args.resume_from else None
         async with client_for(cfg.url, cfg.credential_env) as client:
-            capabilities = await inspect(client)
+            capabilities = await inspect(client, probe_metrics=cfg.engine == "llama.cpp")
             verified_context = None
             if cfg.engine == "llama.cpp" and cfg.local:
                 status, slots = await get_json(client, "/slots")

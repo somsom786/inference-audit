@@ -1,0 +1,25 @@
+label: Local vLLM GGUF audit
+target:
+  url: http://127.0.0.1:18091
+  model: audit-qwen3-8b
+authorization:
+  approved: true
+engine: vllm
+server_observability:
+  vllm_metrics_approved: true
+gpu_index: 0
+seed: 407
+limits:
+  max_requests: 240
+  runtime_s: 480
+  timeout_s: 20
+  max_concurrency: 4
+  max_rps: 4
+  queue_limit: 2
+  dispatch_slack_s: 1
+stages:
+  - {name: closed-c1, pattern: chat, mode: closed, workers: 1, count: 32, fixture_set: same-chat, max_output: 64}
+  - {name: closed-c2, pattern: chat, mode: closed, workers: 2, count: 32, fixture_set: same-chat, max_output: 64}
+  - {name: closed-c4, pattern: chat, mode: closed, workers: 4, count: 32, fixture_set: same-chat, max_output: 64}
+  - {name: mixed-r1, pattern: mixed, mode: open, workers: 4, rate: 1, count: 64, fixture_set: same-mix, max_output: 96}
+  - {name: mixed-r2, pattern: mixed, mode: open, workers: 4, rate: 2, count: 64, fixture_set: same-mix, max_output: 96}

@@ -358,6 +358,13 @@ def analyze(run: Path) -> dict[str, Any]:
             }
         )
     findings = diagnoses(stages)
+    extra = {}
+    if plan.get("server_observability"):
+        from .vllm_metrics import findings as vllm_findings, summarize
+
+        observability = summarize(server_samples, checkpoint)
+        extra["vllm_observability"] = observability
+        findings.extend(vllm_findings(observability))
     deferred = [
         s["counters"]["requests_deferred"] for s in server_samples if "requests_deferred" in s["counters"]
     ]
@@ -449,4 +456,5 @@ def analyze(run: Path) -> dict[str, Any]:
         "gpu_timeline": timeline,
         "server_counters": {"samples": len(server_samples), "peak_deferred": max(deferred, default=None)},
         "findings": findings,
+        **extra,
     }

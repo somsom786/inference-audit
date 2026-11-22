@@ -176,10 +176,9 @@ async def get_json(
         return 0, None
 
 
-async def inspect(client: httpx.AsyncClient) -> dict[str, Any]:
-    models, health, metrics = await asyncio.gather(
-        get_json(client, "/v1/models"), get_json(client, "/health"), metrics_status(client)
-    )
+async def inspect(client: httpx.AsyncClient, *, probe_metrics: bool = False) -> dict[str, Any]:
+    models, health = await asyncio.gather(get_json(client, "/v1/models"), get_json(client, "/health"))
+    metrics = await metrics_status(client) if probe_metrics else None
     available = models[1].get("data", []) if isinstance(models[1], dict) else []
     ids = (
         [
@@ -251,6 +250,13 @@ class OpenAI:
         if self.config.engine != "llama.cpp":
             return None
         return await llama_counters(self.client)
+
+    async def engine_snapshot(self) -> dict[str, Any] | None:
+        if not self.config.vllm_metrics:
+            return None
+        from .vllm_metrics import collect
+
+        return await collect(self.client)
 
     async def send(self, task: Task, messages: list[dict[str, Any]], tool: bool, timeout: float) -> Reply:
         params: dict[str, Any] = {

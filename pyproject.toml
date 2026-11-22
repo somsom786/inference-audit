@@ -9,7 +9,7 @@ description = "Bounded inference benchmarking and evidence-backed diagnostics"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
-dependencies = ["httpx==0.28.1", "httpcore==1.0.9", "PyYAML==6.0.3"]
+dependencies = ["httpx==0.28.1", "httpcore==1.0.9", "PyYAML==6.0.3", "prometheus-client==0.24.1"]
 
 [project.optional-dependencies]
 dev = ["pytest==9.0.2", "ruff==0.15.7", "mypy==1.19.1", "types-PyYAML==6.0.12.20250915"]

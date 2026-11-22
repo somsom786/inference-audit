@@ -108,6 +108,7 @@ class Config:
     max_error_share: float = 0.05
     required_context: int | None = None
     family_gates: dict[str, dict[str, float]] = field(default_factory=dict)
+    vllm_metrics: bool = False
 
 
 def load(path: Path) -> Any:
@@ -135,6 +136,7 @@ def parse(data: Any) -> Config:
             "slo",
             "label",
             "qualification",
+            "server_observability",
         },
     )
     target = fields(data.get("target"), {"url", "model", "credential_env"})
@@ -209,8 +211,12 @@ def parse(data: Any) -> Config:
         if not local:
             raise ValueError("Local GPU telemetry cannot represent a remote target.")
     engine = data.get("engine", "openai")
-    if engine not in ("openai", "llama.cpp"):
-        raise ValueError("Choose openai or llama.cpp explicitly.")
+    if engine not in ("openai", "llama.cpp", "vllm"):
+        raise ValueError("Choose openai, llama.cpp or vllm explicitly.")
+    observability = fields(data.get("server_observability", {}), {"vllm_metrics_approved"})
+    metrics = observability.get("vllm_metrics_approved", False)
+    if type(metrics) is not bool or (metrics and engine != "vllm"):
+        raise ValueError("vLLM metrics require a boolean approval and the explicit vllm engine.")
     if engine != "llama.cpp" and any(s.pattern in {"cold", "warm"} for s in stages):
         raise ValueError("Verified cold/warm controls currently require the llama.cpp adapter.")
     slo = DEFAULT_SLO.copy()
@@ -258,4 +264,5 @@ def parse(data: Any) -> Config:
         number(gates.get("max_error_share", 0.05), 0, 1, "error gate"),
         required_context,
         family_gates,
+        vllm_metrics=metrics,
     )
