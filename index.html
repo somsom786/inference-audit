@@ -8,8 +8,8 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="Inference Audit Labs | Useful capacity from the GPUs you pay for">
 <meta property="og:description" content="Explore the measured throughput and deadline trade-offs behind Inference Audit.">
-<meta property="og:image" content="https://somsom786.github.io/inference-audit/assets/labs-social.png">
-<meta property="og:image:alt" content="RTX 4070 and Qwen3-8B research poster comparing chat-burst throughput and mixed-workload goodput">
+<meta property="og:image" content="https://somsom786.github.io/inference-audit/assets/forge-mtp-social.png">
+<meta property="og:image:alt" content="Forge Qwen3.5-9B on RTX 4070: 7.0% faster single-stream code decode with one draft token">
 <meta property="og:url" content="https://somsom786.github.io/inference-audit/">
 <link rel="canonical" href="https://somsom786.github.io/inference-audit/">
 <link rel="stylesheet" href="assets/labs.css">
@@ -32,11 +32,12 @@
         <h1>Get more useful work from each GPU.</h1>
         <p class="intro">Before adding GPUs, find out whether the ones you have can serve more correct answers within your deadlines. We benchmark your workload and test promising changes in staging.</p>
         <div class="actions"><a class="button" href="#pilot">Discuss a scoped pilot</a><a class="quiet" href="labs-case-study.html">Read the case study</a></div>
-        <p class="result-note"><a href="#results">+57.7% chat-burst tok/s</a><span> · Fewer correct on-time answers on a separate mixed trace.</span></p>
+        <p class="result-note" id="forge-result"><a href="forge-mtp.html">+7.0% code decode on the same RTX 4070</a><span> · Forge Qwen3.5-9B, one stream, faster neighboring default as baseline. Novel prose was flat.</span></p>
+        <p class="result-note">If your service completes 30% more correct tasks per GPU-hour within your deadlines, the same workload needs 23.1% fewer GPU-hours. Bills fall only where that spend can shrink. <a href="#economics">Explore the scenario</a></p>
       </div>
       <div class="hero-art">
         <img src="assets/labs-silicon.svg" width="730" height="560" alt="Original technical illustration of a GPU package with etched traces and a layered silicon die">
-        <p><span>RTX 4070 / 12 GB</span><span>Qwen3-8B / Q4_K_M</span></p>
+        <p><span>RTX 4070 / 12 GB</span><span>Forge Qwen3.5-9B / Q4_K_M</span></p>
       </div>
     </div>
   </section>
