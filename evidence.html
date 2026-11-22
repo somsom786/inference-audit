@@ -59,6 +59,21 @@
 <td>Native plans, outcomes, board telemetry, accepted reports, focused patch regressions</td>
 <td>Regenerate Qwen and Gemma with the 0.2.1 wheel. Export sanitized reports and the preserved wheel separately. Benchmark measurements are from the original captures.</td>
 </tr>
+<tr>
+<td>Phase 7 Forge Qwen3.5-9B native MTP (<code>phase7/runs/forge-mtp-*</code>)</td>
+<td>Nine fresh Ollama 0.40.16 CUDA launches, draft lengths 4 and 1, exact output replay, 8K retrieval, board telemetry</td>
+<td>Publish sanitized medians, retrieval outcomes and original file SHA-256 digests in <a href="evidence/forge-mtp.json"><code>forge-mtp.json</code></a>. Exclude raw completions and personal paths.</td>
+</tr>
+<tr>
+<td>Phase 8 Forge extended qualification (<code>final-campaign/runs/forge-final-01</code>)</td>
+<td>Draft sweep k=0..3, 4K-context code, executable Python tasks, concurrency=2 bracket</td>
+<td>Publish sanitized medians, exact-match counts, concurrency=2 negative result and source hashes in <a href="evidence/forge-mtp-extended.json"><code>forge-mtp-extended.json</code></a>.</td>
+</tr>
+<tr>
+<td>Phase 8 Inkling-2-Mini hybrid optimization (<code>final-campaign/runs/inkling-*</code>)</td>
+<td>Placement screen, secondary levers, interleaved A-B-A qualification, 6/6 acceptance gates, stability soak, 12-core VRAM boundary</td>
+<td>Publish sanitized screen/lever/qualified metrics, gate verdicts, reproducible flags and source hashes in <a href="evidence/inkling-hybrid.json"><code>inkling-hybrid.json</code></a>. Exclude raw completions and personal paths.</td>
+</tr>
 </tbody>
 </table></div>
 <p><a href="claims.html">Claims ledger</a> · <a href="reproduce.html">Reproduction</a> · <a href="publication-checklist.html">Publication checklist</a></p>
