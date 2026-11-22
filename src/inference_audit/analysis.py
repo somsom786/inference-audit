@@ -364,7 +364,7 @@ def analyze(run: Path) -> dict[str, Any]:
 
         observability = summarize(server_samples, checkpoint)
         extra["vllm_observability"] = observability
-        findings.extend(vllm_findings(observability))
+        findings.extend(vllm_findings(observability, stages=stages, gpu=gpu_summary(board)))
     deferred = [
         s["counters"]["requests_deferred"] for s in server_samples if "requests_deferred" in s["counters"]
     ]

@@ -188,3 +188,138 @@ def test_sealed_run_and_customer_html(tmp_path: Path):
     with pytest.raises(ValueError, match="label ID"):
         verify(run)
     assert read(run / "plan.json")["server_observability"]["schema"] == 1
+
+
+def test_malformed_histogram_le_does_not_crash_and_preserves_siblings():
+    body = (
+        f"vllm:num_requests_waiting{LABEL} 3\n"
+        f"vllm:time_to_first_token_seconds_bucket{LABEL} 10\n"
+        f'vllm:time_to_first_token_seconds_bucket{LABEL[:-1]},le="bad"}} 10\n'
+        f'vllm:time_to_first_token_seconds_bucket{LABEL[:-1]},le="+Inf"}} 10\n'
+    )
+    parsed = parse_prometheus(body)
+    assert [(r["metric"], r["value"]) for r in parsed] == [("waiting", 3.0)]
+
+
+def test_empty_content_encoding_accepted_and_gzip_rejected():
+    async def check():
+        for header, expected in [
+            ("", "observed"),
+            (" identity ", "observed"),
+            ("gzip", "unsupported_encoding"),
+        ]:
+            async with httpx.AsyncClient(
+                base_url="http://127.0.0.1:8080",
+                transport=httpx.MockTransport(
+                    lambda req, h=header: httpx.Response(
+                        200,
+                        headers={"Content-Encoding": h},
+                        stream=httpx.ByteStream(b"vllm:num_requests_running 2\n"),
+                    )
+                ),
+            ) as client:
+                assert (await collect(client))["state"] == expected
+
+    asyncio.run(check())
+
+
+def test_trailing_schema_change_preserves_prior_histogram_and_computes_p50():
+    records = [
+        sample(1, le=5, inf=10, upper=0.2),
+        sample(2, le=45, inf=60, upper=0.2),
+        sample(3, le=1, inf=2, upper=0.5),  # lone trailing schema change
+    ]
+    report = summarize(records, {"origins_s": {"load": 0.0}, "spans_s": {"load": 3.0}})
+    hist = next(r for r in report["phases"]["load"]["series"] if r["kind"] == "histogram")
+    assert hist["observations"] == 50
+    assert hist["p50_bucket"] == {"low_s": 0.0, "high_s": 0.2}
+    assert hist["p95_bucket"] == {"low_s": 0.2, "high_s": None}
+    assert hist["gaps"] == 1
+
+
+def test_prefix_reuse_tracks_matched_and_skipped_intervals():
+    def prefix(t, hits, queries):
+        body = f"vllm:prefix_cache_hits_total{LABEL} {hits}\nvllm:prefix_cache_queries_total{LABEL} {queries}"
+        return with_time(t, {"state": "observed", "series": parse_prometheus(body)})
+
+    samples = [prefix(1, 9, 11), prefix(2, 10, 15), prefix(3, 1, 2), prefix(4, 4, 7)]
+    report = summarize(samples, {"origins_s": {"a": 0}, "spans_s": {"a": 4}})
+    (reuse,) = report["phases"]["a"]["prefix_reuse"]
+    assert reuse["matched_intervals"] == 2
+    assert reuse["skipped_intervals"] == 1
+
+
+def test_validate_snapshots_enforces_max_record_size():
+    huge_series = [
+        {
+            "kind": "histogram",
+            "source": "time_to_first_token_seconds_bucket",
+            "metric": "ttft_seconds",
+            "series": f"{i:024x}",
+            "bounds": [float(b) for b in range(1, 60)] + [None],
+            "counts": [float(b) for b in range(1, 61)],
+        }
+        for i in range(40)
+    ]
+    snap = with_time(1.0, {"state": "observed", "series": huge_series})
+    with pytest.raises(ValueError, match="Invalid vLLM snapshot"):
+        validate_snapshots([snap])
+
+
+def test_expanded_8_field_diagnostics_cover_bottleneck_classes():
+    body1 = (
+        f"vllm:num_requests_waiting{LABEL} 2\n"
+        f"vllm:kv_cache_usage_perc{LABEL} 0.88\n"
+        f"vllm:prefix_cache_queries_total{LABEL} 100\n"
+        f"vllm:prefix_cache_hits_total{LABEL} 10\n"
+        f'vllm:request_prefill_time_seconds_bucket{LABEL[:-1]},le="0.6"}} 0\n'
+        f'vllm:request_prefill_time_seconds_bucket{LABEL[:-1]},le="+Inf"}} 0\n'
+        f'vllm:inter_token_latency_seconds_bucket{LABEL[:-1]},le="0.12"}} 0\n'
+        f'vllm:inter_token_latency_seconds_bucket{LABEL[:-1]},le="+Inf"}} 0\n'
+    )
+    body2 = (
+        f"vllm:num_requests_waiting{LABEL} 5\n"
+        f"vllm:kv_cache_usage_perc{LABEL} 0.89\n"
+        f"vllm:prefix_cache_queries_total{LABEL} 2100\n"
+        f"vllm:prefix_cache_hits_total{LABEL} 110\n"
+        f'vllm:request_prefill_time_seconds_bucket{LABEL[:-1]},le="0.6"}} 10\n'
+        f'vllm:request_prefill_time_seconds_bucket{LABEL[:-1]},le="+Inf"}} 50\n'
+        f'vllm:inter_token_latency_seconds_bucket{LABEL[:-1]},le="0.12"}} 10\n'
+        f'vllm:inter_token_latency_seconds_bucket{LABEL[:-1]},le="+Inf"}} 50\n'
+    )
+    records = [
+        with_time(1.0, {"state": "observed", "series": parse_prometheus(body1)}),
+        with_time(2.0, {"state": "observed", "series": parse_prometheus(body2)}),
+        with_time(3.0, {"state": "transport_failure"}),
+    ]
+    summary = summarize(records, {"origins_s": {"mixed": 0.0}, "spans_s": {"mixed": 3.0}})
+    stage_stub = [
+        {
+            "name": "mixed",
+            "gpu": {"util_pct": {"max": 25.0}},
+            "metrics": {"quality_failures": 2, "error_share": 0.08, "goodput_rps": 0.5, "offered": 50},
+        }
+    ]
+    diags = findings(summary, stages=stage_stub, gpu={"util_pct": {"max": 25.0}})
+    titles = {d["diagnosis"] for d in diags}
+    assert "Incomplete vLLM server observability" in titles
+    assert "vLLM showed waiting requests" in titles
+    assert "KV-cache occupancy approached saturation without observed preemptions" in titles
+    assert "Low prefix-cache reuse under substantial query volume" in titles
+    assert "Elevated prefill/TTFT coincided with inter-token decode stalls" in titles
+    assert "Queueing occurred while sampled GPU utilization stayed low" in titles
+    assert "Quality or error failures reduced qualified goodput" in titles
+    required_keys = {
+        "stage",
+        "diagnosis",
+        "confidence",
+        "evidence",
+        "rationale",
+        "alternative_explanations",
+        "missing_information",
+        "experiment",
+        "possible_changes",
+        "tradeoff",
+    }
+    for d in diags:
+        assert required_keys.issubset(d.keys())

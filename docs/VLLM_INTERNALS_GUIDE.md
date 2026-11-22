@@ -1,77 +1,239 @@
-# vLLM internals and inference performance
+# vLLM Internals & Inference Performance Engineering Guide
 
-Work through one model and one replayable trace first. Treat the model, tokenizer, weights, template, engine, GPU and load as six independent inputs. Change one at a time. The source references below are pinned to vLLM 0.34.0, the release selected for the Phase 9 lab. Engine interface names in an older guide may describe a different runner.
+> **Pinned Engine Reference:** `vLLM 0.34.0` (V1 engine architecture)  
+> **Lab Grounding:** Local measurements cite our controlled RTX 4070 12 GB studies (Qwen3-8B Q4_K_M on vLLM 0.34.0 + `vllm-gguf-plugin` 0.0.5, Inkling-2-Mini 26B on `llama.cpp`, Forge Qwen3.5-9B on Ollama). Multi-GPU and datacenter topology sections explain architectural principles and vendor/vLLM documentation — **not** local H100/H200/B200 benchmarks.
 
-## 1. Follow one request
+---
+
+## 1. End-to-End Request Lifecycle
+
+Every OpenAI-compatible request passes through six distinct subsystems before the user sees a token. Treat **model, tokenizer/template, weights/quantization, engine/scheduler, hardware/topology, and workload** as independent variables and change only one at a time.
 
 ```mermaid
 flowchart LR
-  A[Chat API] --> B[Render template and tokenize]
-  B --> C[Async frontend submits engine request]
-  C --> D[Engine core scheduler]
-  D --> E[Allocate or reuse KV blocks]
-  E --> F[GPU runner executes scheduled tokens]
-  F --> G[Sample and return token IDs]
-  G --> H[Output processor detokenizes]
-  H --> I[Stream SSE and terminal usage]
-  G --> D
+  A["HTTP /v1/chat/completions"] --> B["Chat Template & Tokenizer (CPU)"]
+  B --> C["AsyncLLM Frontend (IPC / Request Queue)"]
+  C --> D["EngineCore Scheduler (Admission, Batching, KV Blocks)"]
+  D --> E["KV Block Manager (PagedAttention / Prefix Hash Table)"]
+  E --> F["GPU ModelRunner (Attention + MLP + Sampling)"]
+  F --> G["Detokenizer & Tool/Reasoning Parser (CPU)"]
+  G --> H["SSE Stream + Terminal Usage"]
+  F -->|"next decode step"| D
 ```
 
-The chat route validates options and uses the model's template. A tool schema, system message or thinking option changes token IDs and can destroy prefix hits. The async frontend prepares requests and streams output while the engine core batches across independent sessions. The scheduler gives requests token increments within budget, including prefill and decode work in the same step. A worker prepares tensors and runs the selected attention and quantization kernels. The output processor detokenizes and formats results. The order of upstream events need not match when your client sees the first visible content, especially with reasoning or tool deltas.
+### Key vLLM 0.34.0 Source Paths
+- **OpenAI Chat Serving & Template Rendering:** [`vllm/entrypoints/openai/chat_completion/serving.py`](https://github.com/vllm-project/vllm/blob/v0.34.0/vllm/entrypoints/openai/chat_completion/serving.py)
+- **Async Frontend (Process Boundary):** [`vllm/v1/engine/async_llm.py`](https://github.com/vllm-project/vllm/blob/v0.34.0/vllm/v1/engine/async_llm.py)
+- **EngineCore Loop:** [`vllm/v1/engine/core.py`](https://github.com/vllm-project/vllm/blob/v0.34.0/vllm/v1/engine/core.py)
+- **V1 Unified Scheduler:** [`vllm/v1/core/sched/scheduler.py`](https://github.com/vllm-project/vllm/blob/v0.34.0/vllm/v1/core/sched/scheduler.py)
+- **GPU Model Runner:** [`vllm/v1/worker/gpu/model_runner.py`](https://github.com/vllm-project/vllm/blob/v0.34.0/vllm/v1/worker/gpu/model_runner.py)
 
-Read the [chat serving path](https://github.com/vllm-project/vllm/blob/v0.34.0/vllm/entrypoints/openai/chat_completion/serving.py), [async frontend](https://github.com/vllm-project/vllm/blob/v0.34.0/vllm/v1/engine/async_llm.py), [EngineCore](https://github.com/vllm-project/vllm/blob/v0.34.0/vllm/v1/engine/core.py), [scheduler](https://github.com/vllm-project/vllm/blob/v0.34.0/vllm/v1/core/sched/scheduler.py), [V2 GPU model runner](https://github.com/vllm-project/vllm/blob/v0.34.0/vllm/v1/worker/gpu/model_runner.py) and [architecture overview](https://docs.vllm.ai/en/latest/design/arch_overview/).
+### Subtle Failure Modes Along the Path
+1. **Tokenization & Chat Templates:** Adding a dynamic timestamp, user ID, or reordering JSON tool definitions at the start of the system message changes early token IDs and destroys prefix-cache hits. Similarly, `enable_thinking: true` emits reasoning tokens before visible answer tokens — so client `first_visible_content` diverges from engine `TTFT`.
+2. **SSE Chunking vs Token Counts:** One HTTP SSE chunk can contain 0 tokens (role/metadata), 1 token, or multiple tokens (batch detokenization). Never count SSE chunks as output tokens; use verified terminal `usage.completion_tokens`.
+3. **IPC & Output Processing:** V1 decouples the HTTP/tokenizer frontend from `EngineCore` in separate processes to keep Python HTTP overhead off the GPU scheduling critical path.
 
-## 2. Estimate the memory before changing flags
+---
 
-Prefill processes many input tokens together. Matrix reuse gives greater arithmetic intensity, while dense causal attention grows roughly quadratically in prompt length. Decode advances each sequence token by token. A small batch often streams most model weights for little arithmetic per byte. Larger batches reuse those weights, adding requests' KV reads and work. This increases aggregate throughput while making an individual decode step take longer.
+## 2. Prefill vs. Decode, Roofline Model & Memory Hierarchy
 
-Registers and shared memory serve threads on one SM. L2 is shared on the GPU. VRAM supplies much higher capacity but at higher latency. CPU RAM is separated by PCIe on a discrete device. Working-set placement dominates a partially offloaded model.
+### Hardware Memory Hierarchy (Why Placement Matters)
+From fastest/smallest to slowest/largest:
+1. **SM Registers & Shared Memory (SRAM):** Tens of TB/s aggregate; holds active FlashAttention tiles (`Q`, `K`, `V` tiles) so intermediate attention matrices never materialize in HBM/VRAM.
+2. **GPU L2 Cache:** Tens of MB; absorbs small repeated metadata and active expert weights.
+3. **GPU VRAM (GDDR6X / HBM3 / HBM3e):** RTX 4070 GDDR6X delivers ~504 GB/s theoretical (`431 GB/s` measured native copy bandwidth in our lab); H100 SXM delivers ~3.35 TB/s; H200 ~4.8 TB/s; B200 ~8 TB/s.
+4. **Host System RAM over PCIe:** PCIe Gen4 x16 peaks around ~25–28 GB/s usable (~15–20× slower than RTX 4070 VRAM, >100× slower than HBM3). Any weight or KV tensor spilled across PCIe dominates step latency.
 
-For full-attention GQA, KV bytes per token = 2 × layers × KV heads × head dimension × bytes per element. Qwen3-8B has 36 layers, 8 KV heads of dimension 128 and f16 stores two bytes per element, giving 147,456 bytes per token. One 4,096-token sequence has 576 MiB of payload. Four such sequences need 2.25 GiB before alignment, block metadata, graph workspace and weights. Sliding-window, hybrid recurrent and latent-attention architectures require counting separate pools. Our earlier native CUDA lab measured 431 GB/s of copy traffic. Dividing by 4.6718 GB of approximate Qwen scan bytes gives a short-context proxy of 92.3 tok/s. Copy traffic includes reads and writes and does not predict vLLM's GGUF kernels exactly.
+### Arithmetic Intensity & Roofline Equations
+Let $W_{\text{bytes}}$ be active model weight bytes read per forward step, $B_{\text{eff}}$ effective GPU memory bandwidth (bytes/s), $F_{\text{peak}}$ effective tensor-core compute (FLOPs/s), and $N_{\text{tok}}$ total tokens processed in a step:
 
-## 3. Admission, cache and execution controls
+$$\text{Arithmetic Intensity (FLOPs/byte)} \approx \frac{2 \cdot P_{\text{active}} \cdot N_{\text{tok}}}{W_{\text{bytes}} + \text{KV}_{\text{bytes}}}$$
 
-PagedAttention maps logical sequence blocks to physical KV blocks. Allocation need not be contiguous, and block sharing enables automatic prefix caching. Cache keys depend on token prefix and implementation metadata. Hits reuse attention state for matched completed blocks. They still leave decode work, and partial blocks can require recomputation. The scheduler can preempt when cache blocks are scarce. A preempted request can be recomputed later, amplifying service latency. Track preemptions and queue alongside sampled occupancy.
+- **Prefill (Compute-Bound at Long Prompts):** Processes $N_{\text{tok}} \gg 1$ prompt tokens simultaneously. Weights are loaded once and reused across all prompt tokens, pushing arithmetic intensity above the GPU's ridge point ($F_{\text{peak}} / B_{\text{eff}}$). Dense causal attention also scales $O(L^2)$ in prompt length $L$.
+- **Decode (Memory-Bandwidth-Bound at Small Batches):** Each active sequence advances by 1 token ($N_{\text{tok}} = B_{\text{batch}}$). At $B_{\text{batch}} = 1$, the GPU streams all active weights to produce a single token.
 
-Continuous batching fills freed slots without waiting for a batch of responses to finish. In chunked prefill, long inputs can span multiple scheduling steps. The token budget constrains how much prefill competes with decodes in each step. Small budgets can preserve decode cadence while worsening long-prompt TTFT or throughput. Large budgets can favor prompt work while slowing active streams. Capture actual scheduled shapes and inter-token stalls before attributing a change.
+#### Worked Example — RTX 4070 Short-Context Decode Proxy
+- Measured native RTX 4070 copy bandwidth: $B_{\text{eff}} \approx 431\text{ GB/s}$
+- Approximate Qwen3-8B Q4_K_M active weight scan: $W_{\text{bytes}} \approx 4.6718\text{ GB}$
+- Upper-bound single-stream short-context proxy:
+  $$\text{tok/s}_{\text{proxy}} = \frac{431\text{ GB/s}}{4.6718\text{ GB}} \approx 92.3\text{ tok/s}$$
+- **What we actually measured in our lab:**
+  - Native Windows `llama.cpp` b12427 (`c=1`): **78.28 tok/s** (~85% of the raw copy proxy — classic well-tuned bandwidth-bound decode).
+  - WSL2 vLLM `0.34.0` + experimental `vllm-gguf-plugin` `0.0.5` (`--enforce-eager`, static KV, `c=1`): **30.12 tok/s** (client-visible post-first-token proxy `32.66 tok/s`). Why the gap? Eager Python launch overhead, experimental GGUF dequantization kernels, and WSL2/FlashInfer fallbacks meant `c=1` was **launch/kernel-overhead bound**, not VRAM-bandwidth bound — which is also why scaling to `c=4` nearly tripled vLLM aggregate throughput (`30.12 → 98.36 tok/s`, 3.27×) as batching amortized per-step overhead!
 
-CUDA graphs amortize launch overhead for eligible shapes and consume capture memory. Shape changes and unsupported operations can use other paths. Choose graph capture sizes that match real batches. Eager mode is a diagnostic control. Attention kernels depend on architecture, dtype, attention shape and version. Quantized kernels can unpack on the fly or select different paths by batch size.
+---
 
-Speculation adds a draft path and verification. If one pass emits a accepted tokens on average, compare time per emitted token, approximately (draft time + verification time) / a. Test quality and service rate as well as acceptance. Local Forge measurements showed that one token improved a scoped code panel while larger depths regressed, and two-stream results failed to beat both controls. That was Ollama, with no corresponding vLLM claim. [Prefix caching](https://docs.vllm.ai/en/latest/design/prefix_caching/) · [Optimization guide](https://docs.vllm.ai/en/latest/configuration/optimization/) · [Metrics](https://docs.vllm.ai/en/latest/design/metrics/) · [GGUF plugin limitations](https://docs.vllm.ai/en/latest/features/quantization/gguf/) · [Forge evidence](case-study/FORGE_MTP.md)
+## 3. PagedAttention & KV-Cache Block Math
 
-## 4. Distributed execution and economics
+Traditional serving allocated one contiguous VRAM buffer of size `max_model_len` per request, wasting 60–80% of KV memory on internal fragmentation. **PagedAttention** splits each sequence's KV cache into fixed-size **physical blocks** (typically `block_size = 16` tokens) indexed by a logical-to-physical block table.
 
-Tensor parallel splits layers and introduces collectives during forward passes. Pipeline parallel splits stages and can trade lower intra-layer communication for bubbles and higher per-request latency. Expert parallel partitions MoE experts and pays routed activation exchange, so expert imbalance and all-to-all traffic matter. Data parallel replicates capacity and can reduce cache locality unless routing is cache-aware. Disaggregated prefill and decode provision each independently, with a KV transfer boundary. Check transfer time and contention before expecting a tail benefit. None of these topologies were validated on our single RTX 4070. [Parallelism](https://docs.vllm.ai/en/latest/serving/parallelism_scaling/) · [Disaggregated prefill](https://docs.vllm.ai/en/latest/features/disagg_prefill/)
+### Exact KV-Cache Memory Formula (GQA / MHA)
+$$\text{KV bytes/token} = 2 \times n_{\text{layers}} \times n_{\text{kv\_heads}} \times d_{\text{head}} \times b_{\text{dtype}}$$
 
-Goodput is correct on-time transactions per second for a defined workload. At stable demand, improving qualified throughput by factor g reduces worker-hours for the same work by 1 − 1/g under scalable billing. Fixed capacity, integer fleet sizes, redundancy and failover can make actual savings smaller or zero. Always count correctness failures and distinguish useful transactions from output token rates.
+*(Factor of `2` is for K and V. Hybrid/recurrent/MLA models like DeepSeek MLA or Mamba/DeltaNet require architecture-specific state formulas.)*
 
-## 5. Interview and discovery drills
+#### Worked Example — Qwen3-8B (FP16 KV Cache)
+- $n_{\text{layers}} = 36$, $n_{\text{kv\_heads}} = 8$ (GQA), $d_{\text{head}} = 128$, $b_{\text{dtype}} = 2$ bytes (FP16):
+  $$\text{KV bytes/token} = 2 \times 36 \times 8 \times 128 \times 2 = 147,456\text{ bytes/token } (144\text{ KiB/token})$$
+- **1 sequence at 1,536 tokens:** $1,536 \times 144\text{ KiB} = \mathbf{216\text{ MiB}}$
+- **1 sequence at 4,096 tokens:** $4,096 \times 144\text{ KiB} = \mathbf{576\text{ MiB}}$
+- **4 concurrent sequences at 4,096 tokens:** $4 \times 576\text{ MiB} = \mathbf{2.25\text{ GiB}}$ (payload only, before weights, CUDA graph pools, activations, and allocator fragmentation).
 
-1. **Why can batching raise tokens/s and worsen user latency?** Weight reuse improves total work per step. Each step can become longer and requests may wait longer to enter. Compare goodput and tails.
-2. **What sets short decode speed?** Approximate bytes scanned per step and effective memory bandwidth first. If measured speed is below the proxy, profile GEMV, sampling, launches, copies and attention.
-3. **When does prefill dominate?** Long novel prompts add dense matrix work and attention. Separate prompt-length strata and compare cold prefill from warm prefix reuse.
-4. **What does GQA change?** It reduces distinct KV heads relative to query heads, lowering KV bytes and often cache bandwidth. Q projection and model weight scan remain.
-5. **How would you estimate cache concurrency?** Subtract weight, graph and workspace capacity from the memory budget, then divide available KV bytes by aligned payload per full sequence. Verify reported cache blocks.
-6. **Why page KV?** Paged allocation allows different sequence lengths and block reuse without requiring contiguous large allocations. Partial tail and eviction behavior still matter.
-7. **How do you prove cache reuse?** Replay identical prefixes and change an early token on a negative control. Inspect hit/query deltas and client TTFT. Same wall clock alone proves little.
-8. **Why can a queue exist at low GPU utilization?** CPU scheduling, tokenization, cache transfer or network can gate GPU work. Match measurements by replica and time, then profile the host and device.
-9. **How would you detect preemption?** Compare count deltas with sampled occupancy and latency. A restart or missing scrape creates an observation gap, with no invented counter delta.
-10. **Is inter-token latency just E2E divided by output tokens?** No. Omit TTFT and divide by emitted intervals for average TPOT. Engine ITL histogram and client SSE cadence can have different units of observation.
-11. **What does an SSE chunk prove?** A timing event arrived. A chunk can carry multiple tokens, metadata, partial text or no text. Use verified terminal token usage.
-12. **What changes at larger token budgets?** More prompt work can fill the accelerator and alter interference. Hold arrivals, output caps, context and correctness fixed.
-13. **When are CUDA graphs useful?** Repeated batch shapes with small launch-dominated steps. Check capture memory and fallback frequency on production shapes.
-14. **Why can a smaller quant be slower?** Kernel availability, unpacking, cache layout and reduced math reuse can dominate bandwidth savings. Compare a pinned kernel path and separate the quality contract.
-15. **How do you measure draft value?** Capture proposed and accepted tokens together with draft and verify time. Run matched prose and code plus correctness checks.
-16. **When would TP help?** Weight fit or per-step parallelism can justify it. Measure interconnect collectives at realistic batch sizes. PCIe and NVLink topologies can reverse the answer.
-17. **What would make EP unstable?** Skewed expert routing and all-to-all exchange produce stragglers. Measure expert loads, communication, memory and tails.
-18. **When does disaggregation pay?** Prefill and decode can be provisioned independently if KV transfer costs less than the interference you remove. Test locality and failure recovery.
-19. **What is the first customer question?** Ask which traffic family must meet which latency and correctness objective and during what demand window. That determines the experiment metric.
-20. **How do you defend a savings claim?** Use qualified goodput, demand, utilization and the billable cost structure. Show the smallest capacity step that survives SLO, redundancy and rollback requirements.
+#### Real Lab Failure Mode (Phase 9 RTX 4070 Startup Envelope)
+At `--gpu-memory-utilization 0.67` (~8.0 GiB budget on 12 GB RTX 4070):
+- Weights + runtime overhead consumed ~7.5 GiB.
+- Default CUDA graphs + extensible KV at 4,096 context left only ~0.24 GiB for KV when 0.56 GiB was needed → **startup OOM**.
+- Even eager + extensible KV at 1,280 context failed post-warmup (`0.47 GiB` transient reservation reduced usable blocks to 0).
+- Switching to `--enforce-eager --no-enable-extensible-kv-cache` at 1,280 context freed **1,536 KV tokens** (`216 MiB`, `1.20×` full-context concurrency), allowing the server to boot cleanly.
 
-## 6. Exercises
+---
 
-- Calculate Qwen KV payload for 2K, 4K and four 4K sequences. Compare against the engine’s reported blocks using its block size.
-- Replay a receipt with a 1K-token prefix twice, then change the first payload record. Compare prompt tokens, prefix hit counters and client TTFT.
-- Run equal closed-loop fixtures at 1, 2 and 4 workers. Keep correctness, caps and arrival policy explicit. Count failures in the offered population.
-- Overlay a long prompt with a stream of short requests. Inspect first-content timestamps and server ITL bucket intervals. Repeat at a different token budget and verify the control.
-- Replay the synthetic metrics unit test with a restart and missing scrape. Confirm an unavailable delta does not become zero in the report.
+## 4. Scheduler Internals, Continuous Batching & Chunked Prefill
+
+In vLLM V1, **continuous batching** and **chunked prefill** are unified into a single token-budgeted scheduler (`--max-num-batched-tokens` and `--max-num-seqs`):
+- Every scheduler iteration allocates a budget of `max_num_batched_tokens` across active decode tokens (1 token per running sequence) and remaining prefill chunks.
+- **Why chunked prefill matters:** Without chunking, a single 8,192-token prompt blocks all active decode users for seconds, spiking p95/p99 ITL. Chunking slices the 8K prompt across multiple steps so decode users keep receiving tokens.
+- **The hidden trade-off (verified in our Phase 9 RTX 4070 bracket):**
+  - Lowering `--max-num-batched-tokens` from default to **512** reduced activation workspace and freed KV capacity from **1,536 → 2,752 tokens** (+79% KV tokens!).
+  - Yet at 4 closed-loop workers, aggregate throughput **dropped** from `98.36` / `93.69` tok/s (controls) to **`90.71` tok/s**, and correct on-time goodput fell from `1.100` / `1.035` to **`0.940` tasks/s**.
+  - **Lesson:** Shrinking the token budget protects decode cadence under heavy long-prompt interference, but if the workload is not prefill-interference bound, smaller chunks add extra forward passes and hurt total throughput. Always run an `A-B-A` control bracket!
+
+---
+
+## 5. Automatic Prefix Caching (APC)
+
+PagedAttention enables zero-copy sharing of physical KV blocks across requests that share an identical token prefix:
+- Each completed full block (e.g., 16 tokens) is hashed using `(parent_block_hash, block_token_ids, cache_salt/LoRA/MM_metadata)`.
+- On a cache hit, the scheduler maps the new request's logical blocks directly to the existing physical blocks and skips prefill compute for those tokens.
+- **Eviction:** Unreferenced cached blocks sit in an LRU eviction queue and are reclaimed only when new requests need physical blocks. High KV pressure causes **cache thrashing** (blocks evicted before reuse).
+- **Partial tail blocks:** Only *complete* blocks are hashed and shared; trailing tokens beyond the last full block boundary are always recomputed.
+
+### Real Lab Evidence (Phase 9 RTX 4070 Prefix Probe)
+Across 3 fresh vLLM launches (54/54 exact receipts, 6 independent ~1,132-token prefixes):
+- **Cold TTFT (median):** `2.768–2.778 s`
+- **Warm cached TTFT (median):** `0.122–0.125 s` (**~22× reduction** in TTFT)
+- **Early-prefix-changed negative control (median):** `2.764–2.772 s` (proving genuine block-hash prefix reuse, not warm-GPU luck)
+- **Important nuance:** A 22× TTFT improvement on a repeated prefix does **not** mean 22× end-to-end throughput — decode time is unchanged, and only prompts with stable leading prefixes benefit.
+
+---
+
+## 6. Preemption & Recomputation
+
+When all physical KV blocks are full and a running sequence needs another block for its next decode token, the scheduler must **preempt** a lower-priority (typically most-recently-admitted) running sequence:
+- **Recomputation (default in V1):** Evicts the victim sequence's KV blocks back to the free pool and re-queues it into `waiting`. When admitted again, its prompt + already-generated tokens are re-prefilled as a single prompt.
+- **Cost:** Preemption converts cheap decode work into expensive prefill work, spikes tail latency dramatically, and wastes GPU compute.
+- **How to detect:** Monitor `vllm:kv_cache_usage_perc` approaching `>= 0.90` together with positive deltas on `vllm:num_preemptions_total` on the **same label series**.
+
+---
+
+## 7. Execution Backends: CUDA Graphs, Attention Kernels, Quantization & Speculation
+
+### CUDA Graphs
+- Small-batch decode launches hundreds of tiny CUDA kernels per token; Python/CPU launch latency can exceed GPU kernel execution time.
+- CUDA graphs record a static kernel DAG for discrete batch sizes (e.g., `1, 2, 4, 8, 16, 32`) and replay it with a single host launch.
+- **Trade-off:** Graph capture reserves non-reclaimable VRAM (often 0.3–1.5 GiB depending on model/shapes). `--enforce-eager` disables graphs for debugging or tight VRAM, at the cost of higher per-step host overhead.
+
+### Attention Kernels
+- vLLM selects attention backends (FlashAttention-2/3, FlashInfer, Triton, MLA kernels) based on GPU compute capability, head dimension, KV dtype, and quantization.
+- Always check startup logs for silent fallbacks (e.g., FlashInfer fallback or disabled pinned host memory, both observed in our WSL2 RTX 4070 run).
+
+### Quantization
+- **Weight-only (AWQ, GPTQ, W4A16, GGUF):** Shrinks weight bytes read during memory-bound decode, raising decode tok/s — **provided** fused dequantization kernels exist for that GPU/batch size. Experimental or unfused kernels (like GGUF in `vllm-gguf-plugin`) can lose bandwidth gains to dequantization overhead.
+- **W8A8 (FP8 on Ada/Hopper/Blackwell, INT8):** Accelerates *both* compute-bound prefill (via FP8 tensor cores) and memory-bound decode.
+- **KV-cache quantization (FP8 KV):** Halves KV bytes/token (doubling concurrent sequence capacity) at the risk of subtle long-context or tool-call accuracy loss — **must** be re-qualified on task correctness!
+
+### Speculative Decoding (MTP / Draft Models / N-gram)
+If a draft mechanism proposes $k$ tokens and the target verifies them in one parallel forward pass, yielding $a \in [1, k+1]$ accepted tokens on average:
+
+$$t_{\text{per\_emitted\_token}} \approx \frac{t_{\text{draft}}(k) + t_{\text{verify}}(k+1)}{a}$$
+
+- Speedup occurs **only** when $t_{\text{draft}} + t_{\text{verify}}$ grows slower than $a$.
+- **Why it breaks under concurrency:** At high batch sizes, verification becomes compute-bound (`batch × (k+1)` tokens), erasing the free bandwidth headroom that made single-stream speculation fast.
+- **Real Lab Evidence (Forge Qwen3.5-9B MTP on RTX 4070):** `k=1` single-stream lifted structured Python by **+23.5%** and 4K code by **+16.5%** (19/19 exact matches), whereas `k≥2` regressed and **`concurrency=2` failed to beat controls while consuming +522 MiB VRAM**.
+
+---
+
+## 8. Multi-GPU Topologies & Disaggregated Serving *(Architectural Concepts — Not Tested on RTX 4070)*
+
+| Topology | How It Splits Work | Primary Benefit | Primary Bottleneck / Risk |
+| :--- | :--- | :--- | :--- |
+| **Tensor Parallelism (TP)** | Shards attention heads & MLP matrices across GPUs | Fits large weights & reduces single-request decode latency | All-reduce collectives every layer; requires NVLink/NVSwitch (PCIe degrades severely at small batches) |
+| **Pipeline Parallelism (PP)** | Assigns contiguous layer ranges to different GPUs | Fits models across nodes with low inter-node bandwidth | Pipeline bubbles; does not cut single-request latency |
+| **Expert Parallelism (EP)** | Distributes MoE experts across GPUs | Scales sparse MoE parameters cleanly | All-to-all token dispatch & skewed expert routing stragglers |
+| **Data Parallelism (DP)** | Independent full replicas behind a router | Linear aggregate throughput scaling | Splits prefix cache across replicas unless prefix-aware routing is used |
+| **Disaggregated P/D** | Dedicated prefill pool + dedicated decode pool transferring KV | Eliminates prefill-to-decode ITL interference; independent scaling | KV-transfer fabric latency/bandwidth, connector backpressure, failure recovery |
+
+---
+
+## 9. Prometheus Observability & Honest Attribution
+
+Key vLLM Prometheus metrics (`vllm:*`):
+- **Gauges (instantaneous state):** `num_requests_running`, `num_requests_waiting`, `kv_cache_usage_perc` (legacy alias `gpu_cache_usage_perc`). *Risk:* 5-second scraping can miss sub-second spikes.
+- **Counters (monotonic cumulative):** `num_preemptions_total`, `prompt_tokens_total`, `generation_tokens_total`, `prefix_cache_queries_total`, `prefix_cache_hits_total`. *Rules:* Compute deltas only across consecutive valid scrapes within the same stage and same label series; skip decreases (counter resets) and missing scrapes; never impute zero for unobserved intervals.
+- **Histograms (`*_bucket`):** `request_queue_time_seconds`, `request_prefill_time_seconds`, `request_decode_time_seconds`, `e2e_request_latency_seconds`, `time_to_first_token_seconds`, `inter_token_latency_seconds`, `request_time_per_output_token_seconds`. *Rules:* Report exact bucket intervals (`[low_s, high_s]`), withhold p95 below 40 observations, never merge incompatible bucket schemas or distinct replica label series.
+
+---
+
+## 10. Inference Economics Formula
+
+Let **goodput** $G$ be **correct, on-time transactions per second** under the customer's exact SLO and quality contract. Improving qualified goodput by factor $g = G_{\text{new}} / G_{\text{old}} > 1$ at fixed demand reduces required scalable GPU-hours by:
+
+$$\text{GPU-hour reduction} = 1 - \frac{1}{g}$$
+
+- Example: $g = 1.30$ (+30% qualified goodput) → $1 - 1/1.30 = \mathbf{23.1\%}$ fewer GPU-hours. On `$50,000/month` (`$600,000/year`) of **fully reducible scalable GPU spend**, that corresponds illustratively to `~$138,462/year`.
+- **Real-world friction:** Reserved instances, integer node counts (you cannot rent 0.7 of an 8×H100 node), N+1 failover capacity, and low off-peak utilization shrink realizable savings.
+
+---
+
+## 11. Twenty Technical Questions (CTO & Infra Engineer Drills)
+
+1. **Why can raising batch size increase output tok/s while making user experience worse?**
+   Weight reuse raises aggregate throughput, but each decode step reads more KV cache and takes longer (higher ITL), and requests may wait longer in queue (higher TTFT). Always evaluate **qualified goodput** under per-family deadlines, not raw tok/s.
+2. **How do you calculate the single-stream decode speed ceiling of a GPU?**
+   Divide measured effective VRAM bandwidth by active bytes scanned per token (`weights + KV`). On our RTX 4070 (`431 GB/s / 4.67 GB`), Qwen3-8B Q4_K_M has a ~92.3 tok/s short-context proxy; falling far below it points to launch overhead, unfused kernels, or CPU bottlenecks.
+3. **Why did Qwen3-8B Q4_K_M on RTX 4070 fail to boot with default vLLM settings at 4K context?**
+   At 0.67 GPU budget (~8.0 GiB), model weights + runtime took ~7.5 GiB, leaving only ~0.24 GiB for KV when 4K FP16 KV needed 576 MiB (`0.56 GiB`) plus CUDA graph capture and transient warmup buffers.
+4. **How does GQA reduce memory pressure, and what does it NOT reduce?**
+   GQA shares K/V heads across multiple query heads (e.g., 8 KV heads vs 32 Q heads in Qwen3-8B), shrinking KV cache size and KV read bandwidth by 4×. It does not shrink MLP/attention weight reads or Q projection compute.
+5. **What is the exact difference between TTFT, ITL, TPOT, and E2E latency?**
+   TTFT is request arrival to first token; ITL is inter-token interval between consecutive generated tokens; TPOT is `(E2E - TTFT) / (output_tokens - 1)`; E2E is full completion time. Client SSE chunks do not map 1:1 to engine ITL events.
+6. **Why did shrinking `--max-num-batched-tokens` to 512 free KV cache yet hurt c4 throughput in our Phase 9 bracket?**
+   Smaller token budgets shrink temporary activation/prefill buffers, freeing more VRAM for KV blocks (`1,536 → 2,752`). However, without heavy long-prompt interference, capping tokens per step forced extra forward passes and reduced batch efficiency (`98.36 → 90.71 tok/s`).
+7. **How do you prove a TTFT drop came from prefix caching rather than warm-GPU or OS page-cache effects?**
+   Run a 3-arm triplet on fresh launches: (1) cold prefix, (2) identical prefix with new suffix, (3) **early-prefix-changed negative control** of identical length. True APC drops arm 2 (e.g., `2.78 s → 0.125 s`) while arm 3 returns to cold (`2.77 s`) and `prefix_cache_hits_total` climbs.
+8. **Why can prefix caching fail in production even when `--enable-prefix-caching` is enabled?**
+   Dynamic tokens (timestamps, request IDs) placed at the start of prompts break block hashes; round-robin load balancers scatter identical prefixes across replicas; or KV saturation evicts cached blocks before reuse.
+9. **What happens inside vLLM when KV cache reaches 100% mid-generation?**
+   The scheduler preempts a running sequence, freeing its physical KV blocks and returning it to `waiting`. On re-admission, vLLM recomputes the entire prefix + generated tokens so far, spiking tail latency and wasting prefill FLOPs.
+10. **Why can a waiting queue build up when `nvidia-smi` GPU utilization is only 25%?**
+    Either CPU tokenization/detokenization/scheduling or eager Python launch overhead is starving the GPU, OR KV-cache memory is full so only a tiny batch can run, OR coarse 1.5s `nvidia-smi` sampling is missing short bursts. Profile with PyTorch/Nsight timelines before guessing.
+11. **When does speculative decoding (MTP or draft model) become counterproductive?**
+    When acceptance rate is low (creative prose vs structured code), when draft depth `k` is too high (wasted draft/verify FLOPs), or under concurrency where batched verification turns compute-bound (as proved in our Forge Qwen3.5-9B `c=2` study).
+12. **Why can a 4-bit GGUF model run slower in vLLM than in `llama.cpp` on the same GPU?**
+    Quantization speed depends on fused kernels, memory layout, and runtime overhead. Experimental GGUF dequantization in vLLM + eager mode + WSL2 overhead ran at `30.12 tok/s` (`c=1`) vs `78.28 tok/s` in native `llama.cpp` — a runtime/kernel difference, not a universal engine ranking.
+13. **Why did our Inkling-2-Mini loop-aware placement beat `llama.cpp` auto-fit by +37.8% decode and +55.2% 8K prefill?**
+    Inkling loops 12 middle blocks (`blk.6..17`) 3× per token — concentrating 72.3% of active expert reads in 6.88 GB. Pinning those hot looped blocks in VRAM delivered 3× more PCIe bandwidth savings per GiB than naive sequential layer placement.
+14. **When should you choose Tensor Parallelism (TP) vs Data Parallelism (DP)?**
+    Use DP first whenever the model + required KV cache fits on 1 GPU (zero cross-GPU collective overhead, linear throughput scaling). Use TP when the model does not fit on 1 GPU or when single-request latency requires splitting weight reads across NVLink-connected GPUs.
+15. **What makes Expert Parallelism (EP) tricky on MoE models?**
+    Token routing is often skewed toward a few hot experts, creating load imbalance where all GPUs stall waiting for the slowest rank's all-to-all exchange and GEMM.
+16. **When does Prefill/Decode disaggregation actually pay off?**
+    When mixed long-prompt prefill severely degrades decode ITL, prefill and decode have very different hardware ratios, and the KV-transfer fabric (NVLink/RDMA) moves KV state faster than the queuing/interference delay it eliminates.
+17. **Why should you never merge Prometheus counters or histograms across different label series?**
+    Distinct label series represent different replicas, engines, or models. Summing cumulative histograms across mismatched bucket schemas or mixed replicas produces mathematically invalid quantiles and hides single-replica saturation.
+18. **How do you handle a counter reset or missing Prometheus scrape in an audit report?**
+    Detect negative deltas (`b < a`) as resets and non-consecutive indices as gaps; exclude those intervals from cumulative deltas and explicitly report `detected_resets` and `gaps` — never invent zero or extrapolate missing traffic.
+19. **Why must errors, timeouts, and quality failures stay in the goodput denominator?**
+    Dropping HTTP 400s, context rejections, or broken tool calls from the denominator inflates apparent speed and hides broken configurations (as seen in our Qwen3-8B mixed-load study where +57.7% burst tok/s *lost* correct on-time tasks/s).
+20. **How do you defend an inference cost-savings estimate to a skeptical CFO or CTO?**
+    Anchor on **qualified goodput** under real SLOs, apply $1 - 1/g$ only to **reducible** GPU spend, explicitly subtract fixed/reserved/N+1 failover constraints, and present it as a conditional scenario until validated on their staging workload.
+
+---
+
+## 12. Hands-On Local Exercises (Using Existing RTX 4070 Setup)
+
+1. **KV Capacity Verification:** Compute Qwen3-8B FP16 KV bytes for 1,280 and 4,096 tokens (`147,456 B/tok`). Start `scripts/vllm_local.sh serve --enforce-eager --no-enable-extensible-kv-cache` and verify the logged KV block count matches `1,536` tokens (`96` blocks × `16` tokens/block).
+2. **Controlled Prefix-Cache Triplet:** Run `scripts/probe_vllm_prefix.py` against the local endpoint and confirm cold TTFT (~2.77s), warm TTFT (~0.125s), early-prefix-changed control (~2.77s), and positive `vllm:prefix_cache_hits_total` delta.
+3. **Closed-Loop Scaling Curve:** Run `configs/vllm.local.yaml` (or inspect `public/evidence/vllm-phase9.json`) at `c=1, 2, 4` and plot output tok/s vs TTFT p50 to see overhead amortization vs queue onset.
+4. **Offline Evidence Verification & Tamper Detection:** Run `inference-audit verify --run <run>` on a sealed bundle, then modify one byte in `server.jsonl` on a *copy* of the run and verify that `inference-audit verify` rejects the tampered SHA-256 digest.
+5. **Synthetic Observability Edge-Case Drill:** Run `pytest tests/test_vllm_metrics.py -v` and inspect how counter resets, trailing schema changes, missing `le` labels, and `transport_failure` scrapes are surfaced without fabricating zeros.

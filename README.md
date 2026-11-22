@@ -71,7 +71,7 @@ The [Qwen load sweep](https://somsom786.github.io/inference-audit/reports/qwen3-
 
 ## Commercial staging pilots
 
-Discuss an authorized endpoint, a representative workload, and the service target you need to check. [Contact on LinkedIn](https://www.linkedin.com/in/rayn-hasan/)
+Discuss an authorized endpoint, a representative workload, and the service target you need to check. Review the [Staging Assessment Scope](docs/pilots/STAGING_ASSESSMENT_SCOPE.md), [Discovery Questionnaire](docs/pilots/DISCOVERY_QUESTIONNAIRE.md), and [Sample Customer Report (Demo)](docs/pilots/SAMPLE_CUSTOMER_REPORT.md) or [contact on LinkedIn](https://www.linkedin.com/in/rayn-hasan/).
 
 ## Operating scope
 

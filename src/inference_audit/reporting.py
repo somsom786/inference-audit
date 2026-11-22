@@ -359,6 +359,7 @@ def render(report: dict[str, Any], output: Path) -> None:
                         if row["kind"] == "counter"
                         else row.get("observations")
                     ),
+                    latency_bucket(row.get("p50_bucket")),
                     latency_bucket(row.get("p95_bucket")),
                     row.get("detected_resets"),
                     row.get("gaps"),
@@ -366,8 +367,22 @@ def render(report: dict[str, Any], output: Path) -> None:
                 for stage, phase in server["phases"].items()
                 for row in phase["series"]
             ]
-            headers = ["Stage", "Metric", "Label ID", "Peak / delta / n", "p95 bounds (s)", "Resets", "Gaps"]
+            headers = [
+                "Stage",
+                "Metric",
+                "Label ID",
+                "Peak / delta / n",
+                "p50 bounds (s)",
+                "p95 bounds (s)",
+                "Resets",
+                "Gaps",
+            ]
             sheet, md = table(headers, values)
+            truncated = [s for s, p in server["phases"].items() if p.get("series_limit_reached")]
+            if truncated:
+                warn = f"Warning: series cap reached in stage(s): {', '.join(truncated)}."
+                sheet = f"<p><strong>{html.escape(warn)}</strong></p>" + sheet
+                md = f"**{warn}**\n\n" + md
             reuse_values = [
                 [
                     stage,
@@ -375,13 +390,22 @@ def render(report: dict[str, Any], output: Path) -> None:
                     row["hits_delta"],
                     row["queries_delta"],
                     f"{row['observed_hit_fraction']:.1%}",
+                    f"{row.get('matched_intervals', 'n/a')} / {row.get('skipped_intervals', 'n/a')}",
                 ]
                 for stage, phase in server["phases"].items()
                 for row in phase["prefix_reuse"]
             ]
             if reuse_values:
                 cache_html, cache_md = table(
-                    ["Stage", "Label ID", "Hits", "Queries", "Observed reuse"], reuse_values
+                    [
+                        "Stage",
+                        "Label ID",
+                        "Hits",
+                        "Queries",
+                        "Observed reuse",
+                        "Matched / skipped intervals",
+                    ],
+                    reuse_values,
                 )
                 sheet += "<h3>Prefix reuse over matched scrape intervals</h3>" + cache_html
                 md += "\n\n### Prefix reuse over matched scrape intervals\n\n" + cache_md
