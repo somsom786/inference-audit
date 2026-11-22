@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+<title>Measured results by Inference Audit Labs beside published external research</title>
+<rect width="1200" height="630" fill="#201f1c"/>
+<rect x="0" y="0" width="12" height="630" fill="#d4e68d"/>
+<text x="62" y="54" fill="#d4e68d" font-family="Consolas, 'Courier New', monospace" font-size="16" font-weight="bold" text-anchor="start">INFERENCE AUDIT LABS · CONTEXT</text>
+<text x="62" y="106" fill="#f4f1e8" font-family="Georgia, 'Times New Roman', serif" font-size="42" font-weight="bold" text-anchor="start">Measured here vs published elsewhere</text>
+<text x="62" y="140" fill="#c2c0ad" font-family="Consolas, 'Courier New', monospace" font-size="17" font-weight="normal" text-anchor="start">Two separate bodies of work, labelled by who measured them</text>
+<path d="M62 160H1138" stroke="#6a6b57" stroke-width="1" fill="none"/>
+<rect x="62" y="176" width="510" height="344" fill="#2b2a26" stroke="#d4e68d" stroke-width="2"/>
+<rect x="628" y="176" width="510" height="344" fill="#2b2a26" stroke="#6a6b57" stroke-width="1"/>
+<text x="84" y="206" fill="#d4e68d" font-family="Consolas, 'Courier New', monospace" font-size="14" font-weight="bold" text-anchor="start">MEASURED BY INFERENCE AUDIT LABS</text>
+<text x="84" y="226" fill="#c2c0ad" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" text-anchor="start">RTX 4070 12 GB, our harness, repeated brackets</text>
+<text x="650" y="206" fill="#f4f1e8" font-family="Consolas, 'Courier New', monospace" font-size="14" font-weight="bold" text-anchor="start">PUBLISHED EXTERNAL RESEARCH</text>
+<text x="650" y="226" fill="#c2c0ad" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" text-anchor="start">Sybil Solutions · third-party, not reproduced by us</text>
+<text x="84" y="280" fill="#d4e68d" font-family="Georgia, 'Times New Roman', serif" font-size="32" font-weight="bold" text-anchor="start">+37.8% decode</text>
+<text x="84" y="302" fill="#c2c0ad" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" text-anchor="start">Inkling-2-Mini vs auto-fit, RTX 4070</text>
+<text x="84" y="344" fill="#d4e68d" font-family="Georgia, 'Times New Roman', serif" font-size="32" font-weight="bold" text-anchor="start">+55.2% prefill</text>
+<text x="84" y="366" fill="#c2c0ad" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" text-anchor="start">Inkling-2-Mini 8K; startup −67–70%</text>
+<text x="84" y="408" fill="#d4e68d" font-family="Georgia, 'Times New Roman', serif" font-size="32" font-weight="bold" text-anchor="start">+23.5% code</text>
+<text x="84" y="430" fill="#c2c0ad" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" text-anchor="start">Forge Qwen3.5-9B MTP k=1, structured Python</text>
+<text x="84" y="472" fill="#d4e68d" font-family="Georgia, 'Times New Roman', serif" font-size="32" font-weight="bold" text-anchor="start">+57.7% burst</text>
+<text x="84" y="494" fill="#c2c0ad" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" text-anchor="start">Qwen3-8B 2→4 slots; mixed trace regressed</text>
+<text x="650" y="280" fill="#f4f1e8" font-family="Georgia, 'Times New Roman', serif" font-size="32" font-weight="bold" text-anchor="start">2.1× prefill</text>
+<text x="650" y="302" fill="#c2c0ad" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" text-anchor="start">Arc B390 iGPU · 256K prefill 297 → 628 tok/s</text>
+<text x="650" y="344" fill="#f4f1e8" font-family="Georgia, 'Times New Roman', serif" font-size="32" font-weight="bold" text-anchor="start">+44.2% decode</text>
+<text x="650" y="366" fill="#c2c0ad" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" text-anchor="start">RTX 3090 · MTP 45.5 → 65.6 tok/s</text>
+<text x="650" y="408" fill="#f4f1e8" font-family="Georgia, 'Times New Roman', serif" font-size="32" font-weight="bold" text-anchor="start">−62% startup</text>
+<text x="650" y="430" fill="#c2c0ad" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" text-anchor="start">Arc B390 iGPU · 113 → 43 s</text>
+<text x="650" y="472" fill="#f4f1e8" font-family="Georgia, 'Times New Roman', serif" font-size="32" font-weight="bold" text-anchor="start">229.1 tok/s</text>
+<text x="650" y="494" fill="#c2c0ad" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" text-anchor="start">4× H200 NVL · DeepSeek-V4.1-Flash · was crashing</text>
+<path d="M62 540H1138" stroke="#6a6b57" stroke-width="1" fill="none"/>
+<text x="62" y="566" fill="#f4f1e8" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" text-anchor="start">Sybil Solutions / 0xSero published the right-hand results independently. They are not a customer or affiliate of Inference Audit Labs,</text><text x="62" y="586" fill="#f4f1e8" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" text-anchor="start">and this poster is not an endorsement. Hardware, models and engines differ, so the two columns are not a head-to-head comparison.</text><text x="62" y="610" fill="#c2c0ad" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" text-anchor="start">Source: github.com/sybil-solutions (local-ai-registry PR 453, trellis-serve, inference-optimisation-skill). Not independently reproduced.</text>
+</svg>

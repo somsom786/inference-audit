@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Loop-aware expert placement for Inkling-2-Mini on one RTX 4070: +37.8% decode and +55.2% 8K prefill over llama.cpp auto-fit, 6 of 6 acceptance gates."><title>Place the looped core on the GPU: Inkling-2-Mini on one RTX 4070 | Inference Audit Labs</title>
+<meta property="og:type" content="article"><meta property="og:title" content="Inkling-2-Mini loop-aware placement on one RTX 4070"><meta property="og:description" content="+37.8% decode and +55.2% 8K prefill versus llama.cpp auto-fit; 2.1x decode and 8.2x prefill versus --cpu-moe."><meta property="og:image" content="https://somsom786.github.io/inference-audit/assets/inkling-hybrid-social.png"><meta property="og:url" content="https://somsom786.github.io/inference-audit/inkling-hybrid.html">
+<link rel="canonical" href="https://somsom786.github.io/inference-audit/inkling-hybrid.html"><link rel="stylesheet" href="assets/labs.css"></head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top"><div class="shell navigation"><a class="brand" href="index.html"><span class="mark" aria-hidden="true"></span>Inference Audit <b>Labs</b></a><nav aria-label="Research"><a href="labs-case-study.html">Case study</a><a href="forge-mtp.html">Forge MTP</a><a href="index.html#economics">Economics</a><a href="index.html#pilot">Staging pilot</a></nav></div></header>
+<main id="main" tabindex="-1">
+<section class="hero"><div class="shell hero-layout"><div><p class="label">RTX 4070 12 GB experiment</p><h1>Place the looped core on the GPU.</h1><p class="intro">Inkling-2-Mini reuses 12 transformer blocks three times per token. Keeping those blocks on the GPU, and leaving the once-used blocks in host RAM, beat both llama.cpp auto-fit and --cpu-moe on the same card.</p><p class="result-note"><span class="badge badge-labs">Measured by Inference Audit Labs</span></p></div><img src="assets/inkling-hybrid-poster.svg" width="1200" height="630" alt="Inkling-2-Mini loop-aware placement: 37.8% faster decode and 55.2% faster 8K prefill than llama.cpp auto-fit on an RTX 4070"></div></section>
+<div class="shell section">
+<div class="section-heading"><h2>Why loop-aware placement wins.</h2>
+<p>Inkling-2-Mini has 24 physical blocks that execute as 48 logical layers. Blocks 6 to 17 form a loop core that runs three times, giving 36 logical passes. Only 6.88 GB of the 14.78 GB of routed experts live in that core, yet it carries 72.3% of expert traffic per token (1,289.9 of 1,783.6 MB). A generic placement spreads VRAM evenly. A loop-aware placement spends the same VRAM on the weights that are read three times.</p>
+<p>On this card, 11 of the 12 core blocks (blk.6 to blk.16) plus all 1.82 GB of non-expert weights fit on CUDA0 with a 16,384-token f16 KV cache. The prelude, blk.17 and the postlude experts execute on the CPU from pinned host DDR5 RAM. Measured GPU copy bandwidth was 431 GB/s, so decode speed is dominated by CPU-resident expert bandwidth plus activation transfers between CPU and GPU.</p></div>
+<div class="table-wrap"><table class="data-table"><caption>Qualified placement comparison, RTX 4070 12 GB, llama.cpp b12588, 16K context, one slot, f16 KV, reasoning effort low.</caption>
+<thead><tr><th scope="col">Configuration</th><th scope="col">Decode (tok/s)</th><th scope="col">Prefill (tok/s)</th><th scope="col">Basis and outcome</th></tr></thead>
+<tbody>
+<tr><th scope="row">--cpu-moe</th><td>16.45, 16.50</td><td>97.0, 98.0 at 8K</td><td>Two qualified controls. All experts on CPU.</td></tr>
+<tr><th scope="row">seq-postlude-6</th><td>19.25</td><td>94.8 at 1K</td><td>Screening run. Postlude experts on GPU. Not carried forward.</td></tr>
+<tr><th scope="row">moe-cache-6g</th><td>22.47</td><td>93.3 at 1K</td><td>Screening run. Expert cache. Not carried forward.</td></tr>
+<tr><th scope="row">llama.cpp auto-fit</th><td>25.14, 25.15</td><td>514.5, 496.1 at 8K</td><td>Two qualified controls. Startup 11.7 to 12.3 s.</td></tr>
+<tr class="win"><th scope="row">loop-core-11 (qualified winner)</th><td>34.34, 34.66</td><td>798.5, 796.3 at 8K</td><td>Two qualified runs. Startup 3.6 to 3.8 s. 6/6 gates.</td></tr>
+<tr><th scope="row">loop-core-12 (boundary)</th><td>37.00</td><td>682.7 at 8K</td><td>Faster, but hit the VRAM safety stop with 954 MiB free. Rejected.</td></tr>
+</tbody></table></div>
+<p class="detail">Screening runs use a shorter 1K prefill probe and a single pass, so they are not directly comparable with the 8K qualified runs.</p>
+</div>
+<div class="shell section category">
+<div class="section-heading"><h2>The headline gains.</h2></div>
+<div class="grid-3">
+<article class="result"><p class="label">Decode vs auto-fit</p><p class="big">+37.8<span>%</span></p><p class="detail">Range +36.5% to +37.8% across paired runs.</p></article>
+<article class="result"><p class="label">8K prefill vs auto-fit</p><p class="big">+55.2<span>%</span></p><p class="detail">Range +54.8% to +55.2%.</p></article>
+<article class="result"><p class="label">Versus --cpu-moe</p><p class="big">2.1<span>x</span></p><p class="detail">Decode 2.1x, 8K prefill 8.1–8.2x faster.</p></article>
+</div>
+</div>
+<div class="shell section category">
+<div class="section-heading"><h2>Six of six acceptance gates passed.</h2><p>Speed is only useful if the model still works. The winning configuration was held to the same checks as a production candidate.</p></div>
+<ol class="steps" aria-label="Acceptance gates">
+<li><strong>Load</strong><span>Model loads and serves with the safety margin intact.</span></li>
+<li><strong>Chat</strong><span>Coherent completion, finish reason stop, about 33.9 tok/s.</span></li>
+<li><strong>Reasoning</strong><span>Correct short reasoning answer at low effort.</span></li>
+<li><strong>Tool calling</strong><span>Both strict tool-call cases valid and semantically correct.</span></li>
+<li><strong>85% context</strong><span>13,926-token prompt retrieved the needle correctly.</span></li>
+<li><strong>Speed and soak</strong><span>30 s uncapped generation (1,010 tokens, 33.6 tok/s) and a six-request soak (34.2 tok/s median, 33.65 min).</span></li>
+</ol>
+</div>
+<div class="shell section category">
+<div class="section-heading"><h2>Reproducible flags.</h2><p>Winning configuration <code>loop-core-11-nommap-ub512</code>. Eleven loop-core expert blocks stay on the GPU. The prelude, blk.17 and the postlude experts are pinned to host RAM.</p></div>
+<pre class="code-block">--jinja --no-mmproj -c 16384 -np 1 --reasoning-effort low --fit off -ngl all
+-ot "blk\.([0-5]|1[7-9]|2[0-3])\.ffn_.*_exps\.=CPU"
+--load-mode none -fa on -b 512 -ub 512 -t 8 -tb 8</pre>
+<p class="detail">Model: Unsloth Inkling-2-Mini UD-Q4_K_M GGUF, 16,610,543,328 bytes. Hardware: RTX 4070 12 GB, Ryzen 7 7800X3D, 64 GB DDR5-6000. Engine: llama.cpp b12588.</p>
+<div class="callout"><strong>Scope.</strong> One machine, one model, single stream, 16K context, f16 KV and low reasoning effort. This is a hardware-specific placement result. It does not establish multi-user capacity or a customer cost saving. The block split that wins on a 12 GB card will differ on other GPUs.</div>
+<div class="explore"><a href="evidence/inkling-hybrid.json">Download measured results</a><a href="https://github.com/somsom786/inference-audit/blob/main/docs/case-study/INKLING_HYBRID.md">Read the technical report</a><a href="forge-mtp.html">See the Forge MTP experiment</a><a href="index.html#economics">Model conditional savings</a></div>
+</div>
+</main></body></html>

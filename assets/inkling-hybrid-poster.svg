@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+<title>Inkling-2-Mini on a 12 GB RTX 4070 with loop-aware tensor placement</title>
+<rect width="1200" height="630" fill="#201f1c"/>
+<rect x="0" y="0" width="12" height="630" fill="#d4e68d"/>
+<text x="62" y="54" fill="#d4e68d" font-family="Consolas, 'Courier New', monospace" font-size="16" font-weight="bold" text-anchor="start">INFERENCE AUDIT LABS · MEASURED RESULT</text>
+<text x="62" y="106" fill="#f4f1e8" font-family="Georgia, 'Times New Roman', serif" font-size="42" font-weight="bold" text-anchor="start">More Inkling from the same 12 GB GPU</text>
+<text x="62" y="140" fill="#c2c0ad" font-family="Consolas, 'Courier New', monospace" font-size="17" font-weight="normal" text-anchor="start">Inkling-2-Mini UD-Q4_K_M (16.61 GB) · RTX 4070 12 GB · llama.cpp b12588</text>
+<path d="M62 160H1138" stroke="#6a6b57" stroke-width="1" fill="none"/>
+<text x="62" y="232" fill="#d4e68d" font-family="Georgia, 'Times New Roman', serif" font-size="62" font-weight="bold" text-anchor="start">+37.8%</text>
+<text x="62" y="262" fill="#f4f1e8" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="bold" text-anchor="start">decode vs auto-fit</text>
+<text x="62" y="284" fill="#c2c0ad" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" text-anchor="start">(36.5% to 37.8% across the bracket)</text>
+<text x="442" y="232" fill="#d4e68d" font-family="Georgia, 'Times New Roman', serif" font-size="62" font-weight="bold" text-anchor="start">+55.2%</text>
+<text x="442" y="262" fill="#f4f1e8" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="bold" text-anchor="start">8K prefill vs auto-fit</text>
+<text x="442" y="284" fill="#c2c0ad" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" text-anchor="start">(54.8% to 55.2%)</text>
+<text x="822" y="232" fill="#d4e68d" font-family="Georgia, 'Times New Roman', serif" font-size="62" font-weight="bold" text-anchor="start">−67–70%</text>
+<text x="822" y="262" fill="#f4f1e8" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="bold" text-anchor="start">startup vs auto-fit</text>
+<text x="822" y="284" fill="#c2c0ad" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" text-anchor="start">(3.64–3.85 s vs 11.73–12.25 s)</text>
+<text x="62" y="322" fill="#c2c0ad" font-family="Consolas, 'Courier New', monospace" font-size="13" font-weight="bold" text-anchor="start">DECODE tok/s, single stream, qualified interleaved bracket</text>
+<text x="62" y="363" fill="#f4f1e8" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="normal" text-anchor="start">--cpu-moe</text>
+<rect x="250" y="340" width="266.6" height="32" fill="#c2c0ad"/>
+<text x="530.5958736113115" y="363" fill="#f4f1e8" font-family="Consolas, 'Courier New', monospace" font-size="17" font-weight="bold" text-anchor="start">16.45–16.50</text>
+<text x="62" y="413" fill="#f4f1e8" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="normal" text-anchor="start">auto-fit (safe)</text>
+<rect x="250" y="390" width="406.4" height="32" fill="#c2c0ad"/>
+<text x="670.4383205886597" y="413" fill="#f4f1e8" font-family="Consolas, 'Courier New', monospace" font-size="17" font-weight="bold" text-anchor="start">25.14–25.15</text>
+<text x="62" y="463" fill="#f4f1e8" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" text-anchor="start">loop-core-11 (ours)</text>
+<rect x="250" y="440" width="560.0" height="32" fill="#d4e68d"/>
+<text x="824.0" y="463" fill="#f4f1e8" font-family="Consolas, 'Courier New', monospace" font-size="17" font-weight="bold" text-anchor="start">34.34–34.66</text>
+<path d="M62 540H1138" stroke="#6a6b57" stroke-width="1" fill="none"/>
+<text x="62" y="566" fill="#f4f1e8" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="normal" text-anchor="start">6/6 local-ai-registry gates · loop core blk.6..17 = 72.3% of active expert bytes · vs --cpu-moe: +110% decode, 8.1–8.2x 8K prefill</text><text x="62" y="592" fill="#c2c0ad" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" text-anchor="start">RTX 4070 12 GB + 64 GB DDR5-6000, llama.cpp b12588, 16K context, f16 KV. Single stream, one machine; not a general guarantee.</text>
+</svg>
