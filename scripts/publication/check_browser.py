@@ -58,6 +58,7 @@ def check(site, browser, screenshot_dir):
             "",
             "replay.html",
             "labs-case-study.html",
+            "forge-mtp.html",
             "economics.html",
             "case-study.html",
             "samples.html",
@@ -80,6 +81,8 @@ def check(site, browser, screenshot_dir):
                 page.screenshot(path=screenshot_dir / f"{alias}-{viewport['width']}.png")
 
         page.goto(site)
+        assert "+7.0% code decode" in page.locator("#forge-result").inner_text()
+        assert "23.1% fewer GPU-hours" in page.locator(".hero").inner_text()
         page.get_by_role("button", name="First token", exact=True).click()
         assert "0.753 s" in page.locator("#tradeoff").inner_text()
         page.get_by_role("button", name="Completion", exact=True).click()

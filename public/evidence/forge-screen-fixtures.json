@@ -1,0 +1,128 @@
+[
+  [
+    "p0",
+    "prose",
+    "Write a detailed original field report about a marine instrument. Include named people, an unexpected constraint, and a concrete next step. Aim for 220 words.",
+    128,
+    null
+  ],
+  [
+    "p1",
+    "prose",
+    "Write a detailed original field report about a urban heat map. Include named people, an unexpected constraint, and a concrete next step. Aim for 220 words.",
+    128,
+    null
+  ],
+  [
+    "p2",
+    "prose",
+    "Write a detailed original field report about a rare manuscript. Include named people, an unexpected constraint, and a concrete next step. Aim for 220 words.",
+    128,
+    null
+  ],
+  [
+    "p3",
+    "prose",
+    "Write a detailed original field report about a orbital antenna. Include named people, an unexpected constraint, and a concrete next step. Aim for 220 words.",
+    128,
+    null
+  ],
+  [
+    "p4",
+    "prose",
+    "Write a detailed original field report about a seed archive. Include named people, an unexpected constraint, and a concrete next step. Aim for 220 words.",
+    128,
+    null
+  ],
+  [
+    "p5",
+    "prose",
+    "Write a detailed original field report about a ceramic kiln. Include named people, an unexpected constraint, and a concrete next step. Aim for 220 words.",
+    128,
+    null
+  ],
+  [
+    "p6",
+    "prose",
+    "Write a detailed original field report about a storm gauge. Include named people, an unexpected constraint, and a concrete next step. Aim for 220 words.",
+    128,
+    null
+  ],
+  [
+    "p7",
+    "prose",
+    "Write a detailed original field report about a water turbine. Include named people, an unexpected constraint, and a concrete next step. Aim for 220 words.",
+    128,
+    null
+  ],
+  [
+    "c0",
+    "code",
+    "Write Python implementing interval merging for an internal library. Include type annotations, error handling, usage examples and tests.",
+    128,
+    null
+  ],
+  [
+    "c1",
+    "code",
+    "Write Python implementing moving median for an internal library. Include type annotations, error handling, usage examples and tests.",
+    128,
+    null
+  ],
+  [
+    "c2",
+    "code",
+    "Write Python implementing union find for an internal library. Include type annotations, error handling, usage examples and tests.",
+    128,
+    null
+  ],
+  [
+    "c3",
+    "code",
+    "Write Python implementing cache eviction for an internal library. Include type annotations, error handling, usage examples and tests.",
+    128,
+    null
+  ],
+  [
+    "c4",
+    "code",
+    "Write Python implementing stable sort for an internal library. Include type annotations, error handling, usage examples and tests.",
+    128,
+    null
+  ],
+  [
+    "c5",
+    "code",
+    "Write Python implementing range queries for an internal library. Include type annotations, error handling, usage examples and tests.",
+    128,
+    null
+  ],
+  [
+    "c6",
+    "code",
+    "Write Python implementing retry scheduling for an internal library. Include type annotations, error handling, usage examples and tests.",
+    128,
+    null
+  ],
+  [
+    "c7",
+    "code",
+    "Write Python implementing binary search for an internal library. Include type annotations, error handling, usage examples and tests.",
+    128,
+    null
+  ],
+  [
+    "half",
+    "retrieval",
+    "Record 0: source sector 5848 marked amber.\nRecord 1: source sector 9441 marked grey.\nRecord 2: source sector 7999 marked grey.\nRecord 3: source sector 9351 marked grey.\nRecord 4: source sector 5577 marked grey.\nRecord 5: source sector 9731 marked grey.\nRecord 6: source sector 5334 marked blue.\nRecord 7: source sector 8770 marked green.\nRecord 8: source sector 9094 marked green.\nRecord 9: source sector 8346 marked blue.\nRecord 10: source sector 6698 marked green.\nRecord 11: source sector 7400 marked green.\nRecord 12: source sector 7153 marked green.\nRecord 13: source sector 7989 marked blue.\nRecord 14: source sector 9815 marked grey.\nRecord 15: source sector 6521 marked grey.\nRecord 16: source sector 7105 marked grey.\nRecord 17: source sector 5635 marked green.\nRecord 18: source sector 6951 marked green.\nRecord 19: source sector 5519 marked amber.\nRecord 20: source sector 5248 marked blue.\nRecord 21: source sector 5531 marked amber.\nRecord 22: source sector 8171 marked green.\nRecord 23: source sector 7486 marked green.\nRecord 24: source sector 6280 marked amber.\nRecord 25: source sector 6058 marked amber.\nRecord 26: source sector 9396 marked blue.\nRecord 27: source sector 9787 marked grey.\nRecord 28: source sector 8347 marked blue.\nRecord 29: source sector 8762 marked amber.\nRecord 30: source sector 6739 marked amber.\nRecord 31: source sector 5716 marked amber.\nRecord 32: source sector 6071 marked blue.\nRecord 33: source sector 5774 marked blue.\nRecord 34: source sector 5095 marked blue.\nRecord 35: source sector 9719 marked amber.\nRecord 36: source sector 8552 marked grey.\nRecord 37: source sector 8613 marked grey.\nRecord 38: source sector 8967 marked blue.\nRecord 39: source sector 5205 marked blue.\nRecord 40: source sector 7062 marked blue.\nRecord 41: source sector 8161 marked amber.\nRecord 42: source sector 6858 marked grey.\nRecord 43: source sector 8101 marked blue.\nRecord 44: source sector 5020 marked green.\nRecord 45: source sector 8716 marked blue.\nRecord 46: source sector 5679 marked green.\nRecord 47: source sector 7494 marked amber.\nRecord 48: source sector 9094 marked grey.\nRecord 49: source sector 8980 marked green.\nRecord 50: source sector 7818 marked green.\nRecord 51: source sector 9612 marked green.\nRecord 52: source sector 8948 marked blue.\nRecord 53: source sector 9210 marked amber.\nRecord 54: source sector 8900 marked green.\nRecord 55: source sector 8522 marked amber.\nRecord 56: source sector 5547 marked amber.\nRecord 57: source sector 9300 marked green.\nRecord 58: source sector 5332 marked blue.\nRecord 59: source sector 9245 marked grey.\nRecord 60: source sector 6999 marked grey.\nRecord 61: source sector 6832 marked amber.\nRecord 62: source sector 9895 marked grey.\nRecord 63: source sector 6573 marked green.\nRecord 64: source sector 7814 marked blue.\nRecord 65: source sector 8736 marked green.\nRecord 66: source sector 7734 marked amber.\nRecord 67: source sector 8481 marked green.\nRecord 68: source sector 6838 marked green.\nRecord 69: source sector 7087 marked amber.\nRecord 70: source sector 8768 marked grey.\nRecord 71: source sector 8997 marked amber.\nRecord 72: source sector 7863 marked amber.\nRecord 73: source sector 6806 marked amber.\nRecord 74: source sector 5203 marked green.\nRecord 75: source sector 6700 marked blue.\nRecord 76: source sector 8917 marked green.\nRecord 77: source sector 7344 marked grey.\nRecord 78: source sector 7909 marked green.\nRecord 79: source sector 7512 marked green.\nRecord 80: source sector 5351 marked grey.\nRecord 81: source sector 5107 marked grey.\nRecord 82: source sector 8182 marked blue.\nRecord 83: source sector 7731 marked grey.\nRecord 84: source sector 7473 marked amber.\nRecord 85: source sector 8555 marked grey.\nRecord 86: source sector 6754 marked green.\nRecord 87: source sector 6762 marked green.\nRecord 88: source sector 5960 marked grey.\nRecord 89: source sector 8606 marked grey.\nRecord 90: source sector 7366 marked blue.\nRecord 91: source sector 7192 marked blue.\nRecord 92: source sector 8125 marked amber.\nRecord 93: source sector 9263 marked grey.\nRecord 94: source sector 5558 marked green.\nRecord 95: source sector 5370 marked amber.\nRecord 96: source sector 9940 marked blue.\nRecord 97: source sector 8883 marked grey.\nRecord 98: source sector 6874 marked grey.\nRecord 99: source sector 6133 marked amber.\nRecord 100: source sector 9932 marked blue.\nRecord 101: source sector 7336 marked amber.\nRecord 102: source sector 9873 marked blue.\nRecord 103: source sector 7437 marked blue.\nRecord 104: source sector 9865 marked grey.\nRecord 105: source sector 8593 marked amber.\nRecord 106: source sector 8123 marked green.\nRecord 107: source sector 9764 marked blue.\nRecord 108: source sector 5869 marked green.\nRecord 109: source sector 6920 marked grey.\nRecord 110: source sector 5049 marked blue.\nRecord 111: source sector 6744 marked green.\nRecord 112: source sector 9254 marked green.\nRecord 113: source sector 5924 marked amber.\nRecord 114: source sector 5086 marked green.\nRecord 115: source sector 8538 marked amber.\nRecord 116: source sector 5533 marked green.\nRecord 117: source sector 8944 marked grey.\nRecord 118: source sector 7918 marked blue.\nRecord 119: source sector 5615 marked amber.\nRecord 120: source sector 6155 marked blue.\nRecord 121: source sector 8219 marked amber.\nRecord 122: source sector 5772 marked blue.\nRecord 123: source sector 5359 marked blue.\nRecord 124: source sector 7350 marked green.\nRecord 125: source sector 6868 marked blue.\nRecord 126: source sector 8133 marked green.\nRecord 127: source sector 6473 marked amber.\nRecord 128: source sector 7144 marked grey.\nRecord 129: source sector 7534 marked green.\nRecord 130: source sector 8906 marked grey.\nRecord 131: source sector 6625 marked green.\nMarked inspection receipt: RCP-790238\nRecord 133: source sector 7196 marked green.\nRecord 134: source sector 6354 marked green.\nRecord 135: source sector 7623 marked grey.\nRecord 136: source sector 6899 marked green.\nRecord 137: source sector 6930 marked amber.\nRecord 138: source sector 8778 marked amber.\nRecord 139: source sector 8024 marked grey.\nRecord 140: source sector 8267 marked amber.\nRecord 141: source sector 9559 marked blue.\nRecord 142: source sector 9225 marked grey.\nRecord 143: source sector 9452 marked amber.\nRecord 144: source sector 8830 marked grey.\nRecord 145: source sector 9844 marked grey.\nRecord 146: source sector 5857 marked green.\nRecord 147: source sector 5336 marked amber.\nRecord 148: source sector 8819 marked blue.\nRecord 149: source sector 8244 marked amber.\nRecord 150: source sector 7812 marked amber.\nRecord 151: source sector 7205 marked amber.\nRecord 152: source sector 8637 marked grey.\nRecord 153: source sector 6012 marked green.\nRecord 154: source sector 5536 marked amber.\nRecord 155: source sector 9442 marked blue.\nRecord 156: source sector 6627 marked blue.\nRecord 157: source sector 7665 marked green.\nRecord 158: source sector 5599 marked grey.\nRecord 159: source sector 8387 marked amber.\nRecord 160: source sector 6694 marked amber.\nRecord 161: source sector 6314 marked amber.\nRecord 162: source sector 8062 marked grey.\nRecord 163: source sector 7211 marked green.\nRecord 164: source sector 6613 marked grey.\nReturn only the marked inspection receipt.",
+    24,
+    "RCP-790238"
+  ],
+  [
+    "near",
+    "retrieval",
+    "Record 0: source sector 5618 marked blue.\nRecord 1: source sector 6637 marked blue.\nRecord 2: source sector 5363 marked blue.\nRecord 3: source sector 8661 marked blue.\nRecord 4: source sector 6225 marked green.\nRecord 5: source sector 5984 marked blue.\nRecord 6: source sector 9321 marked grey.\nRecord 7: source sector 8632 marked blue.\nRecord 8: source sector 6457 marked grey.\nRecord 9: source sector 6624 marked grey.\nRecord 10: source sector 6526 marked grey.\nRecord 11: source sector 9290 marked grey.\nRecord 12: source sector 6066 marked blue.\nRecord 13: source sector 6999 marked green.\nRecord 14: source sector 7158 marked grey.\nRecord 15: source sector 8748 marked green.\nRecord 16: source sector 8862 marked blue.\nRecord 17: source sector 8219 marked green.\nRecord 18: source sector 6269 marked blue.\nRecord 19: source sector 7189 marked grey.\nRecord 20: source sector 7841 marked grey.\nRecord 21: source sector 8128 marked grey.\nRecord 22: source sector 7314 marked blue.\nRecord 23: source sector 8859 marked blue.\nRecord 24: source sector 8739 marked amber.\nRecord 25: source sector 9330 marked green.\nRecord 26: source sector 5004 marked amber.\nRecord 27: source sector 9708 marked green.\nRecord 28: source sector 7772 marked amber.\nRecord 29: source sector 8899 marked green.\nRecord 30: source sector 9407 marked amber.\nRecord 31: source sector 6986 marked green.\nRecord 32: source sector 9452 marked grey.\nRecord 33: source sector 8100 marked amber.\nRecord 34: source sector 8269 marked grey.\nRecord 35: source sector 7478 marked amber.\nRecord 36: source sector 5677 marked grey.\nRecord 37: source sector 5294 marked green.\nRecord 38: source sector 9955 marked blue.\nRecord 39: source sector 5327 marked grey.\nRecord 40: source sector 5152 marked amber.\nRecord 41: source sector 6189 marked amber.\nRecord 42: source sector 6111 marked grey.\nRecord 43: source sector 8165 marked green.\nRecord 44: source sector 8952 marked blue.\nRecord 45: source sector 5806 marked blue.\nRecord 46: source sector 8219 marked green.\nRecord 47: source sector 6380 marked grey.\nRecord 48: source sector 7265 marked blue.\nRecord 49: source sector 6746 marked green.\nRecord 50: source sector 7765 marked amber.\nRecord 51: source sector 8083 marked blue.\nRecord 52: source sector 7088 marked grey.\nRecord 53: source sector 7410 marked amber.\nRecord 54: source sector 5556 marked blue.\nRecord 55: source sector 5987 marked blue.\nRecord 56: source sector 6140 marked blue.\nRecord 57: source sector 7775 marked amber.\nRecord 58: source sector 5316 marked green.\nRecord 59: source sector 8191 marked amber.\nRecord 60: source sector 8591 marked blue.\nRecord 61: source sector 9048 marked amber.\nRecord 62: source sector 5216 marked grey.\nRecord 63: source sector 9257 marked green.\nRecord 64: source sector 7892 marked blue.\nRecord 65: source sector 5108 marked green.\nRecord 66: source sector 7822 marked green.\nRecord 67: source sector 5388 marked amber.\nRecord 68: source sector 8393 marked blue.\nRecord 69: source sector 6911 marked green.\nRecord 70: source sector 7511 marked amber.\nRecord 71: source sector 8345 marked green.\nRecord 72: source sector 7225 marked grey.\nRecord 73: source sector 5893 marked amber.\nRecord 74: source sector 8956 marked amber.\nRecord 75: source sector 8510 marked grey.\nRecord 76: source sector 6860 marked grey.\nRecord 77: source sector 9199 marked grey.\nRecord 78: source sector 6741 marked grey.\nRecord 79: source sector 5860 marked green.\nRecord 80: source sector 6734 marked blue.\nRecord 81: source sector 6009 marked blue.\nRecord 82: source sector 7202 marked blue.\nRecord 83: source sector 9996 marked green.\nRecord 84: source sector 5432 marked grey.\nRecord 85: source sector 6305 marked green.\nRecord 86: source sector 8820 marked green.\nRecord 87: source sector 8142 marked amber.\nRecord 88: source sector 6761 marked green.\nRecord 89: source sector 7164 marked grey.\nRecord 90: source sector 9687 marked green.\nRecord 91: source sector 8862 marked green.\nRecord 92: source sector 9915 marked grey.\nRecord 93: source sector 9647 marked blue.\nRecord 94: source sector 5403 marked green.\nRecord 95: source sector 8067 marked green.\nRecord 96: source sector 9550 marked grey.\nRecord 97: source sector 8257 marked grey.\nRecord 98: source sector 9301 marked blue.\nRecord 99: source sector 6658 marked grey.\nRecord 100: source sector 8460 marked amber.\nRecord 101: source sector 5861 marked blue.\nRecord 102: source sector 8792 marked blue.\nRecord 103: source sector 7713 marked amber.\nRecord 104: source sector 8637 marked grey.\nRecord 105: source sector 5940 marked blue.\nRecord 106: source sector 9947 marked green.\nRecord 107: source sector 5869 marked amber.\nRecord 108: source sector 7014 marked amber.\nRecord 109: source sector 5358 marked blue.\nRecord 110: source sector 7602 marked blue.\nRecord 111: source sector 7713 marked amber.\nRecord 112: source sector 8265 marked green.\nRecord 113: source sector 6856 marked amber.\nRecord 114: source sector 7008 marked grey.\nRecord 115: source sector 6335 marked grey.\nRecord 116: source sector 9346 marked blue.\nRecord 117: source sector 7046 marked green.\nRecord 118: source sector 6684 marked green.\nRecord 119: source sector 5902 marked amber.\nRecord 120: source sector 9819 marked grey.\nRecord 121: source sector 5105 marked amber.\nRecord 122: source sector 7427 marked grey.\nRecord 123: source sector 7561 marked amber.\nRecord 124: source sector 6747 marked amber.\nRecord 125: source sector 7745 marked green.\nRecord 126: source sector 6855 marked blue.\nRecord 127: source sector 5866 marked blue.\nRecord 128: source sector 7992 marked green.\nRecord 129: source sector 6716 marked amber.\nRecord 130: source sector 9337 marked green.\nRecord 131: source sector 6458 marked green.\nRecord 132: source sector 7376 marked blue.\nRecord 133: source sector 5630 marked green.\nRecord 134: source sector 9627 marked green.\nRecord 135: source sector 8363 marked grey.\nRecord 136: source sector 6358 marked amber.\nRecord 137: source sector 7393 marked grey.\nRecord 138: source sector 8827 marked blue.\nRecord 139: source sector 5765 marked green.\nRecord 140: source sector 7543 marked amber.\nRecord 141: source sector 7191 marked green.\nRecord 142: source sector 8794 marked blue.\nRecord 143: source sector 7428 marked amber.\nRecord 144: source sector 7931 marked grey.\nRecord 145: source sector 5597 marked green.\nRecord 146: source sector 8570 marked grey.\nRecord 147: source sector 7651 marked green.\nRecord 148: source sector 6515 marked blue.\nRecord 149: source sector 5157 marked grey.\nRecord 150: source sector 5594 marked blue.\nRecord 151: source sector 6587 marked green.\nRecord 152: source sector 7442 marked amber.\nRecord 153: source sector 8177 marked green.\nRecord 154: source sector 8085 marked grey.\nRecord 155: source sector 6600 marked blue.\nRecord 156: source sector 6861 marked amber.\nRecord 157: source sector 7031 marked amber.\nRecord 158: source sector 6202 marked blue.\nRecord 159: source sector 6011 marked amber.\nRecord 160: source sector 8731 marked grey.\nRecord 161: source sector 6717 marked amber.\nRecord 162: source sector 9685 marked amber.\nRecord 163: source sector 6586 marked green.\nRecord 164: source sector 5814 marked green.\nRecord 165: source sector 8216 marked amber.\nRecord 166: source sector 9390 marked green.\nRecord 167: source sector 6591 marked amber.\nRecord 168: source sector 7913 marked grey.\nRecord 169: source sector 6876 marked grey.\nRecord 170: source sector 8213 marked grey.\nRecord 171: source sector 7252 marked grey.\nRecord 172: source sector 7120 marked green.\nRecord 173: source sector 6274 marked amber.\nRecord 174: source sector 8073 marked amber.\nRecord 175: source sector 9677 marked green.\nRecord 176: source sector 7640 marked blue.\nRecord 177: source sector 6430 marked green.\nRecord 178: source sector 5521 marked grey.\nRecord 179: source sector 9532 marked blue.\nRecord 180: source sector 6249 marked blue.\nRecord 181: source sector 5039 marked amber.\nRecord 182: source sector 9380 marked green.\nRecord 183: source sector 5911 marked grey.\nRecord 184: source sector 8162 marked amber.\nRecord 185: source sector 9107 marked blue.\nRecord 186: source sector 9174 marked blue.\nRecord 187: source sector 9851 marked green.\nRecord 188: source sector 9170 marked green.\nRecord 189: source sector 8419 marked green.\nRecord 190: source sector 9781 marked blue.\nRecord 191: source sector 9030 marked blue.\nRecord 192: source sector 6140 marked grey.\nRecord 193: source sector 7485 marked amber.\nRecord 194: source sector 8979 marked green.\nRecord 195: source sector 6373 marked green.\nRecord 196: source sector 8718 marked blue.\nRecord 197: source sector 5606 marked blue.\nRecord 198: source sector 7508 marked amber.\nRecord 199: source sector 6914 marked blue.\nRecord 200: source sector 8838 marked green.\nRecord 201: source sector 6973 marked blue.\nRecord 202: source sector 5963 marked amber.\nRecord 203: source sector 9503 marked green.\nRecord 204: source sector 9889 marked green.\nRecord 205: source sector 9212 marked grey.\nRecord 206: source sector 5432 marked green.\nRecord 207: source sector 7503 marked grey.\nRecord 208: source sector 5105 marked green.\nRecord 209: source sector 6074 marked grey.\nRecord 210: source sector 8638 marked grey.\nRecord 211: source sector 7210 marked green.\nRecord 212: source sector 7527 marked amber.\nRecord 213: source sector 8375 marked grey.\nRecord 214: source sector 9572 marked amber.\nRecord 215: source sector 9140 marked grey.\nRecord 216: source sector 7349 marked blue.\nRecord 217: source sector 7722 marked grey.\nRecord 218: source sector 8418 marked blue.\nRecord 219: source sector 6416 marked grey.\nRecord 220: source sector 5291 marked blue.\nRecord 221: source sector 7748 marked amber.\nRecord 222: source sector 9080 marked grey.\nRecord 223: source sector 8636 marked amber.\nRecord 224: source sector 6311 marked grey.\nRecord 225: source sector 7003 marked green.\nRecord 226: source sector 5181 marked amber.\nRecord 227: source sector 6569 marked grey.\nRecord 228: source sector 6821 marked blue.\nRecord 229: source sector 7860 marked green.\nRecord 230: source sector 7345 marked amber.\nRecord 231: source sector 7921 marked amber.\nRecord 232: source sector 8773 marked amber.\nRecord 233: source sector 7540 marked green.\nRecord 234: source sector 5525 marked grey.\nRecord 235: source sector 9468 marked grey.\nRecord 236: source sector 5137 marked amber.\nRecord 237: source sector 5470 marked blue.\nRecord 238: source sector 9707 marked green.\nRecord 239: source sector 7348 marked grey.\nMarked inspection receipt: RCP-839994\nRecord 241: source sector 5012 marked green.\nRecord 242: source sector 7481 marked amber.\nRecord 243: source sector 9844 marked grey.\nRecord 244: source sector 6425 marked grey.\nRecord 245: source sector 9592 marked amber.\nRecord 246: source sector 6023 marked green.\nRecord 247: source sector 7072 marked amber.\nRecord 248: source sector 7842 marked blue.\nRecord 249: source sector 6254 marked grey.\nRecord 250: source sector 8068 marked blue.\nRecord 251: source sector 7751 marked grey.\nRecord 252: source sector 8861 marked grey.\nRecord 253: source sector 6005 marked amber.\nRecord 254: source sector 5758 marked blue.\nRecord 255: source sector 8726 marked grey.\nRecord 256: source sector 9961 marked green.\nRecord 257: source sector 7904 marked blue.\nRecord 258: source sector 6276 marked blue.\nRecord 259: source sector 7887 marked grey.\nRecord 260: source sector 9052 marked blue.\nRecord 261: source sector 5476 marked amber.\nRecord 262: source sector 5910 marked amber.\nRecord 263: source sector 6161 marked grey.\nRecord 264: source sector 6123 marked amber.\nRecord 265: source sector 8156 marked grey.\nRecord 266: source sector 8132 marked blue.\nRecord 267: source sector 5267 marked green.\nRecord 268: source sector 5551 marked green.\nRecord 269: source sector 6208 marked blue.\nRecord 270: source sector 5362 marked amber.\nRecord 271: source sector 9493 marked grey.\nRecord 272: source sector 7315 marked blue.\nRecord 273: source sector 9888 marked amber.\nRecord 274: source sector 7619 marked blue.\nRecord 275: source sector 8805 marked grey.\nRecord 276: source sector 6952 marked grey.\nRecord 277: source sector 8188 marked amber.\nRecord 278: source sector 9142 marked blue.\nRecord 279: source sector 9832 marked grey.\nRecord 280: source sector 8183 marked green.\nRecord 281: source sector 7398 marked blue.\nRecord 282: source sector 6557 marked green.\nRecord 283: source sector 6191 marked amber.\nRecord 284: source sector 5106 marked amber.\nRecord 285: source sector 6944 marked blue.\nRecord 286: source sector 5773 marked green.\nRecord 287: source sector 8350 marked grey.\nRecord 288: source sector 7102 marked amber.\nRecord 289: source sector 6444 marked blue.\nRecord 290: source sector 5450 marked blue.\nRecord 291: source sector 7631 marked amber.\nRecord 292: source sector 8885 marked amber.\nRecord 293: source sector 9560 marked blue.\nRecord 294: source sector 6575 marked blue.\nRecord 295: source sector 6293 marked blue.\nRecord 296: source sector 6470 marked amber.\nRecord 297: source sector 8392 marked green.\nRecord 298: source sector 7460 marked amber.\nRecord 299: source sector 6939 marked blue.\nReturn only the marked inspection receipt.",
+    24,
+    "RCP-839994"
+  ]
+]

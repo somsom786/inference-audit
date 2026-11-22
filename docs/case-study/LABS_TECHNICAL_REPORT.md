@@ -27,7 +27,7 @@ A lab archive contains a completed six-hour Qwen3-8B run with 13,926 scheduled a
 
 A later bounded V2 compatibility study used distinct hidden tool receipts and explicitly requested a tool-choice representation supported by the pinned llama.cpp Jinja backend. Equal scores and equal output token totals in each arm established a protocol fix on that endpoint without a speed or model-quality claim. The unpublished experimental source and underlying session captures are outside this site update.
 
-Phase 7 audited the current upstream implementations and screened installed models and runtimes. The first candidate is a same-artifact CUDA graph sensitivity check with the recommended/default graph path as control, subject to build-specific flag verification. The installed Forge Qwen3.5 derivative merits an MTP experiment only if its actual artifact contains a compatible head. Neither received a performance result because an active game failed the preflight. Inkling 2 Mini, large Qwen variants and cross-engine quantizations remain separate feasibility questions. There is no new qualified recipe.
+Phase 7 then verified the installed Forge Qwen3.5-9B head and tested native MTP with the bundled CUDA backend in Ollama 0.40.16. One-token drafting improved median single-stream code decode by 6.9% and 7.0% in two fresh launch brackets, with near-full retrieval passing. Four-token drafting was slower, and the result did not generalize to novel prose. The [dedicated report](FORGE_MTP.md) shows the baseline, output checks, memory and limitations. No registry-qualified recipe resulted. Inkling 2 Mini, large Qwen variants and cross-engine quantizations remain separate feasibility questions.
 
 ## Reproduce and interpret
 

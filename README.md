@@ -6,6 +6,10 @@ Inference Audit is a local-first CLI for self-hosted inference. It sends bounded
 
 [Labs website](https://somsom786.github.io/inference-audit/) · [Case study](https://somsom786.github.io/inference-audit/labs-case-study.html) · [Interactive measurements](https://somsom786.github.io/inference-audit/case-study.html) · [Sample audits](https://somsom786.github.io/inference-audit/samples.html) · [Public preview v0.2.1](https://github.com/somsom786/inference-audit/releases/tag/v0.2.1)
 
+**New result.** One-token native MTP increased median Forge Qwen3.5-9B code decode from **71.56–71.57 to 76.60 tok/s (+7.0%)** in a repeat bracket on the RTX 4070. Code outputs matched both default runs and two near-full context checks passed. Novel prose was flat and four-token MTP regressed. The code result covers one active stream and capped, synthetic prompts. [Technical report](docs/case-study/FORGE_MTP.md) · [Experiment page](https://somsom786.github.io/inference-audit/forge-mtp.html)
+
+[![Forge Qwen3.5-9B code decode improved from 71.56–71.57 to 76.60 tok/s with one draft token](public/assets/forge-mtp-social.png)](https://somsom786.github.io/inference-audit/forge-mtp.html)
+
 ## What changed when we added serving slots?
 
 RTX 4070 12 GB, Qwen3-8B Q4_K_M, llama.cpp CUDA b12427. The fixed KV pool gives two slots 8,192 positions each and four slots 4,096 each.
@@ -17,7 +21,6 @@ RTX 4070 12 GB, Qwen3-8B Q4_K_M, llama.cpp CUDA b12427. The fixed KV pool gives 
 
 Neither profile met the 95% target in every family. The burst result establishes an experimental configuration trade-off. Wider deployment capacity and savings require customer-specific qualification. [Burst evidence](docs/publication/CLAIMS_LEDGER.md#p2-chat) · [Mixed-workload evidence](docs/publication/CLAIMS_LEDGER.md#p4-goodput) · [Technical report](docs/case-study/LABS_TECHNICAL_REPORT.md)
 
-[![Inference Audit Labs research poster showing the chat-burst gain and the mixed-workload decline on Qwen3-8B](public/assets/labs-social.png)](https://somsom786.github.io/inference-audit/labs-case-study.html)
 
 ## Quick start
 

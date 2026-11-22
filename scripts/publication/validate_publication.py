@@ -2,6 +2,7 @@
 
 import argparse
 from collections import Counter
+from hashlib import sha256
 from html.parser import HTMLParser
 import json
 import math
@@ -196,6 +197,29 @@ def check_reports(root):
 
 def check_data(root):
     data = load_json(root / "public/evidence/measurements.json")
+    forge = load_json(root / "public/evidence/forge-mtp.json")
+    require(len(forge["brackets"]) == 3, "Incomplete MTP control brackets")
+    for bracket, manifest in zip(forge["brackets"], ("screen", "screen", "qual"), strict=True):
+        source = root / f"public/evidence/forge-{manifest}-fixtures.json"
+        payload = source.read_bytes().replace(b"\r\n", b"\n")
+        # The raw Windows captures used CRLF. Git's metadata may normalize the tracked copy.
+        hashes = {sha256(payload).hexdigest(), sha256(payload.replace(b"\n", b"\r\n")).hexdigest()}
+        require(bracket["fixture_sha256"] in hashes, "MTP workload digest disagrees")
+    for bracket, expected, draft_length in zip(forge["brackets"][1:], (6.9, 7.0), (1, 1), strict=True):
+        left, candidate, right = (bracket["arms"][name] for name in bracket["order"])
+        require(
+            [a["draft"] for a in (left, candidate, right)] == [0, draft_length, 0], "Incorrect MTP controls"
+        )
+        code = [a["metrics"]["code"] for a in (left, candidate, right)]
+        require(all(m["n"] == 8 for m in code), "Incomplete MTP samples")
+        gain = 100 * (
+            code[1]["server_decode_tps"] / max(code[0]["server_decode_tps"], code[2]["server_decode_tps"]) - 1
+        )
+        require(round(gain, 1) == expected, "MTP code comparison disagrees")
+    require(all(r["correct"] for r in candidate["retrieval"]), "MTP retrieval failed")
+    require(
+        sum(r["prompt_tokens"] >= 7500 for r in candidate["retrieval"]) == 2, "MTP context probes missing"
+    )
     require(
         len(data["phase4"]["rows"]) == data["phase3"]["matched_strata"] == 60, "Unexpected historical strata"
     )

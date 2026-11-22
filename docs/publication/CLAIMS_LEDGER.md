@@ -92,6 +92,12 @@ Research paths below are relative to the local `inference-bench` archive. Produc
 
 **Evidence / method.** [Aggregate and source hashes](../../public/evidence/labs-endurance.json) · [CPU recount](../../scripts/publication/verify_endurance_summary.py). The completed archive is identified as phase6-endurance-01. The private transaction ledger and archived summary and SLO match their sealed hashes. The recount verified unique transaction IDs and counted stored flags by family. This reflects recorded verdicts on one lab host. The underlying answers are not recoverable from the aggregate and the count cannot establish general model quality. The earlier abort and Phase 3 suspended segment are separate records.
 
+## P7-FORGE-MTP
+
+**Claim.** One-token native MTP on Forge Qwen3.5-9B increased median single-stream code decode by 6.9% and 7.0% against the faster control in two fresh brackets, with 71.56–71.57 → 76.60 tok/s in the second. Code output matched both controls across the eight prompts in each bracket. Both near-full retrieval checks passed. Novel prose decode was broadly unchanged. Four-token MTP regressed code and prose.
+
+**Evidence / method.** [Per-launch metrics and hashes](../../public/evidence/forge-mtp.json) · [Protocol and limits](../case-study/FORGE_MTP.md). Eight 128-output-token prompts per panel per launch. Eight code outputs per arm compared byte for byte. Same artifact, context, decode options and CUDA path. One RTX 4070 and one engine release. Excludes production, concurrent and all-family qualification. The calculator uses a separate hypothetical service-throughput assumption.
+
 ## DEMO
 
 **Claim.** The Qwen and Gemma public reports are offline re-renders through the 0.2.1 product from 0.2.0 captures of 446 and 50 transactions. Report tables/plots use the original measured observations. The Qwen sweep used a fixed two-slot server; its parallel decode probe scales client workers. The archived sweep and the final short restart are separate captures.

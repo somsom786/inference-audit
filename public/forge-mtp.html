@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="A repeated RTX 4070 experiment on native speculative decoding with Forge Qwen3.5-9B."><title>One draft token, faster code decode | Inference Audit Labs</title><link rel="stylesheet" href="assets/labs.css"></head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top"><div class="shell navigation"><a class="brand" href="index.html"><span class="mark" aria-hidden="true"></span>Inference Audit <b>Labs</b></a><nav aria-label="Research"><a href="labs-case-study.html">Case study</a><a href="index.html#economics">Economics</a><a href="index.html#pilot">Staging pilot</a></nav></div></header>
+<main id="main" tabindex="-1">
+<section class="hero"><div class="shell hero-layout"><div><p class="label">RTX 4070 experiment</p><h1>One draft token. A faster code stream.</h1><p class="intro">Native multi-token prediction proposes a token ahead of the main model. For Forge Qwen3.5-9B, checking one proposal at a time made code decode faster. Asking for four made it slower.</p></div><img src="assets/forge-mtp-poster.svg" width="1200" height="630" alt="7.0% faster median code decode with one draft token, from 71.56–71.57 to 76.60 tokens per second"></div></section>
+<div class="shell section">
+<div class="section-heading"><h2>Same weights. Three clean launches.</h2>
+<p>Default → one-token MTP → default on Forge Qwen3.5-9B Q4_K_M, RTX 4070 and Ollama 0.40.16. Each arm measured eight code and eight novel-prose prompts, 128 output tokens per request, one stream and an 8,192-token context. The faster of the two controls is the comparison.</p>
+<p><strong>Code decode rose from 71.56–71.57 to 76.60 tok/s (+7.0%).</strong> Median code completion fell from 1.858–1.865 s to 1.748 s. An earlier matched bracket reached +6.9%. All eight visible code outputs matched both controls in each one-token bracket. Both near-full retrieval checks passed in the fresh bracket.</p>
+<p>Prose throughput was roughly flat. Four draft tokens reduced the code median to 55.91 tok/s against controls at 71.55–71.66. Peak board memory in the fresh one-token arm was 8,935 MiB against 8,475–8,499 MiB. This is a single-stream result on a fixed prompt panel. Multi-user capacity and actual savings remain unmeasured.</p>
+</div>
+<div class="explore"><a href="evidence/forge-mtp.json">Download measured results</a><a href="https://github.com/somsom786/inference-audit/blob/main/docs/case-study/FORGE_MTP.md">Read the technical report</a><a href="assets/forge-mtp-social.png">Download the results poster</a><a href="index.html#economics">Model conditional savings</a></div>
+</div>
+</main></body></html>
