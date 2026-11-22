@@ -1,6 +1,6 @@
 # Inference Audit Labs
 
-**vLLM staging audits (experimental on main).** The existing OpenAI-compatible benchmark can capture approved, same-origin vLLM metrics with phase-aligned queue, KV, preemption, prefix and latency evidence. [Local setup and configuration](docs/VLLM_LOCAL.md) · [Staging playbook](docs/VLLM_OPTIMIZATION_PLAYBOOK.md) · [Internals guide](docs/VLLM_INTERNALS_GUIDE.md) ? [RTX 4070 lab results](docs/case-study/VLLM_PHASE9.md) ? [Generated sample audit](https://somsom786.github.io/inference-audit/reports/vllm-qwen3-8b-audit.html)
+**vLLM staging audits (experimental on `main`).** The OpenAI-compatible benchmark can capture approved, same-origin vLLM metrics with phase-aligned queue, KV, preemption, prefix, and latency evidence. [Local setup and configuration](docs/VLLM_LOCAL.md) · [Staging playbook](docs/VLLM_OPTIMIZATION_PLAYBOOK.md) · [Internals guide](docs/VLLM_INTERNALS_GUIDE.md) · [RTX 4070 lab results](docs/case-study/VLLM_PHASE9.md) · [Generated sample audit](https://somsom786.github.io/inference-audit/reports/vllm-qwen3-8b-audit.html)
 
 **More inference. Same GPU budget.**
 
@@ -72,6 +72,12 @@ The [Qwen load sweep](https://somsom786.github.io/inference-audit/reports/qwen3-
 ## Commercial staging pilots
 
 Discuss an authorized endpoint, a representative workload, and the service target you need to check. Review the [Staging Assessment Scope](docs/pilots/STAGING_ASSESSMENT_SCOPE.md), [Discovery Questionnaire](docs/pilots/DISCOVERY_QUESTIONNAIRE.md), and [Sample Customer Report (Demo)](docs/pilots/SAMPLE_CUSTOMER_REPORT.md) or [contact on LinkedIn](https://www.linkedin.com/in/rayn-hasan/).
+
+## Release & branch status
+
+- **Tagged public preview [`v0.2.1`](https://github.com/somsom786/inference-audit/releases/tag/v0.2.1) (`9502039`):** Includes the core OpenAI-compatible and `llama.cpp` CLI (`inspect`, `benchmark`, `verify`, `report`), bounded synthetic workloads, SHA-256 evidence sealing, offline verification, and HTML/Markdown reporting. **Does not include** vLLM `/metrics` observability, the expanded 8-field diagnostic engine, or the `docs/pilots/` staging kit.
+- **Experimental `main` branch (Phase 9 / 9.1):** Adds opt-in same-origin vLLM Prometheus scraping (`src/inference_audit/vllm_metrics.py`), hardened parsing and snapshot validation, structured 8-field bottleneck diagnostics, expanded vLLM internals and optimization guides, and the complete [customer pilot kit](docs/pilots/STAGING_ASSESSMENT_SCOPE.md). **Use a source checkout of `main` for an authorized vLLM staging pilot** (or `v0.2.1` for generic OpenAI-compatible / `llama.cpp` endpoints).
+- **Qualification boundary:** Local testing covers a single NVIDIA RTX 4070 12 GB on Windows 11 (`llama.cpp`, Ollama) and WSL2 (constrained vLLM 0.34.0 + experimental `vllm-gguf-plugin` 0.0.5). Enterprise multi-GPU clusters (A100/H100/H200/B200), multi-replica routing, and customer production infrastructure remain unverified until tested on an authorized staging target.
 
 ## Operating scope
 

@@ -1,9 +1,5 @@
 # Changelog
 
-## Unreleased
-
-- Add opt-in, same-origin vLLM metrics for approved benchmarks. Reports show bounded stage observations, separate label series, and histogram bucket intervals. The 0.2.1 release asset is unchanged.
-
 ## Unreleased (experimental on main)
 
 - **Phase 9.1 — Audit hardening, 8-field diagnostics & customer pilot kit:**
@@ -12,7 +8,7 @@
   - Updated `reporting.py` to display `p50_bucket`, series-truncation warnings, and prefix matched/skipped interval counts.
   - Added complete operational customer pilot kit under `docs/pilots/` (discovery questionnaire, staging scope agreement, pre-flight checklist, test plan template, report template, optimization proposal template, handoff checklist, and clearly labeled sample demonstration report).
   - Substantially expanded `docs/VLLM_INTERNALS_GUIDE.md` and `docs/VLLM_OPTIMIZATION_PLAYBOOK.md`.
-- **Phase 9 — Opt-in vLLM observability:** Added allowlisted `/metrics` scraping on pinned origin, SHA-256 label-set hashing, sealed `server.jsonl` verification, local WSL vLLM setup, and RTX 4070 Qwen3-8B evidence.
+- **Phase 9 — Opt-in vLLM observability:** Added allowlisted `/metrics` scraping on pinned origin, SHA-256 label-set hashing, sealed `server.jsonl` verification, local WSL vLLM setup, and RTX 4070 Qwen3-8B evidence. The tagged `v0.2.1` release asset is unchanged.
 
 ## 0.2.1
 
