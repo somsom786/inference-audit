@@ -1,0 +1,649 @@
+{
+  "model": "Inkling-2-Mini (Unsloth UD-Q4_K_M GGUF)",
+  "model_id": "hf.co/unsloth/Inkling-2-Mini-GGUF:UD-Q4_K_M",
+  "weight_bytes": 16610543328,
+  "weight_sha256": "f90c5a4df44d335ac9f9eea2a15c31d6c5a377b1b3cd9ff7fc2cf123f3cdf7e1",
+  "architecture": {
+    "name": "inkling2",
+    "physical_blocks": 24,
+    "logical_layers": 48,
+    "loop_core_blocks": "blk.6..17 (12 blocks x 3 loops = 36 logical passes)",
+    "experts_total": 128,
+    "experts_active": 8,
+    "full_attention_layers": 8,
+    "swa_layers": 40,
+    "swa_window": 1024,
+    "physical_routed_experts_gb": 14.779,
+    "physical_loop_core_experts_gb": 6.88,
+    "physical_non_expert_gb": 1.82,
+    "active_expert_mb_per_token_total": 1783.6,
+    "active_expert_mb_per_token_loop_core": 1289.9,
+    "loop_core_share_of_expert_traffic_pct": 72.3,
+    "embedded_dspark_tensors": 0
+  },
+  "hardware": {
+    "gpu": "NVIDIA GeForce RTX 4070 12 GB (12,282 MiB, driver 621.24)",
+    "cpu": "AMD Ryzen 7 7800X3D (8C/16T)",
+    "host_ram": "64 GB DDR5-6000",
+    "measured_gpu_copy_gbps": 431.0
+  },
+  "engine": {
+    "name": "llama.cpp (Unsloth portable CUDA 13.3)",
+    "build": "b12588",
+    "commit": "883286076efe5b85fddb31d9cc7035a6b698ba9b",
+    "context_tokens": 16384,
+    "slots": 1,
+    "kv_dtype": "f16 (lossless)",
+    "reasoning_effort": "low"
+  },
+  "winning_configuration": {
+    "id": "loop-core-11-nommap-ub512",
+    "flags": "--jinja --no-mmproj -c 16384 -np 1 --reasoning-effort low --fit off -ngl all -ot \"blk\\.([0-5]|1[7-9]|2[0-3])\\.ffn_.*_exps\\.=CPU\" --load-mode none -fa on -b 512 -ub 512 -t 8 -tb 8",
+    "placement": "All non-expert weights (1.82 GB) + 11 of 12 looped core expert blocks (blk.6..16) on CUDA0 (7,280.6 MiB model + 240 MiB KV); prelude (blk.0..5), blk.17, and postlude (blk.18..23) experts in pinned host RAM (8,549.1 MiB CUDA_Host)"
+  },
+  "headline_qualified_gains": {
+    "vs_autofit_decode_pct": [
+      36.5,
+      37.8
+    ],
+    "vs_cpumoe_decode_pct": [
+      108.2,
+      110.1
+    ],
+    "vs_autofit_prefill_8k_pct": [
+      55.2,
+      54.8
+    ],
+    "vs_cpumoe_prefill_8k_pct": [
+      715.2,
+      712.9
+    ],
+    "startup_s_autofit_vs_winner": [
+      11.73,
+      12.25,
+      3.85,
+      3.64
+    ]
+  },
+  "placement_screen": {
+    "B0-fit": {
+      "case": "fit-default",
+      "status": "safety-stop",
+      "ready_s": 13.353,
+      "model_cuda0_mib": 7645.11,
+      "peak_vram_mib": 11055.0,
+      "min_free_vram_mib": 956.0,
+      "decode_med_tps": null,
+      "prefill_1k_tps": null
+    },
+    "B1-cpumoe": {
+      "case": "cpu-moe",
+      "status": "complete",
+      "ready_s": 7.704,
+      "model_cuda0_mib": 1266.34,
+      "peak_vram_mib": 4760.0,
+      "min_free_vram_mib": 7251.0,
+      "decode_med_tps": 16.69,
+      "prefill_1k_tps": 80.23
+    },
+    "B2-seq6": {
+      "case": "seq-postlude-6",
+      "status": "complete",
+      "ready_s": 9.119,
+      "model_cuda0_mib": 5518.85,
+      "peak_vram_mib": 8242.0,
+      "min_free_vram_mib": 3769.0,
+      "decode_med_tps": 19.253,
+      "prefill_1k_tps": 94.78
+    },
+    "B3-loop10": {
+      "case": "loop-core-10",
+      "status": "complete",
+      "ready_s": 8.602,
+      "model_cuda0_mib": 6733.85,
+      "peak_vram_mib": 9576.0,
+      "min_free_vram_mib": 2435.0,
+      "decode_med_tps": 31.982,
+      "prefill_1k_tps": 180.66
+    },
+    "B4-loop11": {
+      "case": "loop-core-11",
+      "status": "complete",
+      "ready_s": 8.833,
+      "model_cuda0_mib": 7280.61,
+      "peak_vram_mib": 10134.0,
+      "min_free_vram_mib": 1877.0,
+      "decode_med_tps": 34.121,
+      "prefill_1k_tps": 198.76
+    },
+    "B5-loop12": {
+      "case": "loop-core-12",
+      "status": "complete",
+      "ready_s": 9.336,
+      "model_cuda0_mib": 7827.36,
+      "peak_vram_mib": 10684.0,
+      "min_free_vram_mib": 1327.0,
+      "decode_med_tps": 36.562,
+      "prefill_1k_tps": 210.76
+    },
+    "B6-moecache": {
+      "case": "moe-cache-6g",
+      "status": "complete",
+      "ready_s": 7.76,
+      "model_cuda0_mib": 1266.34,
+      "peak_vram_mib": 10234.0,
+      "min_free_vram_mib": 1777.0,
+      "decode_med_tps": 22.472,
+      "prefill_1k_tps": 93.33
+    }
+  },
+  "secondary_levers_screen": {
+    "L0-fit-safe": {
+      "case": "fit-safe",
+      "status": "complete",
+      "ready_s": 11.925,
+      "peak_vram_mib": 9658.0,
+      "min_free_vram_mib": 2353.0,
+      "decode_med_tps": 24.853,
+      "prefill_1k_tps": 397.88
+    },
+    "L1-base12": {
+      "case": "loop-core-12",
+      "status": "complete",
+      "ready_s": 9.106,
+      "peak_vram_mib": 10685.0,
+      "min_free_vram_mib": 1326.0,
+      "decode_med_tps": 36.445,
+      "prefill_1k_tps": 219.04
+    },
+    "L2-nommap": {
+      "case": "loop-core-12-nommap",
+      "status": "complete",
+      "ready_s": 3.623,
+      "peak_vram_mib": 10679.0,
+      "min_free_vram_mib": 1332.0,
+      "decode_med_tps": 36.944,
+      "prefill_1k_tps": 261.03
+    },
+    "L3-ub256": {
+      "case": "loop-core-12-ub256",
+      "status": "complete",
+      "ready_s": 9.36,
+      "peak_vram_mib": 10725.0,
+      "min_free_vram_mib": 1286.0,
+      "decode_med_tps": 36.675,
+      "prefill_1k_tps": 477.49
+    },
+    "L4-t6": {
+      "case": "loop-core-12-t6",
+      "status": "complete",
+      "ready_s": 9.108,
+      "peak_vram_mib": 10685.0,
+      "min_free_vram_mib": 1326.0,
+      "decode_med_tps": 36.298,
+      "prefill_1k_tps": 215.69
+    },
+    "L5-t12": {
+      "case": "loop-core-12-t12",
+      "status": "complete",
+      "ready_s": 9.122,
+      "peak_vram_mib": 10679.0,
+      "min_free_vram_mib": 1332.0,
+      "decode_med_tps": 35.396,
+      "prefill_1k_tps": 213.23
+    },
+    "L6-q8kv": {
+      "case": "loop-core-12-q8kv",
+      "status": "complete",
+      "ready_s": 9.342,
+      "peak_vram_mib": 10635.0,
+      "min_free_vram_mib": 1376.0,
+      "decode_med_tps": 36.39,
+      "prefill_1k_tps": 224.31
+    },
+    "L7-combo": {
+      "case": "loop-core-12-nommap-ub256",
+      "status": "complete",
+      "ready_s": 3.607,
+      "peak_vram_mib": 10725.0,
+      "min_free_vram_mib": 1286.0,
+      "decode_med_tps": 37.053,
+      "prefill_1k_tps": 569.81
+    }
+  },
+  "qualified_comparison": {
+    "cpumoe_controls": {
+      "C1-cpumoe": {
+        "case": "cpu-moe",
+        "status": "complete",
+        "ready_s": 7.757,
+        "buffers": {
+          "model_CPU_Mapped": 445.5,
+          "model_CUDA0": 1266.34,
+          "kv_CUDA0": 200.0,
+          "offloaded_layers": "25/25"
+        },
+        "peak_vram_mib": 4131.0,
+        "min_free_vram_mib": 7880.0,
+        "min_host_free_mib": 24185.1,
+        "peak_ws_mib": 16661.4,
+        "peak_priv_mib": 6374.9,
+        "peak_temp_c": 57.27,
+        "decode_n": 6,
+        "decode_med_tps": 16.447,
+        "decode_client_med_tps": 16.732,
+        "decode_ttft_med_s": 1.2942,
+        "prefill": [
+          {
+            "id": "prefill-512",
+            "tokens": 511,
+            "prefill_tps": 78.2,
+            "ttft_s": 6.74,
+            "needle_pass": true
+          },
+          {
+            "id": "prefill-2048",
+            "tokens": 2047,
+            "prefill_tps": 86.98,
+            "ttft_s": 23.774,
+            "needle_pass": true
+          },
+          {
+            "id": "prefill-4096",
+            "tokens": 4096,
+            "prefill_tps": 92.58,
+            "ttft_s": 44.458,
+            "needle_pass": true
+          },
+          {
+            "id": "prefill-8192",
+            "tokens": 8192,
+            "prefill_tps": 97.03,
+            "ttft_s": 84.65,
+            "needle_pass": true
+          }
+        ]
+      },
+      "C2-cpumoe": {
+        "case": "cpu-moe",
+        "status": "complete",
+        "ready_s": 7.513,
+        "buffers": {
+          "model_CPU_Mapped": 445.5,
+          "model_CUDA0": 1266.34,
+          "kv_CUDA0": 200.0,
+          "offloaded_layers": "25/25"
+        },
+        "peak_vram_mib": 4131.0,
+        "min_free_vram_mib": 7880.0,
+        "min_host_free_mib": 23856.1,
+        "peak_ws_mib": 16662.3,
+        "peak_priv_mib": 6378.1,
+        "peak_temp_c": 57.67,
+        "decode_n": 6,
+        "decode_med_tps": 16.498,
+        "decode_client_med_tps": 16.786,
+        "decode_ttft_med_s": 1.295,
+        "prefill": [
+          {
+            "id": "prefill-512",
+            "tokens": 511,
+            "prefill_tps": 75.91,
+            "ttft_s": 6.954,
+            "needle_pass": true
+          },
+          {
+            "id": "prefill-2048",
+            "tokens": 2047,
+            "prefill_tps": 87.73,
+            "ttft_s": 23.587,
+            "needle_pass": true
+          },
+          {
+            "id": "prefill-4096",
+            "tokens": 4096,
+            "prefill_tps": 93.48,
+            "ttft_s": 44.021,
+            "needle_pass": true
+          },
+          {
+            "id": "prefill-8192",
+            "tokens": 8192,
+            "prefill_tps": 97.96,
+            "ttft_s": 83.856,
+            "needle_pass": true
+          }
+        ]
+      }
+    },
+    "autofit_controls": {
+      "A1-fit": {
+        "case": "fit-safe",
+        "status": "complete",
+        "ready_s": 11.727,
+        "buffers": {
+          "model_CPU_Mapped": 445.5,
+          "model_CUDA0": 6732.73,
+          "kv_CUDA0": 240.0,
+          "offloaded_layers": "25/25"
+        },
+        "peak_vram_mib": 9753.0,
+        "min_free_vram_mib": 2258.0,
+        "min_host_free_mib": 23749.7,
+        "peak_ws_mib": 16738.6,
+        "peak_priv_mib": 12181.0,
+        "peak_temp_c": 59.35,
+        "decode_n": 6,
+        "decode_med_tps": 25.137,
+        "decode_client_med_tps": 25.625,
+        "decode_ttft_med_s": 0.9173,
+        "prefill": [
+          {
+            "id": "prefill-512",
+            "tokens": 511,
+            "prefill_tps": 347.1,
+            "ttft_s": 1.637,
+            "needle_pass": true
+          },
+          {
+            "id": "prefill-2048",
+            "tokens": 2047,
+            "prefill_tps": 467.65,
+            "ttft_s": 4.542,
+            "needle_pass": true
+          },
+          {
+            "id": "prefill-4096",
+            "tokens": 4096,
+            "prefill_tps": 485.01,
+            "ttft_s": 8.601,
+            "needle_pass": true
+          },
+          {
+            "id": "prefill-8192",
+            "tokens": 8192,
+            "prefill_tps": 514.49,
+            "ttft_s": 16.132,
+            "needle_pass": true
+          }
+        ]
+      },
+      "A2-fit": {
+        "case": "fit-safe",
+        "status": "complete",
+        "ready_s": 12.254,
+        "buffers": {
+          "model_CPU_Mapped": 445.5,
+          "model_CUDA0": 6732.73,
+          "kv_CUDA0": 240.0,
+          "offloaded_layers": "25/25"
+        },
+        "peak_vram_mib": 10026.0,
+        "min_free_vram_mib": 1985.0,
+        "min_host_free_mib": 23159.9,
+        "peak_ws_mib": 16741.8,
+        "peak_priv_mib": 12186.3,
+        "peak_temp_c": 56.87,
+        "decode_n": 6,
+        "decode_med_tps": 25.152,
+        "decode_client_med_tps": 25.609,
+        "decode_ttft_med_s": 0.9254,
+        "prefill": [
+          {
+            "id": "prefill-512",
+            "tokens": 511,
+            "prefill_tps": 356.2,
+            "ttft_s": 1.584,
+            "needle_pass": true
+          },
+          {
+            "id": "prefill-2048",
+            "tokens": 2047,
+            "prefill_tps": 475.01,
+            "ttft_s": 4.489,
+            "needle_pass": true
+          },
+          {
+            "id": "prefill-4096",
+            "tokens": 4096,
+            "prefill_tps": 488.95,
+            "ttft_s": 8.554,
+            "needle_pass": true
+          },
+          {
+            "id": "prefill-8192",
+            "tokens": 8192,
+            "prefill_tps": 496.09,
+            "ttft_s": 16.742,
+            "needle_pass": true
+          }
+        ]
+      }
+    },
+    "winner_qualified": {
+      "B1-loop11": {
+        "case": "loop-core-11-nommap-ub512",
+        "status": "complete",
+        "ready_s": 3.845,
+        "buffers": {
+          "model_CUDA0": 7280.61,
+          "model_CUDA_Host": 8549.07,
+          "kv_CUDA0": 240.0,
+          "offloaded_layers": "25/25"
+        },
+        "peak_vram_mib": 10543.0,
+        "min_free_vram_mib": 1468.0,
+        "min_host_free_mib": 29759.7,
+        "peak_ws_mib": 10621.3,
+        "peak_priv_mib": 21610.3,
+        "peak_temp_c": 63.77,
+        "decode_n": 6,
+        "decode_med_tps": 34.342,
+        "decode_client_med_tps": 34.941,
+        "decode_ttft_med_s": 0.5668,
+        "prefill": [
+          {
+            "id": "prefill-512",
+            "tokens": 511,
+            "prefill_tps": 524.79,
+            "ttft_s": 1.118,
+            "needle_pass": true
+          },
+          {
+            "id": "prefill-2048",
+            "tokens": 2047,
+            "prefill_tps": 734.84,
+            "ttft_s": 2.932,
+            "needle_pass": true
+          },
+          {
+            "id": "prefill-4096",
+            "tokens": 4096,
+            "prefill_tps": 770.95,
+            "ttft_s": 5.447,
+            "needle_pass": true
+          },
+          {
+            "id": "prefill-8192",
+            "tokens": 8192,
+            "prefill_tps": 798.54,
+            "ttft_s": 10.423,
+            "needle_pass": true
+          }
+        ]
+      },
+      "B3-loop11-rep": {
+        "case": "loop-core-11-nommap-ub512",
+        "status": "complete",
+        "ready_s": 3.642,
+        "buffers": {
+          "model_CUDA0": 7280.61,
+          "model_CUDA_Host": 8549.07,
+          "kv_CUDA0": 240.0,
+          "offloaded_layers": "25/25"
+        },
+        "peak_vram_mib": 10678.0,
+        "min_free_vram_mib": 1333.0,
+        "min_host_free_mib": 29357.8,
+        "peak_ws_mib": 10620.4,
+        "peak_priv_mib": 21606.6,
+        "peak_temp_c": 62.96,
+        "decode_n": 6,
+        "decode_med_tps": 34.655,
+        "decode_client_med_tps": 35.274,
+        "decode_ttft_med_s": 0.5689,
+        "prefill": [
+          {
+            "id": "prefill-512",
+            "tokens": 511,
+            "prefill_tps": 518.18,
+            "ttft_s": 1.12,
+            "needle_pass": true
+          },
+          {
+            "id": "prefill-2048",
+            "tokens": 2047,
+            "prefill_tps": 738.36,
+            "ttft_s": 2.932,
+            "needle_pass": true
+          },
+          {
+            "id": "prefill-4096",
+            "tokens": 4096,
+            "prefill_tps": 770.07,
+            "ttft_s": 5.447,
+            "needle_pass": true
+          },
+          {
+            "id": "prefill-8192",
+            "tokens": 8192,
+            "prefill_tps": 796.29,
+            "ttft_s": 10.449,
+            "needle_pass": true
+          }
+        ]
+      }
+    },
+    "boundary_12core_arm": {
+      "case": "loop-core-12-nommap-ub256",
+      "status": "safety-stop",
+      "ready_s": 3.567,
+      "buffers": {
+        "model_CUDA0": 7827.36,
+        "model_CUDA_Host": 8002.32,
+        "kv_CUDA0": 200.0,
+        "offloaded_layers": "25/25"
+      },
+      "peak_vram_mib": 11057.0,
+      "min_free_vram_mib": 954.0,
+      "min_host_free_mib": 30323.9,
+      "peak_ws_mib": 10023.0,
+      "peak_priv_mib": 21481.4,
+      "peak_temp_c": 56.31,
+      "decode_n": 6,
+      "decode_med_tps": 36.997,
+      "decode_client_med_tps": 37.658,
+      "decode_ttft_med_s": 0.5195,
+      "prefill": [
+        {
+          "id": "prefill-512",
+          "tokens": 511,
+          "prefill_tps": 481.4,
+          "ttft_s": 1.205,
+          "needle_pass": true
+        },
+        {
+          "id": "prefill-2048",
+          "tokens": 2047,
+          "prefill_tps": 616.62,
+          "ttft_s": 3.452,
+          "needle_pass": true
+        },
+        {
+          "id": "prefill-4096",
+          "tokens": 4096,
+          "prefill_tps": 658.4,
+          "ttft_s": 6.334,
+          "needle_pass": true
+        },
+        {
+          "id": "prefill-8192",
+          "tokens": 8192,
+          "prefill_tps": 682.65,
+          "ttft_s": 12.153,
+          "needle_pass": true
+        }
+      ]
+    }
+  },
+  "acceptance_gates_b1_loop11": {
+    "load": true,
+    "chat": {
+      "pass": true,
+      "finish": "stop",
+      "tokens": 113,
+      "tps": 33.93128127850644
+    },
+    "reasoning": {
+      "pass": true,
+      "reasoning_chars": 296,
+      "answer": "192 tokens/second",
+      "finish": "stop",
+      "tps": 34.134197459505465
+    },
+    "tools": {
+      "pass": true,
+      "strict_pass": true,
+      "cases": [
+        {
+          "case": "primary",
+          "valid_call": true,
+          "parsed_args": {
+            "event_id": "EVT-4070-A"
+          },
+          "semantic_pass": true,
+          "strict_format_pass": true,
+          "turn2_answer": "INK-9482-ZX"
+        },
+        {
+          "case": "counterfactual",
+          "valid_call": true,
+          "parsed_args": {
+            "event_id": "EVT-4070-A"
+          },
+          "semantic_pass": true,
+          "strict_format_pass": true,
+          "turn2_answer": "INK-2716-QM"
+        }
+      ]
+    },
+    "context_85pct": {
+      "pass": true,
+      "prompt_tokens": 13926,
+      "pct_of_ctx": 85.0,
+      "answer": "CTX85-7749-VQ",
+      "prefill_tps": 812.7468204956915,
+      "ttft_s": 17.32785880001029
+    },
+    "speed_30s": {
+      "tokens": 1010,
+      "span_s": 30.01,
+      "client_tps": 33.622,
+      "server_tps": null,
+      "stopped_by_timer": true
+    },
+    "stability_soak": {
+      "n": 6,
+      "first_tps": 33.654,
+      "last_tps": 34.105,
+      "median_tps": 34.201,
+      "min_tps": 33.654
+    }
+  },
+  "source_hashes": {
+    "inkling-screen-02/summary.json": "7bef5004e28a7074afb2a9e336a03a73f25b011869d48d19b65a1114969695e6",
+    "inkling-levers-01/summary.json": "78df59dea1332a0576a09db05f09b8231fa608f1b30b5e1b14c8d7d1f335510a",
+    "inkling-qualify-01/summary.json": "2a5f96cd51fbeac7f0c9cd0232eb2848a640fecfd078261f0ea2c6c69b3bd1cc",
+    "inkling-qualify-02/summary.json": "8b3beeed894c061558b0b3181a2a83aac5bc284da810bbba61f6bfe93f8094ae"
+  }
+}

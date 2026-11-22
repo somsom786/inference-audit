@@ -27,7 +27,36 @@ A lab archive contains a completed six-hour Qwen3-8B run with 13,926 scheduled a
 
 A later bounded V2 compatibility study used distinct hidden tool receipts and explicitly requested a tool-choice representation supported by the pinned llama.cpp Jinja backend. Equal scores and equal output token totals in each arm established a protocol fix on that endpoint without a speed or model-quality claim. The unpublished experimental source and underlying session captures are outside this site update.
 
-Phase 7 then verified the installed Forge Qwen3.5-9B head and tested native MTP with the bundled CUDA backend in Ollama 0.40.16. One-token drafting improved median single-stream code decode by 6.9% and 7.0% in two fresh launch brackets, with near-full retrieval passing. Four-token drafting was slower, and the result did not generalize to novel prose. The [dedicated report](FORGE_MTP.md) shows the baseline, output checks, memory and limitations. No registry-qualified recipe resulted. Inkling 2 Mini, large Qwen variants and cross-engine quantizations remain separate feasibility questions.
+Phase 7 then verified the installed Forge Qwen3.5-9B head and tested native MTP with the bundled CUDA backend in Ollama 0.40.16. One-token drafting improved median single-stream code decode by 6.9% and 7.0% in two fresh launch brackets, with near-full retrieval passing. Four-token drafting was slower, and the result did not generalize to novel prose. The [dedicated report](FORGE_MTP.md) shows the baseline, output checks, memory and limitations. No registry-qualified recipe resulted on that first screen. Large Qwen variants and cross-engine quantizations remain separate feasibility questions.
+
+## Inkling-2-Mini: loop-aware placement on a 12 GB GPU
+
+Inkling-2-Mini (Unsloth UD-Q4_K_M, 16.61 GB) does not fit in 12 GB of VRAM, so placement decides throughput. Twelve of its 24 physical blocks (`blk.6..17`) execute three times per token and carry 72.3% of active expert bytes in 6.88 GB, a 3.0× return per GiB of VRAM compared with the once-executed prelude and postlude. On the RTX 4070 with 64 GB DDR5 and llama.cpp b12588, loading 11 of the 12 core blocks on the GPU with no-mmap and a 512-token microbatch gave, in a qualified interleaved comparison:
+
+| Metric | Auto-fit | `--cpu-moe` | Loop-aware winner | Gain |
+| --- | ---: | ---: | ---: | --- |
+| Decode tok/s | 25.14–25.15 | 16.45–16.50 | **34.34–34.66** | +36.5% to +37.8% vs auto-fit; +108.2% to +110.1% vs `--cpu-moe` |
+| 8K prefill tok/s | 496.09–514.49 | 97.03–97.96 | **796.29–798.54** | +54.8% to +55.2% vs auto-fit; 8.1–8.2× vs `--cpu-moe` |
+| Startup, s | 11.73–12.25 | 7.51–7.76 | **3.64–3.85** | −67% to −70% vs auto-fit |
+
+The winner passed all six local-ai-registry gates and a six-request soak (33.62 tok/s in the 30-second uncapped test, 13,926-token needle at 85% of context). A twelve-block variant decoded at 37.00 tok/s but left only 954 MiB free on a desktop board and is recorded as the boundary, not the recommendation. The GGUF has no embedded DSpark tensors, so speculative drafting was deferred. Full method, screens and launch command: [Inkling report](INKLING_HYBRID.md). Claim: [`P8-INKLING`](../publication/CLAIMS_LEDGER.md#p8-inkling).
+
+## Forge MTP, extended
+
+A follow-up swept draft lengths 1 to 3 with a 4,098-token code prompt, a four-task functional panel and a two-slot bracket. One draft token remained best: structured Python +23.5% (89.91 against 65.21–72.80 tok/s) and 4K-context code +16.5% (78.59 against 63.47–67.47 tok/s), with 19 of 19 byte-identical outputs and the same 2 of 4 executable tests as the default. Two and three draft tokens regressed on short code and prose. At concurrency 2 the one-token arm did not beat the faster default (115.87 against 111.14–121.88 pooled code tok/s) and added 522 MiB of peak VRAM. See [Forge MTP](FORGE_MTP.md#extended-qualification-k--13-4k-context-functional-code-concurrency-2) and [`P8-FORGE-EXT`](../publication/CLAIMS_LEDGER.md#p8-forge-ext).
+
+## Independent external research context (Sybil Solutions)
+
+> **Non-affiliation and scope.** The results in this section were published independently by Sybil Solutions / 0xSero in open-source repositories. Sybil Solutions is **not** a customer of Inference Audit Labs, is **not** affiliated with it, and this section is **not** an endorsement of either party. Inference Audit Labs has **not** reproduced any of these external hardware benchmarks. We cite them as verified published literature, checked against the linked sources, to show what systematic inference engineering has achieved on other GPUs and architectures. Hardware, models, engines and methods differ from ours, so they are not comparable with the RTX 4070 results above.
+
+| Hardware | Model and engine | Published result | Source |
+| --- | --- | --- | --- |
+| Intel Arc B390 iGPU (64 GB unified) | Ornith-1.5-35B-A3B, EXL3 4 bpw, SGLang XPU with MTP | 256K prefill 297 → 628 tok/s (2.1×); startup 113 → 43 s (−62%); 1-user decode 43.6 → 53 tok/s | [local-ai-registry PR 453](https://github.com/sybil-solutions/local-ai-registry/pull/453) |
+| Intel Arc Pro B70 (32 GB) | Qwen3.8-27B, EXL3 4 bpw, vLLM with custom XPU kernels | 91.2 tok/s 1-user decode (cross-stack versus 25.0 tok/s llama.cpp Q4_K_M on the same card); 16-user aggregate 365 tok/s | [trellis-serve XPU README](https://github.com/sybil-solutions/trellis-serve/blob/main/xpu/README.md) |
+| NVIDIA RTX 3090 (24 GB) | Flash-Next EXL3, 256K context | Single-stream decode with MTP 45.5 → 65.6 tok/s (+44.2%) | [trellis-serve CUDA README](https://github.com/sybil-solutions/trellis-serve/blob/main/cuda/README.md) |
+| 4× NVIDIA H200 NVL | DeepSeek-V4.1-Flash, vLLM with speculative decoding | Crashed under load → 229.1 tok/s decode, 17,546 tok/s prefill, all 6 registry gates | [inference-optimisation-skill README at `fda968e`](https://github.com/sybil-solutions/inference-optimisation-skill/blob/fda968e7fc1996aa23c67139c755fe541c9d4be0/README.md) |
+
+Upstream methodological note: the repository head verified for this section is `fda968e7fc1996aa23c67139c755fe541c9d4be0` (2026-11-16). Upstream pull request 3 (fix double-counted concurrency in the decode ceiling) has an independent verification comment from a third party with four regression cases, and is still **open** and not merged. Claim record: [`EXTERNAL-SYBIL`](../publication/CLAIMS_LEDGER.md#external-sybil).
 
 ## Reproduce and interpret
 

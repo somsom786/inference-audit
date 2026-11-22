@@ -59,6 +59,7 @@ def check(site, browser, screenshot_dir):
             "replay.html",
             "labs-case-study.html",
             "forge-mtp.html",
+            "inkling-hybrid.html",
             "economics.html",
             "case-study.html",
             "samples.html",
@@ -82,12 +83,25 @@ def check(site, browser, screenshot_dir):
 
         page.goto(site)
         assert "+7.0% code decode" in page.locator("#forge-result").inner_text()
+        assert page.locator("h1").inner_text() == "More inference. Same GPU budget."
+        assert "+37.8% decode and +55.2% 8K prefill" in page.locator("#inkling-result").inner_text()
+        assert "6/6 acceptance gates" in page.locator("#lead-result").inner_text() or "6 of 6" in page.locator("#lead-result").inner_text()
         assert "23.1% fewer GPU-hours" in page.locator(".hero").inner_text()
+        assert "$138,462/year" in page.locator(".hero").inner_text()
+        for badge in ("Measured by Inference Audit Labs", "Published external research", "Hypothetical economic scenario"):
+            assert page.locator(".badge", has_text=badge).first.is_visible(), badge
+        assert "Not our customer" in page.locator("#external-notice").inner_text()
+        assert "Not affiliated" in page.locator("#external-notice").inner_text()
+        assert page.locator("#pilot .steps li").count() == 7
+        assert page.locator("[name=spend]").input_value() == "50000"
+        assert page.locator("[name=gain]").input_value() == "30"
+        assert page.locator("[name=share]").input_value() == "100"
         page.get_by_role("button", name="First token", exact=True).click()
         assert "0.753 s" in page.locator("#tradeoff").inner_text()
         page.get_by_role("button", name="Completion", exact=True).click()
         assert "4.523–4.678 s" in page.locator("#tradeoff").inner_text()
-        assert "$1,153.85" in page.locator("#estimate").inner_text()
+        assert "$11,538.46" in page.locator("#estimate").inner_text()
+        assert "$138,461.54" in page.locator("#estimate").inner_text()
         page.locator("[name=share]").fill("0")
         assert "$0.00" in page.locator("#estimate").inner_text()
         page.get_by_text("Optional worker assumptions", exact=True).click()
@@ -96,7 +110,17 @@ def check(site, browser, screenshot_dir):
         page.locator("[name=gain]").fill("-1")
         assert "stated limits" in page.locator("#estimate").inner_text()
         page.locator("[name=gain]").fill("30")
-        page.locator("[name=share]").fill("50")
+        page.locator("[name=share]").fill("100")
+        assert "$11,538.46" in page.locator("#estimate").inner_text()
+        page.goto(site + "inkling-hybrid.html")
+        assert "Place the looped core on the GPU" in page.locator("h1").inner_text()
+        assert page.locator(".table-wrap .data-table").count() == 1
+        assert "loop-core-11" in page.locator(".data-table tr.win").inner_text()
+        assert page.locator("a[href='evidence/inkling-hybrid.json']").first.is_visible()
+        page.goto(site + "economics.html")
+        assert "$138,462" in page.locator(".data-table").inner_text()
+        assert page.locator(".data-table tbody tr").count() == 5
+        page.goto(site)
         if viewport["width"] in {390, 1440}:
             page.locator("#economics").screenshot(path=screenshot_dir / f"economics-{viewport['width']}.png")
 
@@ -194,7 +218,9 @@ def main():
                 page = browser.new_page(java_script_enabled=False)
                 page.goto(origin)
                 assert "315–317 of 345" in page.locator("#tradeoff").inner_text()
-                assert "$1,154/month" in page.locator("#estimate").inner_text()
+                assert "$11,538/month" in page.locator("#estimate").inner_text()
+                assert "$138,462/year" in page.locator("#estimate").inner_text()
+                assert "More inference. Same GPU budget." in page.locator("h1").inner_text()
                 page.goto(origin + "replay.html")
                 assert "1.616–1.741" in page.locator("[data-plot]").inner_text()
                 assert "198 / 210" in page.locator("[data-replay-result]").inner_text()

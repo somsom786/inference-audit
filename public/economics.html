@@ -1,9 +1,10 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Inference Audit Labs | GPU economics</title><link rel="stylesheet" href="assets/labs.css"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Assumptions, formulas and a conditional savings reference table for GPU capacity economics."><title>Inference Audit Labs | GPU economics</title><link rel="canonical" href="https://somsom786.github.io/inference-audit/economics.html"><link rel="stylesheet" href="assets/labs.css"></head>
 <body>
 <header class="top"><div class="shell navigation"><a class="brand" href="index.html">Inference Audit Labs</a><a href="index.html#economics">Open the calculator</a></div></header>
 <main class="shell section">
+<p><span class="badge badge-scenario on-light">Hypothetical economic scenario</span></p>
 <h1>Capacity economics</h1>
 <div class="section-heading">
 <p>Let <var>g</var> be the improvement in qualified throughput as a fraction. Qualified work meets the agreed correctness, latency and context requirements. A rate gain of <var>g</var> multiplies capacity at a fixed GPU count by <code>1 + g</code>.</p>
@@ -12,4 +13,19 @@
 <p>The optional worker scenario estimates peak demand as current GPUs multiplied by baseline peak load. It divides that demand by <code>(1 + g) × (1 − reserve)</code> and rounds up to a whole GPU, with at least one worker. It ignores redundancy, placement and failure domains. This floor never reduces cash spend on its own.</p>
 <p>Billing terms, reservations, utilization, software overhead and capacity needed for failover can all change the outcome. The calculator is a scenario and makes no prediction about your measured gain or realized bill.</p>
 </div>
+<div class="section-heading" id="reference-table">
+<h2>Conditional savings reference</h2>
+<p>Illustrative scenarios on a $50,000 monthly GPU spend. Each row assumes 100% of that spend scales down with throughput and demand stays fixed. These are not measured savings.</p>
+</div>
+<div class="table-wrap"><table class="data-table"><caption>Hypothetical savings at $50,000/month, 100% scalable share.</caption>
+<thead><tr><th scope="col">Qualified throughput gain</th><th scope="col">Fewer GPU-hours</th><th scope="col">Conditional savings per year</th></tr></thead>
+<tbody>
+<tr><th scope="row">+30%</th><td>23.1%</td><td>$138,462</td></tr>
+<tr><th scope="row">+50%</th><td>33.3%</td><td>$200,000</td></tr>
+<tr><th scope="row">+100%</th><td>50.0%</td><td>$300,000</td></tr>
+<tr><th scope="row">+200%</th><td>66.7%</td><td>$400,000</td></tr>
+<tr><th scope="row">+400%</th><td>80.0%</td><td>$480,000</td></tr>
+</tbody></table></div>
+<p class="detail">Annual figures equal $50,000 × 12 × (1 − 1/(1 + g)). If only part of the spend can shrink, multiply by that share.</p>
+<figure class="poster"><img src="assets/economics-opportunity-poster.svg" width="1200" height="630" alt="Illustrative conditional savings on $50,000 per month of GPU spend for throughput gains from 30% to 400%, assuming 100% of spend scales down"></figure>
 </main></body></html>

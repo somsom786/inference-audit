@@ -5,6 +5,7 @@ function gpuScenario({spend, gain, share, hourly, workers, util, reserve}) {
   const monthly = spend * (share / 100) * (1 - 1 / speed);
   return {
     capacity: gain,
+    reduction: 100 * (1 - 1 / speed),
     monthly,
     annual: monthly * 12,
     normalizedCost: hourly / speed,
@@ -27,6 +28,7 @@ if (typeof document !== "undefined") {
     const result = gpuScenario(values);
     const lines = [
       ["Extra qualified capacity", "+" + result.capacity + "% at the same capacity baseline"],
+      ["Fewer GPU-hours for the same useful work", result.reduction.toFixed(1) + "%"],
       ["Conditional savings per month", usd.format(result.monthly)],
       ["Conditional savings per year", usd.format(result.annual)],
       ["Hourly cost for one baseline GPU-hour of useful output", usd.format(result.normalizedCost)],

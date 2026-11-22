@@ -258,6 +258,100 @@ def check_data(root):
         )
 
 
+def check_extended_evidence(root):
+    hex64 = re.compile(r"[0-9a-f]{64}")
+    ink = load_json(root / "public/evidence/inkling-hybrid.json")
+    require(ink["weight_bytes"] == 16610543328 and hex64.fullmatch(ink["weight_sha256"]), "Inkling weight identity")
+    require(all(hex64.fullmatch(v) for v in ink["source_hashes"].values()), "Inkling source hashes")
+    arch = ink["architecture"]
+    require(arch["physical_blocks"] == 24 and arch["logical_layers"] == 48, "Inkling block counts")
+    require(
+        math.isclose(
+            arch["loop_core_share_of_expert_traffic_pct"],
+            100 * arch["active_expert_mb_per_token_loop_core"] / arch["active_expert_mb_per_token_total"],
+            abs_tol=0.1,
+        ),
+        "Inkling loop-core traffic share disagrees",
+    )
+    winner = ink["winning_configuration"]
+    require("--fit off" in winner["flags"] and "ffn_.*_exps" in winner["flags"], "Inkling flags")
+    q = ink["qualified_comparison"]
+    cpu, auto, win = (
+        [a["decode_med_tps"] for a in q[group].values()]
+        for group in ("cpumoe_controls", "autofit_controls", "winner_qualified")
+    )
+
+    def pre8k(group):
+        return [
+            next(p["prefill_tps"] for p in a["prefill"] if p["id"] == "prefill-8192") for a in q[group].values()
+        ]
+
+    require(len(cpu) == len(auto) == len(win) == 2, "Inkling qualified arms")
+    gains = ink["headline_qualified_gains"]
+    checks = (
+        (gains["vs_autofit_decode_pct"], win, auto),
+        (gains["vs_cpumoe_decode_pct"], win, cpu),
+        (gains["vs_autofit_prefill_8k_pct"], pre8k("winner_qualified"), pre8k("autofit_controls")),
+        (gains["vs_cpumoe_prefill_8k_pct"], pre8k("winner_qualified"), pre8k("cpumoe_controls")),
+    )
+    for reported, numerator, denominator in checks:
+        low = 100 * (min(numerator) / max(denominator) - 1)
+        high = 100 * (max(numerator) / min(denominator) - 1)
+        require(all(low - 0.06 <= v <= high + 0.06 for v in reported), "Inkling headline gain disagrees")
+    require(min(win) > max(auto) > max(cpu), "Inkling winner ordering")
+    boundary = q["boundary_12core_arm"]
+    require(boundary["status"] == "safety-stop" and boundary["min_free_vram_mib"] < 1000, "Inkling boundary arm")
+    gates = ink["acceptance_gates_b1_loop11"]
+    require(
+        gates["load"] is True
+        and all(gates[k]["pass"] for k in ("chat", "reasoning", "tools", "context_85pct"))
+        and gates["tools"]["strict_pass"]
+        and gates["context_85pct"]["pct_of_ctx"] >= 85
+        and gates["speed_30s"]["client_tps"] > 30
+        and gates["stability_soak"]["n"] == 6
+        and gates["stability_soak"]["min_tps"] > 30,
+        "Inkling acceptance gates",
+    )
+    page = (root / "public/inkling-hybrid.html").read_text(encoding="utf-8")
+    require(
+        all(text in page for text in ("+37.8%", "+55.2%", "6 of 6", "evidence/inkling-hybrid.json")),
+        "Inkling page is out of sync",
+    )
+
+    forge = load_json(root / "public/evidence/forge-mtp-extended.json")
+    require(all(hex64.fullmatch(v) for v in forge["source_hashes"].values()), "Forge extended hashes")
+    sweep = forge["draft_sweep_single_stream"]
+    arms = sweep["arms"]
+    require(
+        [arms[name]["draft"] for name in sweep["order"]] == [0, 1, 2, 3, 0], "Forge sweep order or draft lengths"
+    )
+    require(
+        sweep["exact_greedy_matches_A1_vs_B1"] == sweep["exact_greedy_matches_A1_vs_A2"] == "19/19",
+        "Forge byte-for-byte matches",
+    )
+
+    def gain(panel):
+        return 100 * (
+            arms["B1"][panel]["server_decode_tps"]
+            / max(arms["A1"][panel]["server_decode_tps"], arms["A2"][panel]["server_decode_tps"])
+            - 1
+        )
+
+    require(round(gain("func_code"), 1) == 23.5 and round(gain("long_code"), 1) == 16.5, "Forge panel gains")
+    for panel in ("code", "prose", "long_code", "func_code"):
+        speeds = {name: arms[name][panel]["server_decode_tps"] for name in ("B1", "B2", "B3")}
+        require(speeds["B1"] > speeds["B2"] > speeds["B3"], f"Forge k=1 is not the optimum for {panel}")
+    c2 = forge["concurrency_2_bracket"]["arms"]
+    controls = max(c2[name]["code_c2"]["median_aggregate_tps"] for name in ("C1", "C2"))
+    require(c2["D1"]["code_c2"]["median_aggregate_tps"] < controls, "Concurrency-2 result is not negative")
+    require(c2["D1"]["peak_mib"] - c2["C2"]["peak_mib"] == 522, "Concurrency-2 VRAM delta disagrees")
+    forge_page = (root / "public/forge-mtp.html").read_text(encoding="utf-8")
+    require(
+        all(text in forge_page for text in ("23.5", "16.5", "19/19", "522 MiB", "evidence/forge-mtp-extended.json")),
+        "Forge page is out of sync",
+    )
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=ROOT)
@@ -267,6 +361,7 @@ def main():
     documents = check_markdown(root, pages)
     check_reports(root)
     check_data(root)
+    check_extended_evidence(root)
     print(
         f"{len(pages)} static HTML pages, {documents} linked Markdown documents, report schemas and landing metrics passed."
     )

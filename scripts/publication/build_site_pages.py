@@ -33,6 +33,10 @@ ASSET_ALIASES = {
     "LICENSE": "license.txt",
     "reports/local-qwen-020/audit.html": "reports/qwen3-8b-audit.html",
     "reports/local-gemma-020/audit.html": "reports/gemma4-12b-audit.html",
+    "docs/case-study/INKLING_HYBRID.md": "inkling-hybrid.html",
+    "docs/case-study/FORGE_MTP.md": "forge-mtp.html",
+    "docs/case-study/LABS_TECHNICAL_REPORT.md": "labs-case-study.html",
+    "scripts/publication/verify_endurance_summary.py": "https://github.com/somsom786/inference-audit/blob/main/scripts/publication/verify_endurance_summary.py",
 }
 
 
