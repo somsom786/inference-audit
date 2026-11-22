@@ -1,29 +1,205 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="An executive case study across four RTX 4070 experiments: where inference engineering produced real gains, where it did not, and what that could mean for GPU budgets."><title>More inference, honestly measured | Inference Audit Labs</title><link rel="canonical" href="https://somsom786.github.io/inference-audit/labs-case-study.html"><link rel="stylesheet" href="assets/labs.css"></head>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Executive case study across four controlled RTX 4070 inference experiments: where configuration engineering unlocked major gains, where it failed under load, and what it means for GPU budgets.">
+<title>More inference, honestly measured | Inference Audit Labs</title>
+<link rel="canonical" href="https://somsom786.github.io/inference-audit/labs-case-study.html">
+<link rel="stylesheet" href="assets/labs.css">
+</head>
 <body>
-<header class="top"><div class="shell navigation"><a class="brand" href="index.html"><span class="mark" aria-hidden="true"></span>Inference Audit <b>Labs</b></a><nav aria-label="Case study"><a href="inkling-hybrid.html">Inkling</a><a href="case-study.html">Interactive study</a><a href="research.html">Technical paper</a><a href="index.html#pilot">Staging pilot</a></nav></div></header>
-<main>
-<section class="hero"><div class="shell hero-layout"><div><p class="label">Executive case study / RTX 4070</p><h1>More inference, honestly measured.</h1><p class="intro">One consumer GPU, four experiments. Two produced large verified gains, two showed exactly where a gain stops. Together they show why a GPU budget question needs a measurement before a purchase.</p></div><img src="assets/labs-results-poster.svg" width="1200" height="630" alt="Qwen3-8B study: 57.7% more output tokens per second on chat bursts, fewer on-time answers in a separate mixed trace"></div></section>
-<div class="shell section category">
-<p><span class="badge badge-labs">Measured by Inference Audit Labs</span></p>
-<section class="section-heading"><h2>Win one: architecture-aware placement.</h2><p>Inkling-2-Mini reuses 12 blocks three times per token. Placing 11 of those looped blocks on the GPU, rather than letting llama.cpp auto-fit decide, raised decode by +36.5% to +37.8% and 8K prefill by +54.8% to +55.2%. It was 2.1x faster at decode and 8.1–8.2x faster at prefill than offloading all experts with --cpu-moe, and passed 6 of 6 local acceptance checks (not an officially accepted registry recipe; vision, broader quality, production concurrency and customer infrastructure remain unverified). The lesson: knowing the model architecture can be worth more than a hardware upgrade. <a href="inkling-hybrid.html">Read the Inkling experiment</a></p></section>
-<section class="section-heading"><h2>Win two, with a boundary: one draft token.</h2><p>On Forge Qwen3.5-9B, native speculation with one draft token raised single-stream code decode from 71.56–71.57 to 76.60 tok/s (+7.0%). The extended sweep confirmed k=1 as the optimum, with structured Python up 23.5% and 4K-context code up 16.5%, and 19 of 19 outputs matching byte for byte. But at concurrency 2 the gain vanished and VRAM rose by 522 MiB. A single-stream win is not a multi-user win. <a href="forge-mtp.html">See the Forge experiment</a></p></section>
-</div>
-<div class="shell section category">
-<p><span class="badge badge-labs">Measured by Inference Audit Labs</span></p>
-<section class="section-heading"><h2>The negative result: counting tokens alone.</h2><p><strong>On a homogeneous chat burst</strong>, increasing Qwen3-8B from two slots to four raised valid output from 143.77 to 226.70 tok/s (+57.7%). The test used the same RTX 4070, Q4_K_M, llama.cpp CUDA b12427 and a 16,384-position f16 KV pool. Each launch offered 48 requests, with three controls and two candidates. <a href="claims.html#p2-chat">Evidence and denominator</a></p>
-<p><strong>On a fresh mixed trace</strong>, two slots completed 315–317 of 345 offers correctly and on time, versus 284–293 on four slots. First-token p95 fell from 1.616–1.741 s to 0.753 s, while completion p95 rose from 3.714–3.820 s to 4.523–4.678 s. These are ranges across two fresh launches per profile at 1.15 offers/s. Both missed the 95% per-family contract somewhere on the tested grid. <a href="claims.html#p4-goodput">Matched-run evidence</a></p>
-<p>A fixed cache budget gave each of the four slots half the context allowance. Workloads that need more than one four-slot window require a separate qualification.</p></section>
-<section class="section-heading"><h2>Six hours exposed a different limit.</h2><p>The completed Qwen3-8B endurance archive contained 13,926 completed transactions and 13,155 correct on time. Only 776 of 1,392 older agent tasks were correct. The runtime stayed up for the scheduled study, but that agent workload still failed its correctness threshold. <a href="evidence/labs-endurance.json">Download the aggregate recount</a></p></section>
-</div>
-<div class="shell section category">
-<p><span class="badge badge-ext">Published external research (Sybil Solutions)</span></p>
-<section class="section-heading"><h2>The wider ecosystem points the same way.</h2><p>Independent open-source work by Sybil Solutions reports gains on very different hardware: Intel Arc B390 256K prefill from 297 to 628 tok/s, an Arc Pro B70 at 91.2 tok/s on vLLM against 25.0 tok/s on llama.cpp in a cross-stack comparison, an RTX 3090 rising from 45.5 to 65.6 tok/s with multi-token prediction, and a 4x H200 NVL deployment moving from crashing to 229.1 tok/s.</p>
-<div class="notice"><strong>Attribution and separation.</strong> These results were published independently by Sybil Solutions (0xSero). Sybil Solutions is not a customer of Inference Audit Labs, is not affiliated with us and does not endorse our service. We have not independently reproduced them. <a href="index.html#ecosystem">See the sources and context</a></div></section>
-</div>
-<section class="economics"><div class="shell section section-heading"><p><span class="badge badge-scenario">Hypothetical economic scenario</span></p><h2>Where the bill can change</h2><p>A lower cost per answer requires a gain in correct work finished on time for your own workload. Even then, the invoice changes only when GPU hours or provisioned capacity can actually fall. Illustratively, at $50,000/month, a 30% qualified-throughput gain means 23.1% fewer GPU-hours, up to about $138,462/year if 100% of the spend can scale down. None of the experiments above established a deployed capacity or a customer saving.</p><div class="actions"><a class="button" href="index.html#economics">Model hypothetical savings</a><a href="economics.html">Read the assumptions</a></div></div></section>
-<div class="shell section">
-<section class="section-heading"><h2>What we’d test next</h2><p>The studies establish what is possible and where it stops. A staging pilot would repeat the tests with your representative code, prose and agent workloads, together with your concurrency and latency requirements. That would show whether a gain reaches customers or changes the capacity you need to provision.</p></section>
-<div class="explore"><a href="research.html">Technical paper and methods</a><a href="case-study.html">Interactive comparison</a><a href="samples.html">Open the sample audit</a><a href="reproduce.html">Reproduce the tests</a><a href="index.html#pilot">Discuss a scoped pilot</a></div></div>
-</main></body></html>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top">
+  <div class="shell navigation">
+    <a class="brand" href="index.html"><span class="mark" aria-hidden="true"></span>Inference Audit <b>Labs</b></a>
+    <nav aria-label="Case study"><a href="inkling-hybrid.html">Inkling</a><a href="forge-mtp.html">Forge MTP</a><a href="case-study.html">Interactive study</a><a href="index.html#pilot">Staging pilot</a></nav>
+  </div>
+</header>
+<main id="main" tabindex="-1">
+  <section class="hero">
+    <div class="shell hero-layout">
+      <div>
+        <p class="label">Executive case study · RTX 4070 12 GB</p>
+        <h1>More inference, honestly measured.</h1>
+        <p class="intro">Before adding GPUs, you need to know two things: how much capacity your current configuration leaves unused, and whether a proposed optimization still passes real latency and quality deadlines. Four controlled studies on one GPU show both sides.</p>
+        <div class="actions"><a class="button" href="index.html#pilot">Discuss a scoped pilot</a><a class="quiet" href="index.html#economics">Open GPU calculator</a></div>
+      </div>
+      <div class="hero-card" aria-label="Four-study scorecard">
+        <p class="hero-card-kicker">Four controlled studies · One GPU · No cherry-picking</p>
+        <ul class="hero-scorecard">
+          <li><b>Inkling-2-Mini (loop-aware placement)</b><strong>+37.8% / +55.2%</strong><span>Faster decode &amp; 8K prefill vs llama.cpp auto-fit; 6/6 local checks passed.</span></li>
+          <li><b>Forge Qwen3.5-9B (native MTP k=1)</b><strong>+23.5% code</strong><span>Single-stream structured Python gain; no win at concurrency=2 (+522 MiB VRAM).</span></li>
+          <li><b>Qwen3-8B (2 → 4 serving slots)</b><strong class="warn">+57.7% vs −7–10%</strong><span>Chat burst tok/s jumped, but mixed-workload on-time answers dropped.</span></li>
+          <li><b>Qwen3-8B (6-hour endurance soak)</b><strong class="warn">776 / 1,392 agents</strong><span>Runtime stayed up (13,926 calls, 0 errors), but agent correctness missed SLA.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="shell section">
+    <div class="section-heading">
+      <p class="label">The 60-second executive takeaway</p>
+      <h2>Why GPU budgets go wrong in both directions.</h2>
+    </div>
+    <div class="grid-3">
+      <article class="panel-card accent-top">
+        <p class="label">1. Hidden headroom</p>
+        <h3>Defaults leave real performance unused</h3>
+        <p class="detail">Generic auto-fit settings ignore model-specific structure. On Inkling-2-Mini, moving only the 3×-looped layers to VRAM beat default auto-fit by ~37% decode, ~55% 8K prefill, and ~68% faster startup.</p>
+      </article>
+      <article class="panel-card warn-top">
+        <p class="label">2. Misleading metrics</p>
+        <h3>Raw tok/s can rise while users wait longer</h3>
+        <p class="detail">Adding serving slots on Qwen3-8B raised burst tok/s by 57.7% and halved first-token time—yet pushed completion tails past deadlines and reduced correct on-time answers.</p>
+      </article>
+      <article class="panel-card accent-top">
+        <p class="label">3. The decision rule</p>
+        <h3>Qualify on your workload before buying</h3>
+        <p class="detail">An optimization only creates financial value when it increases <em>qualified throughput</em>—correct answers delivered inside your latency and context targets—on your real traffic mix.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="shell section category">
+    <p><span class="badge badge-labs">Measured by Inference Audit Labs</span></p>
+    <div class="split-2">
+      <div>
+        <p class="label">Study 1 · Architecture-aware placement</p>
+        <h2>Inkling-2-Mini: ~37% faster decode and ~55% faster prefill on the same GPU.</h2>
+        <p>Modern Mixture-of-Experts models frequently exceed a single card's VRAM. Standard offloading spreads weights sequentially, spending scarce GPU memory on layers that run once per token.</p>
+        <p>Inkling-2-Mini (26B, 16.6 GB Q4) loops 12 middle blocks three times per token—so those 6.88 GB carry <strong>72.3% of all active expert traffic</strong>. By pinning 11 of those looped blocks on CUDA0 and keeping boundary experts in pinned host RAM (<code>--load-mode none</code>, <code>-ub 512</code>), we outperformed <code>llama.cpp</code>'s own auto-fit across two interleaved runs while passing 6 of 6 local acceptance checks (load, chat, reasoning, counterfactual tools, 85% context retrieval, and 30 s sustained speed).</p>
+        <p class="detail"><em>Scope:</em> Single stream, 16K f16 KV, text only, Windows 11. Not an officially accepted <code>local-ai-registry</code> recipe; vision, broader quality, production concurrency, and customer infrastructure remain unverified.</p>
+        <div class="explore"><a href="inkling-hybrid.html">Open full Inkling experiment</a><a href="claims.html#p8-inkling">Trace claim P8-INKLING</a></div>
+      </div>
+      <div class="hero-card" aria-label="Inkling-2-Mini before and after bars">
+        <p class="hero-card-kicker">Inkling-2-Mini · RTX 4070 12 GB · 16K context</p>
+        <div class="hero-bars">
+          <div class="hero-bar-item">
+            <div class="hero-bar-head"><b>Decode: <code>--cpu-moe</code></b><span>16.45–16.50 tok/s</span></div>
+            <div class="hero-bar-track"><i style="width:48%"></i></div>
+          </div>
+          <div class="hero-bar-item">
+            <div class="hero-bar-head"><b>Decode: <code>llama.cpp --fit</code></b><span>25.14–25.15 tok/s</span></div>
+            <div class="hero-bar-track"><i style="width:73%"></i></div>
+          </div>
+          <div class="hero-bar-item win">
+            <div class="hero-bar-head"><b>Decode: Loop-aware 11 core</b><span>34.34–34.66 tok/s</span></div>
+            <div class="hero-bar-track"><i style="width:100%"></i></div>
+          </div>
+          <div class="hero-bar-item">
+            <div class="hero-bar-head"><b>8K Prefill: <code>llama.cpp --fit</code></b><span>496–514 tok/s</span></div>
+            <div class="hero-bar-track"><i style="width:64%"></i></div>
+          </div>
+          <div class="hero-bar-item win">
+            <div class="hero-bar-head"><b>8K Prefill: Loop-aware 11 core</b><span>796–799 tok/s</span></div>
+            <div class="hero-bar-track"><i style="width:100%"></i></div>
+          </div>
+        </div>
+        <p class="hero-card-foot">Startup dropped from 11.7–12.3 s to 3.6–3.8 s (−67% to −70%). 12-core variant hit 37.0 tok/s but left only 954 MiB free and was rejected.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="shell section category">
+    <p><span class="badge badge-labs">Measured by Inference Audit Labs</span></p>
+    <div class="section-heading">
+      <p class="label">Study 2 · Speculative decoding &amp; its concurrency boundary</p>
+      <h2>Forge Qwen3.5-9B: when a real single-user speedup stops scaling.</h2>
+      <p>Native multi-token prediction (MTP) drafts candidate tokens ahead of the main model. Testing draft lengths <code>k=1..4</code> across single-stream and concurrent panels exposed exactly where speculation helps—and where it hurts.</p>
+    </div>
+    <div class="grid-2">
+      <article class="panel-card accent-top">
+        <p class="label">Where k=1 won (single stream)</p>
+        <h3>Up to +23.5% faster code, 19/19 exact matches</h3>
+        <p>With one draft token (<code>k=1</code>), repeat-bracket code decode rose <strong>+7.0%</strong> (71.56–71.57 → 76.60 tok/s). In the extended sweep, structured Python rose <strong>+23.5%</strong> (89.9 vs 72.8 tok/s) and 4K-context code rose <strong>+16.5%</strong> (78.6 vs 67.5 tok/s), with 19/19 byte-for-byte identical greedy outputs.</p>
+        <p class="detail"><a href="forge-mtp.html">Open Forge MTP experiment</a></p>
+      </article>
+      <article class="panel-card warn-top">
+        <p class="label">Where it failed (k≥2 &amp; concurrency 2)</p>
+        <h3>No gain under concurrency, +522 MiB extra VRAM</h3>
+        <p>Draft lengths <code>k=2, 3, 4</code> monotonically regressed (<code>k=4</code> lost 22% on code and 29% on prose), and novel prose stayed flat even at <code>k=1</code>. Most importantly, at <strong>concurrency=2</strong>, <code>k=1</code> failed to beat interleaved controls (115.9 vs 111.1–121.9 pooled tok/s) while consuming <strong>+522 MiB</strong> extra VRAM.</p>
+        <p class="detail"><a href="claims.html#p8-forge-ext">Trace claim P8-FORGE-EXT</a></p>
+      </article>
+    </div>
+  </section>
+
+  <section class="shell section category">
+    <p><span class="badge badge-labs">Measured by Inference Audit Labs</span></p>
+    <div class="section-heading">
+      <p class="label">Studies 3 &amp; 4 · Throughput vs useful capacity &amp; endurance</p>
+      <h2>Why counting tokens alone misleads capacity planning.</h2>
+    </div>
+    <div class="grid-2">
+      <article class="panel-card warn-top">
+        <p class="label">Qwen3-8B · 2 vs 4 serving slots</p>
+        <h3>+57.7% chat burst tok/s, fewer answers on time</h3>
+        <p>Doubling serving slots lifted homogeneous chat-burst output from <strong>143.77 to 226.70 tok/s (+57.7%)</strong> while halving per-slot context from 8,192 to 4,096. Yet on a fresh mixed trace (1.15 offers/s), two slots delivered <strong>315–317</strong> correct on-time answers out of 345 versus only <strong>284–293</strong> on four slots—because p95 completion time stretched from 3.7–3.8 s to 4.5–4.7 s even as p95 TTFT fell to 0.75 s.</p>
+        <p class="detail"><a href="claims.html#p2-chat">Burst evidence</a> · <a href="claims.html#p4-goodput">Mixed-workload evidence</a></p>
+      </article>
+      <article class="panel-card warn-top">
+        <p class="label">Qwen3-8B · Six-hour endurance soak</p>
+        <h3>Zero runtime crashes, failed agent correctness</h3>
+        <p>Across six continuous hours, the server completed <strong>13,926 transactions with zero transport errors</strong> and 13,155 correct on-time completions overall. Breaking results down by workload family exposed a hidden failure: only <strong>776 of 1,392</strong> older agent tasks passed strict correctness—proving uptime and throughput hide application-level failure modes.</p>
+        <p class="detail"><a href="evidence/labs-endurance.json">Download aggregate recount</a> · <a href="claims.html#p6-recount">Trace P6-RECOUNT</a></p>
+      </article>
+    </div>
+  </section>
+
+  <section class="shell section category">
+    <p><span class="badge badge-ext">Published external research (Sybil Solutions)</span></p>
+    <div class="section-heading">
+      <p class="label">Wider industry evidence</p>
+      <h2>Independent practitioners see the same pattern across other GPUs.</h2>
+      <p>To verify that configuration headroom is not limited to a 12 GB desktop card, we cite independent open-source benchmarks published by Sybil Solutions across Intel Arc, RTX 3090, and 4× H200 NVL hardware:</p>
+    </div>
+    <div class="ext-grid">
+      <article class="ext-card"><h3>Intel Arc B390 iGPU</h3><span class="figure">297 → 628 tok/s</span><p>256K prefill (2.1×); startup 113 → 43 s (−62%); KV pool 264K → ~1.05M tokens. <a href="https://github.com/sybil-solutions/local-ai-registry/pull/453">PR #453</a></p></article>
+      <article class="ext-card"><h3>Intel Arc Pro B70</h3><span class="figure">91.2 vs 25.0 tok/s</span><p>Cross-stack decode comparison (vLLM custom XPU kernels vs llama.cpp Q4_K_M on same card). <a href="https://github.com/sybil-solutions/trellis-serve/blob/main/xpu/README.md">trellis-serve XPU</a></p></article>
+      <article class="ext-card"><h3>NVIDIA RTX 3090</h3><span class="figure">45.5 → 65.6 tok/s</span><p>+44.2% decode with native MTP on Flash-Next EXL3 at 256K context. <a href="https://github.com/sybil-solutions/trellis-serve/blob/main/cuda/README.md">trellis-serve CUDA</a></p></article>
+      <article class="ext-card"><h3>4× NVIDIA H200 NVL</h3><span class="figure">229.1 tok/s decode</span><p>DeepSeek-V4.1-Flash moved from crashing under load to 229.1 tok/s decode &amp; 17,546 tok/s prefill. <a href="https://github.com/sybil-solutions/inference-optimisation-skill/blob/fda968e7fc1996aa23c67139c755fe541c9d4be0/README.md">Source README</a></p></article>
+    </div>
+    <div class="notice"><strong>Attribution and separation.</strong> These results were published independently by Sybil Solutions (0xSero). Sybil Solutions is not a customer of Inference Audit Labs, is not affiliated with us, and does not endorse our service. We have not independently reproduced these hardware benchmarks.</div>
+  </section>
+
+  <section class="economics">
+    <div class="shell section split-2">
+      <div>
+        <p><span class="badge badge-scenario">Hypothetical economic scenario</span></p>
+        <h2>Where the GPU bill actually changes.</h2>
+        <p>Lower cost per task requires a qualified gain on <em>your</em> workload—and cash bills drop only where provisioned GPU-hours can scale down. Illustratively, at <strong>$50,000/month</strong> of scalable GPU spend, a <strong>+30%</strong> qualified throughput gain cuts required GPU-hours by <strong>23.1%</strong>—up to about <strong>$138,462/year</strong> (or matching growth headroom on fixed hardware). None of the lab studies above are customer savings claims.</p>
+        <div class="actions"><a class="button" href="index.html#economics">Model your GPU scenario</a><a class="quiet" href="economics.html">Read formulas &amp; assumptions</a></div>
+      </div>
+      <div class="hero-card" aria-label="Illustrative conditional savings reference">
+        <p class="hero-card-kicker">Illustrative · $50,000/mo scalable spend · Fixed demand</p>
+        <ul class="hero-scorecard">
+          <li><b>+30% qualified throughput</b><strong>23.1% fewer GPU-hrs</strong><span>Up to ~$138,462/year conditional savings</span></li>
+          <li><b>+50% qualified throughput</b><strong>33.3% fewer GPU-hrs</strong><span>Up to ~$200,000/year conditional savings</span></li>
+          <li><b>+100% qualified throughput</b><strong>50.0% fewer GPU-hrs</strong><span>Up to ~$300,000/year conditional savings</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="shell section">
+    <div class="section-heading">
+      <p class="label">How an engagement starts</p>
+      <h2>Start with a small, read-only staging assessment.</h2>
+      <p>We agree on one representative workload, strict traffic caps, and your latency and correctness targets—leaving your production servers untouched. You get reproducible baseline evidence, clear pass/fail visibility, and a ranked list of configuration candidates worth testing before spending on more GPUs.</p>
+    </div>
+    <div class="actions">
+      <a class="button" href="https://www.linkedin.com/in/rayn-hasan/">Discuss a scoped staging pilot</a>
+      <a href="samples.html">Inspect sample audit reports</a>
+    </div>
+    <div class="explore">
+      <a href="inkling-hybrid.html">Inkling-2-Mini experiment</a>
+      <a href="forge-mtp.html">Forge MTP experiment</a>
+      <a href="case-study.html">Interactive Qwen charts</a>
+      <a href="research.html">Full technical paper</a>
+      <a href="reproduce.html">Reproduce locally</a>
+    </div>
+  </section>
+</main>
+<footer class="top"><div class="shell navigation"><span>Inference Audit Labs</span><nav aria-label="Footer"><a href="https://github.com/somsom786/inference-audit">Source</a><a href="evidence.html">Evidence</a><a href="license.txt">License</a></nav></div></footer>
+</body>
+</html>

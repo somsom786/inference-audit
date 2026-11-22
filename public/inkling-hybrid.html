@@ -1,55 +1,158 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Loop-aware expert placement for Inkling-2-Mini on one RTX 4070: +37.8% decode and +55.2% 8K prefill over llama.cpp auto-fit, 6 of 6 local acceptance checks."><title>Place the looped core on the GPU: Inkling-2-Mini on one RTX 4070 | Inference Audit Labs</title>
-<meta property="og:type" content="article"><meta property="og:title" content="Inkling-2-Mini loop-aware placement on one RTX 4070"><meta property="og:description" content="+37.8% decode and +55.2% 8K prefill versus llama.cpp auto-fit; 2.1x decode and 8.2x prefill versus --cpu-moe."><meta property="og:image" content="https://somsom786.github.io/inference-audit/assets/inkling-hybrid-social.png"><meta property="og:url" content="https://somsom786.github.io/inference-audit/inkling-hybrid.html">
-<link rel="canonical" href="https://somsom786.github.io/inference-audit/inkling-hybrid.html"><link rel="stylesheet" href="assets/labs.css"></head>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Loop-aware expert placement for Inkling-2-Mini on one RTX 4070: +36.5% to +37.8% decode and +54.8% to +55.2% 8K prefill over llama.cpp auto-fit, with 6 of 6 local acceptance checks passed.">
+<title>Place the looped core on the GPU: Inkling-2-Mini on one RTX 4070 | Inference Audit Labs</title>
+<meta property="og:type" content="article">
+<meta property="og:title" content="Inkling-2-Mini loop-aware placement on one RTX 4070">
+<meta property="og:description" content="+36.5% to +37.8% decode and +54.8% to +55.2% 8K prefill versus llama.cpp auto-fit; 2.1x decode and 8.1–8.2x prefill versus --cpu-moe.">
+<meta property="og:image" content="https://somsom786.github.io/inference-audit/assets/inkling-hybrid-social.png">
+<meta property="og:url" content="https://somsom786.github.io/inference-audit/inkling-hybrid.html">
+<link rel="canonical" href="https://somsom786.github.io/inference-audit/inkling-hybrid.html">
+<link rel="stylesheet" href="assets/labs.css">
+</head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
-<header class="top"><div class="shell navigation"><a class="brand" href="index.html"><span class="mark" aria-hidden="true"></span>Inference Audit <b>Labs</b></a><nav aria-label="Research"><a href="labs-case-study.html">Case study</a><a href="forge-mtp.html">Forge MTP</a><a href="index.html#economics">Economics</a><a href="index.html#pilot">Staging pilot</a></nav></div></header>
+<header class="top">
+  <div class="shell navigation">
+    <a class="brand" href="index.html"><span class="mark" aria-hidden="true"></span>Inference Audit <b>Labs</b></a>
+    <nav aria-label="Research"><a href="labs-case-study.html">Case study</a><a href="forge-mtp.html">Forge MTP</a><a href="index.html#economics">Economics</a><a href="index.html#pilot">Staging pilot</a></nav>
+  </div>
+</header>
 <main id="main" tabindex="-1">
-<section class="hero"><div class="shell hero-layout"><div><p class="label">RTX 4070 12 GB experiment</p><h1>Place the looped core on the GPU.</h1><p class="intro">Inkling-2-Mini reuses 12 transformer blocks three times per token. Keeping those blocks on the GPU, and leaving the once-used blocks in host RAM, beat both llama.cpp auto-fit and --cpu-moe on the same card.</p><p class="result-note"><span class="badge badge-labs">Measured by Inference Audit Labs</span></p></div><img src="assets/inkling-hybrid-poster.svg" width="1200" height="630" alt="Inkling-2-Mini loop-aware placement: 37.8% faster decode and 55.2% faster 8K prefill than llama.cpp auto-fit on an RTX 4070"></div></section>
-<div class="shell section">
-<div class="section-heading"><h2>Why loop-aware placement wins.</h2>
-<p>Inkling-2-Mini has 24 physical blocks that execute as 48 logical layers. Blocks 6 to 17 form a loop core that runs three times, giving 36 logical passes. Only 6.88 GB of the 14.78 GB of routed experts live in that core, yet it carries 72.3% of expert traffic per token (1,289.9 of 1,783.6 MB). A generic placement spreads VRAM evenly. A loop-aware placement spends the same VRAM on the weights that are read three times.</p>
-<p>On this card, 11 of the 12 core blocks (blk.6 to blk.16) plus all 1.82 GB of non-expert weights fit on CUDA0 with a 16,384-token f16 KV cache. The prelude, blk.17 and the postlude experts execute on the CPU from pinned host DDR5 RAM. Measured GPU copy bandwidth was 431 GB/s, so decode speed is dominated by CPU-resident expert bandwidth plus activation transfers between CPU and GPU.</p></div>
-<div class="table-wrap"><table class="data-table"><caption>Qualified placement comparison, RTX 4070 12 GB, llama.cpp b12588, 16K context, one slot, f16 KV, reasoning effort low.</caption>
-<thead><tr><th scope="col">Configuration</th><th scope="col">Decode (tok/s)</th><th scope="col">Prefill (tok/s)</th><th scope="col">Basis and outcome</th></tr></thead>
-<tbody>
-<tr><th scope="row">--cpu-moe</th><td>16.45, 16.50</td><td>97.0, 98.0 at 8K</td><td>Two qualified controls. All experts on CPU.</td></tr>
-<tr><th scope="row">seq-postlude-6</th><td>19.25</td><td>94.8 at 1K</td><td>Screening run. Postlude experts on GPU. Not carried forward.</td></tr>
-<tr><th scope="row">moe-cache-6g</th><td>22.47</td><td>93.3 at 1K</td><td>Screening run. Expert cache. Not carried forward.</td></tr>
-<tr><th scope="row">llama.cpp auto-fit</th><td>25.14, 25.15</td><td>514.5, 496.1 at 8K</td><td>Two qualified controls. Startup 11.7 to 12.3 s.</td></tr>
-<tr class="win"><th scope="row">loop-core-11 (qualified winner)</th><td>34.34, 34.66</td><td>798.5, 796.3 at 8K</td><td>Two qualified runs. Startup 3.6 to 3.8 s. 6/6 local checks.</td></tr>
-<tr><th scope="row">loop-core-12 (boundary)</th><td>37.00</td><td>682.7 at 8K</td><td>Faster, but hit the VRAM safety stop with 954 MiB free. Rejected.</td></tr>
-</tbody></table></div>
-<p class="detail">Screening runs use a shorter 1K prefill probe and a single pass, so they are not directly comparable with the 8K qualified runs.</p>
-</div>
-<div class="shell section category">
-<div class="section-heading"><h2>The headline gains.</h2></div>
-<div class="grid-3">
-<article class="result"><p class="label">Decode vs auto-fit</p><p class="big">+37.8<span>%</span></p><p class="detail">Range +36.5% to +37.8% across paired runs.</p></article>
-<article class="result"><p class="label">8K prefill vs auto-fit</p><p class="big">+55.2<span>%</span></p><p class="detail">Range +54.8% to +55.2%.</p></article>
-<article class="result"><p class="label">Versus --cpu-moe</p><p class="big">2.1<span>x</span></p><p class="detail">Decode 2.1x, 8K prefill 8.1–8.2x faster.</p></article>
-</div>
-</div>
-<div class="shell section category">
-<div class="section-heading"><h2>Six of six local acceptance checks passed.</h2><p>Speed is only useful if the model still works. The winning configuration passed six local checks modeled on the local-ai-registry criteria. This is not an officially accepted local-ai-registry recipe.</p></div>
-<ol class="steps" aria-label="Local acceptance checks">
-<li><strong>Load</strong><span>Model loads and serves with the safety margin intact.</span></li>
-<li><strong>Chat</strong><span>Coherent completion, finish reason stop, about 33.9 tok/s.</span></li>
-<li><strong>Reasoning</strong><span>Correct short reasoning answer at low effort.</span></li>
-<li><strong>Tool calling</strong><span>Both strict tool-call cases valid and semantically correct.</span></li>
-<li><strong>85% context</strong><span>13,926-token prompt retrieved the needle correctly.</span></li>
-<li><strong>Speed and soak</strong><span>30 s uncapped generation (1,010 tokens, 33.6 tok/s) and a six-request soak (34.2 tok/s median, 33.65 min).</span></li>
-</ol>
-</div>
-<div class="shell section category">
-<div class="section-heading"><h2>Reproducible flags.</h2><p>Winning configuration <code>loop-core-11-nommap-ub512</code>. Eleven loop-core expert blocks stay on the GPU. The prelude, blk.17 and the postlude experts are pinned to host RAM.</p></div>
-<pre class="code-block">--jinja --no-mmproj -c 16384 -np 1 --reasoning-effort low --fit off -ngl all
--ot "blk\.([0-5]|1[7-9]|2[0-3])\.ffn_.*_exps\.=CPU"
---load-mode none -fa on -b 512 -ub 512 -t 8 -tb 8</pre>
-<p class="detail">Model: Unsloth Inkling-2-Mini UD-Q4_K_M GGUF, 16,610,543,328 bytes. Hardware: RTX 4070 12 GB, Ryzen 7 7800X3D, 64 GB DDR5-6000. Engine: llama.cpp b12588.</p>
-<div class="callout"><strong>Scope.</strong> One machine, one model, single stream, 16K context, f16 KV, text only and low reasoning effort. This is a hardware-specific placement result—not an officially accepted local-ai-registry recipe. Vision, broader output-quality benchmarks, production concurrency, external customer infrastructure and cost savings remain unverified. The block split that wins on a 12 GB card will differ on other GPUs.</div>
-<div class="explore"><a href="evidence/inkling-hybrid.json">Download measured results</a><a href="https://github.com/somsom786/inference-audit/blob/main/docs/case-study/INKLING_HYBRID.md">Read the technical report</a><a href="forge-mtp.html">See the Forge MTP experiment</a><a href="index.html#economics">Model conditional savings</a></div>
-</div>
-</main></body></html>
+  <section class="hero">
+    <div class="shell hero-layout">
+      <div>
+        <p class="label">RTX 4070 12 GB + 64 GB DDR5 experiment</p>
+        <h1>Place the looped core on the GPU.</h1>
+        <p class="intro">Inkling-2-Mini (16.6 GB) is larger than a 12 GB GPU, so some experts must stay in host RAM. Moving its 3×-looped core blocks into VRAM—instead of letting <code>llama.cpp</code> auto-fit choose—delivered ~37% faster decode, ~55% faster 8K prefill, and ~68% faster startup on the exact same card.</p>
+        <p class="result-note"><span class="badge badge-labs">Measured by Inference Audit Labs</span></p>
+      </div>
+      <div class="hero-card" aria-label="Measured Inkling-2-Mini results summary">
+        <p class="hero-card-kicker">Qualified interleaved bracket · 16K f16 KV · 1 stream</p>
+        <div class="hero-metrics three">
+          <div class="hero-metric"><strong>+37.8%</strong><span>Decode vs auto-fit<br>(+36.5% to +37.8%)</span></div>
+          <div class="hero-metric"><strong>+55.2%</strong><span>8K prefill vs auto-fit<br>(+54.8% to +55.2%)</span></div>
+          <div class="hero-metric"><strong>−68%</strong><span>Faster startup<br>(3.6–3.8 s vs 11.7–12.3 s)</span></div>
+        </div>
+        <div class="hero-bars" aria-label="Single-stream decode throughput comparison">
+          <div class="hero-bar-item">
+            <div class="hero-bar-head"><b><code>--cpu-moe</code> (all experts on CPU)</b><span>16.45–16.50 tok/s</span></div>
+            <div class="hero-bar-track"><i style="width:48%"></i></div>
+          </div>
+          <div class="hero-bar-item">
+            <div class="hero-bar-head"><b><code>llama.cpp --fit</code> (safe auto-fit)</b><span>25.14–25.15 tok/s</span></div>
+            <div class="hero-bar-track"><i style="width:73%"></i></div>
+          </div>
+          <div class="hero-bar-item win">
+            <div class="hero-bar-head"><b><code>loop-core-11</code> (qualified winner)</b><span>34.34–34.66 tok/s</span></div>
+            <div class="hero-bar-track"><i style="width:100%"></i></div>
+          </div>
+        </div>
+        <p class="hero-card-foot">2.1× decode and 8.1–8.2× 8K prefill vs <code>--cpu-moe</code> · 6/6 local acceptance checks passed (not an officially accepted registry recipe).</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="shell section">
+    <div class="split-2">
+      <div>
+        <p class="label">The architecture insight</p>
+        <h2>Why loop-aware placement wins.</h2>
+        <p>Inkling-2-Mini has <strong>24 physical transformer blocks</strong> that execute as <strong>48 logical layers</strong>. Blocks <code>blk.6</code> through <code>blk.17</code> form a looped core that executes <strong>three times per generated token</strong> (36 logical passes).</p>
+        <p>Those 12 core blocks take up only <strong>6.88 GB</strong> of the model's 14.78 GB of routed experts, yet they generate <strong>72.3% of all active expert traffic per token</strong> (1,289.9 of 1,783.6 MB). Every gigabyte of VRAM spent on the looped core eliminates three times as much host-RAM work as a gigabyte spent on the once-executed prelude or postlude.</p>
+        <p>On this 12 GB RTX 4070 (431 GB/s measured copy bandwidth), 11 of the 12 core blocks (<code>blk.6..16</code>) plus all 1.82 GB of non-expert weights and the 16,384-token f16 KV cache fit on CUDA0. The prelude, <code>blk.17</code>, and postlude experts execute on the CPU from pinned host DDR5 RAM (<code>--load-mode none</code>), avoiding mmap page-fault overhead and cutting startup from ~12 s to ~3.7 s.</p>
+      </div>
+      <div class="panel-card accent-top">
+        <p class="label">VRAM return per gigabyte (exact GGUF accounting)</p>
+        <h3>3× more host traffic saved per GiB</h3>
+        <ul class="roi-list">
+          <li><strong><span>Prelude (<code>blk.0..5</code> · 1×/token)</span><span>62.5 MB/tok per GB</span></strong><span>3.44 GB physical → 215.0 MB active expert reads per token. Keep in host RAM.</span></li>
+          <li class="highlight"><strong><span>Looped Core (<code>blk.6..17</code> · 3×/token)</span><span>187.5 MB/tok per GB</span></strong><span>6.88 GB physical → 1,289.9 MB active reads (72.3% of expert traffic). Pin to VRAM first.</span></li>
+          <li><strong><span>Postlude (<code>blk.18..23</code> · 1×/token)</span><span>62.5 MB/tok per GB</span></strong><span>4.46 GB physical → 278.7 MB active expert reads per token. Keep in host RAM.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="shell section category">
+    <div class="section-heading">
+      <p class="label">Measured comparison</p>
+      <h2>Every configuration tested, including the boundary we rejected.</h2>
+      <p>Controls and candidates ran as fresh interleaved launches on Unsloth <code>llama.cpp</code> b12588, 16,384 context, single stream, lossless f16 KV, and <code>--reasoning-effort low</code>. Each qualified run measured six decode prompts (medians) plus cold prefill at 512, 2,048, 4,096, and 8,192 tokens with exact needle checks.</p>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <caption>Inkling-2-Mini UD-Q4_K_M (16.61 GB) on RTX 4070 12 GB + 64 GB DDR5. Screening rows used a 1K prefill probe; qualified rows used full 512–8K sweeps across two fresh launches each.</caption>
+        <thead>
+          <tr>
+            <th scope="col">Configuration</th>
+            <th scope="col">Decode (tok/s)</th>
+            <th scope="col">Prefill (tok/s)</th>
+            <th scope="col">Startup</th>
+            <th scope="col">Peak VRAM (free)</th>
+            <th scope="col">Outcome</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row"><code>--cpu-moe</code> (all experts CPU)</th><td>16.45, 16.50</td><td>97.0, 98.0 (8K)</td><td>7.5–7.8 s</td><td>4,131 MiB (7,880)</td><td>Two qualified controls.</td></tr>
+          <tr><th scope="row"><code>seq-postlude-6</code> (last 6 blocks GPU)</th><td>19.25</td><td>94.8 (1K)</td><td>9.1 s</td><td>8,242 MiB (3,769)</td><td>Screen only; wastes VRAM on 1× layers.</td></tr>
+          <tr><th scope="row"><code>moe-cache-6g</code> (6 GiB dynamic cache)</th><td>22.47</td><td>93.3 (1K)</td><td>7.8 s</td><td>10,234 MiB (1,777)</td><td>Screen only; trailed static loop pinning.</td></tr>
+          <tr><th scope="row"><code>llama.cpp --fit</code> (safe auto-fit)</th><td>25.14, 25.15</td><td>514.5, 496.1 (8K)</td><td>11.7–12.3 s</td><td>9,753–10,026 MiB (1,985+)</td><td>Two qualified controls.</td></tr>
+          <tr class="win"><th scope="row"><code>loop-core-11</code> + <code>--load-mode none</code> + <code>-ub 512</code></th><td>34.34, 34.66</td><td>798.5, 796.3 (8K)</td><td>3.6–3.8 s</td><td>10,543–10,678 MiB (1,333+)</td><td>Qualified winner. 6/6 local checks.</td></tr>
+          <tr class="reject"><th scope="row"><code>loop-core-12</code> + <code>--load-mode none</code> + <code>-ub 256</code></th><td>37.00</td><td>682.7 (8K)</td><td>3.6 s</td><td>11,057 MiB (954)</td><td>Rejected: tripped desktop VRAM guard.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="grid-3">
+      <article class="result"><p class="label">Decode vs auto-fit</p><p class="big">+37.8<span>%</span></p><p class="detail">Qualified range <strong>+36.5% to +37.8%</strong> across interleaved runs (34.34–34.66 vs 25.14–25.15 tok/s).</p></article>
+      <article class="result"><p class="label">8K prefill vs auto-fit</p><p class="big">+55.2<span>%</span></p><p class="detail">Qualified range <strong>+54.8% to +55.2%</strong>; 8K time-to-first-token dropped from 16.1–16.7 s to 10.4 s.</p></article>
+      <article class="result"><p class="label">Versus <code>--cpu-moe</code></p><p class="big">2.1<span>×</span></p><p class="detail">Decode <strong>2.1× faster</strong> (+108–110%); 8K cold prefill <strong>8.1–8.2× faster</strong> (796–799 vs 97–98 tok/s).</p></article>
+    </div>
+    <div class="callout warn"><strong>Honest hardware boundary:</strong> Putting all 12 core blocks on the GPU reached 37.00 tok/s, but drove board VRAM to 11,057 MiB (leaving only 954 MiB free alongside Windows desktop apps) and tripped our safety guard. Keeping 11 core blocks on CUDA trades ~2.5 tok/s for 1,333–1,468 MiB of safe desktop headroom.</div>
+  </section>
+
+  <section class="shell section category">
+    <div class="section-heading">
+      <p class="label">Functional verification</p>
+      <h2>Six of six local acceptance checks passed.</h2>
+      <p>Speed only counts if the model still behaves reliably across real tasks. The winning configuration passed six local checks modeled on the <code>local-ai-registry</code> criteria. <strong>This is not an officially accepted <code>local-ai-registry</code> recipe</strong> (which requires a pinned Linux container build and upstream review).</p>
+    </div>
+    <ol class="steps" aria-label="Local acceptance checks">
+      <li><strong>Load &amp; health</strong><span>Server starts in 3.6–3.8 s and serves <code>/v1/models</code> with safe VRAM and ~29 GiB free host RAM.</span></li>
+      <li><strong>Chat completion</strong><span>Coherent multi-sentence answer with clean <code>finish_reason: stop</code> at 33.93 tok/s.</span></li>
+      <li><strong>Reasoning separation</strong><span>Emits separated <code>reasoning_content</code> (296 chars) and the exact integer answer <code>192</code> at 34.13 tok/s.</span></li>
+      <li><strong>Tool calling (2/2 + counterfactual)</strong><span>Exact JSON arguments and strict receipt return on both primary and swapped counterfactual tool outputs.</span></li>
+      <li><strong>85% context retrieval</strong><span>13,926-token prompt (85.0% of 16K window) retrieved the exact needle at 812.75 tok/s prefill (17.3 s TTFT).</span></li>
+      <li><strong>30 s uncapped speed &amp; soak</strong><span>Sustained 1,010 tokens in 30.01 s (33.62 tok/s) plus a 6-request soak (34.20 tok/s median, 33.65 min, peak 63.8 °C).</span></li>
+    </ol>
+  </section>
+
+  <section class="shell section category">
+    <div class="section-heading">
+      <p class="label">Reproducibility &amp; limits</p>
+      <h2>Exact launch flags and shareable summary.</h2>
+      <p>Winning configuration <code>loop-core-11-nommap-ub512</code> pins prelude (<code>blk.0..5</code>), <code>blk.17</code>, and postlude (<code>blk.18..23</code>) routed experts to host RAM while keeping all non-expert layers and 11 looped core blocks on CUDA0.</p>
+    </div>
+    <pre class="code-block">llama-server -m &lt;MODEL_GGUF&gt; --jinja --no-mmproj -c 16384 -np 1 --reasoning-effort low --fit off -ngl all \
+  -ot "blk\.([0-5]|1[7-9]|2[0-3])\.ffn_.*_exps\.=CPU" \
+  --load-mode none -fa on -b 512 -ub 512 -t 8 -tb 8</pre>
+    <p class="detail">Model: Unsloth Inkling-2-Mini UD-Q4_K_M GGUF (16,610,543,328 bytes, 0 embedded DSpark tensors). Hardware: RTX 4070 12 GB, Ryzen 7 7800X3D, 64 GB DDR5-6000. Engine: Unsloth <code>llama.cpp</code> b12588.</p>
+    <div class="callout"><strong>Scope &amp; unverified areas:</strong> One machine, one model, single stream, 16K context, lossless f16 KV, text only (<code>--no-mmproj</code>), Windows 11. Not an officially accepted <code>local-ai-registry</code> recipe. Vision, broader output-quality benchmarks, multi-user production concurrency, external customer infrastructure, and financial savings remain unverified.</div>
+    <figure class="poster">
+      <img src="assets/inkling-hybrid-poster.svg" width="1200" height="630" alt="Summary poster: Inkling-2-Mini loop-aware placement on RTX 4070 (+37.8% decode, +55.2% 8K prefill, -67 to -70% startup vs auto-fit)">
+      <figcaption><span>Shareable summary graphic generated directly from <code>inkling-hybrid.json</code>.</span><a href="assets/inkling-hybrid-social.png">Download PNG (1200×630)</a></figcaption>
+    </figure>
+    <div class="explore">
+      <a href="evidence/inkling-hybrid.json">Download measured JSON</a>
+      <a href="https://github.com/somsom786/inference-audit/blob/main/docs/case-study/INKLING_HYBRID.md">Read the full technical report</a>
+      <a href="labs-case-study.html">Read the executive case study</a>
+      <a href="index.html#economics">Model conditional savings</a>
+    </div>
+  </section>
+</main>
+<footer class="top"><div class="shell navigation"><span>Inference Audit Labs</span><nav aria-label="Footer"><a href="https://github.com/somsom786/inference-audit">Source</a><a href="evidence.html">Evidence</a><a href="license.txt">License</a></nav></div></footer>
+</body>
+</html>

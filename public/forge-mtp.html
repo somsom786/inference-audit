@@ -1,28 +1,78 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><link rel="canonical" href="https://somsom786.github.io/inference-audit/forge-mtp.html"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="A repeated RTX 4070 experiment on native speculative decoding with Forge Qwen3.5-9B."><title>One draft token, faster code decode | Inference Audit Labs</title><link rel="stylesheet" href="assets/labs.css"></head>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="A repeated RTX 4070 experiment on native speculative decoding with Forge Qwen3.5-9B, including draft sweep k=1..4, 4K context, structured Python, and concurrency=2 limits.">
+<title>One draft token, faster code decode | Inference Audit Labs</title>
+<link rel="canonical" href="https://somsom786.github.io/inference-audit/forge-mtp.html">
+<link rel="stylesheet" href="assets/labs.css">
+</head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
-<header class="top"><div class="shell navigation"><a class="brand" href="index.html"><span class="mark" aria-hidden="true"></span>Inference Audit <b>Labs</b></a><nav aria-label="Research"><a href="labs-case-study.html">Case study</a><a href="index.html#economics">Economics</a><a href="index.html#pilot">Staging pilot</a></nav></div></header>
+<header class="top">
+  <div class="shell navigation">
+    <a class="brand" href="index.html"><span class="mark" aria-hidden="true"></span>Inference Audit <b>Labs</b></a>
+    <nav aria-label="Research"><a href="labs-case-study.html">Case study</a><a href="inkling-hybrid.html">Inkling</a><a href="index.html#economics">Economics</a><a href="index.html#pilot">Staging pilot</a></nav>
+  </div>
+</header>
 <main id="main" tabindex="-1">
-<section class="hero"><div class="shell hero-layout"><div><p class="label">RTX 4070 experiment</p><h1>One draft token. A faster code stream.</h1><p class="intro">Native multi-token prediction proposes a token ahead of the main model. For Forge Qwen3.5-9B, checking one proposal at a time made code decode faster. Asking for four made it slower.</p></div><img src="assets/forge-mtp-poster.svg" width="1200" height="630" alt="7.0% faster median code decode with one draft token, from 71.56–71.57 to 76.60 tokens per second"></div></section>
-<div class="shell section">
-<div class="section-heading"><h2>Same weights. Three clean launches.</h2>
-<p>Default → one-token MTP → default on Forge Qwen3.5-9B Q4_K_M, RTX 4070 and Ollama 0.40.16. Each arm measured eight code and eight novel-prose prompts, 128 output tokens per request, one stream and an 8,192-token context. The faster of the two controls is the comparison.</p>
-<p><strong>Code decode rose from 71.56–71.57 to 76.60 tok/s (+7.0%).</strong> Median code completion fell from 1.858–1.865 s to 1.748 s. An earlier matched bracket reached +6.9%. All eight visible code outputs matched both controls in each one-token bracket. Both near-full retrieval checks passed in the fresh bracket.</p>
-<p>Prose throughput was roughly flat. Four draft tokens reduced the code median to 55.91 tok/s against controls at 71.55–71.66. Peak board memory in the fresh one-token arm was 8,935 MiB against 8,475–8,499 MiB. This is a single-stream result on a fixed prompt panel. Multi-user capacity and actual savings remain unmeasured.</p>
-</div>
-<div class="category" id="extended">
-<div class="section-heading"><p><span class="badge badge-labs">Measured by Inference Audit Labs</span></p><h2>Extended qualification.</h2>
-<p>A follow-up sweep ran A1, k=1, k=2, k=3 and A2 on the same card, then a concurrency-2 bracket. <strong>k=1 was the optimum</strong> and k=2 and k=3 were slower on every panel.</p></div>
-<div class="grid-3">
-<article class="result"><p class="label">Structured Python</p><p class="big">+23.5<span>%</span></p><p class="detail">89.9 vs 72.8 tok/s against the faster control.</p></article>
-<article class="result"><p class="label">4K-context code</p><p class="big">+16.5<span>%</span></p><p class="detail">78.6 vs 67.5 tok/s against the faster control.</p></article>
-<article class="result"><p class="label">Byte-for-byte matches</p><p class="big">19/19</p><p class="detail">Greedy outputs matched the default on all 19 prompts.</p></article>
-</div>
-<div class="callout"><strong>Honest boundary: concurrency 2.</strong> With two parallel slots k=1 did not beat the faster interleaved default control, and peak board VRAM rose by 522 MiB (8,719 to 9,241 MiB). Do not enable it for multi-user serving without testing. In this sweep the plain code panel gained only +3.8% because the two controls differed by 7%, so the single-stream code claim above rests on the cleaner bracket.</div>
-<div class="explore"><a href="evidence/forge-mtp-extended.json">Download extended results</a><a href="inkling-hybrid.html">See the Inkling placement result</a></div>
-</div>
-<div class="explore"><a href="evidence/forge-mtp.json">Download measured results</a><a href="https://github.com/somsom786/inference-audit/blob/main/docs/case-study/FORGE_MTP.md">Read the technical report</a><a href="assets/forge-mtp-social.png">Download the results poster</a><a href="index.html#economics">Model conditional savings</a></div>
-</div>
-</main></body></html>
+  <section class="hero">
+    <div class="shell hero-layout">
+      <div>
+        <p class="label">RTX 4070 experiment · Native MTP</p>
+        <h1>One draft token. A faster code stream.</h1>
+        <p class="intro">Native multi-token prediction proposes tokens ahead of the main model. On Forge Qwen3.5-9B, checking <strong>one</strong> proposal at a time accelerated single-stream code—while asking for 2–4 proposals slowed it down, and concurrency=2 erased the gain.</p>
+        <p class="result-note"><span class="badge badge-labs">Measured by Inference Audit Labs</span></p>
+      </div>
+      <div class="hero-card" aria-label="Measured Forge MTP results summary">
+        <p class="hero-card-kicker">Forge Qwen3.5-9B Q4_K_M · Ollama 0.40.16 CUDA</p>
+        <div class="hero-metrics">
+          <div class="hero-metric"><strong>+7.0%</strong><span>Repeat-bracket code decode<br>(71.56–71.57 → 76.60 tok/s)</span></div>
+          <div class="hero-metric"><strong>+23.5%</strong><span>Structured Python-only<br>(65.21–72.80 → 89.91 tok/s)</span></div>
+          <div class="hero-metric"><strong>+16.5%</strong><span>4K-context code decode<br>(63.47–67.47 → 78.59 tok/s)</span></div>
+          <div class="hero-metric"><strong class="muted-fig">No win</strong><span>At concurrency=2 (+522 MiB VRAM; 115.9 vs 111.1–121.9 tok/s)</span></div>
+        </div>
+        <p class="hero-card-foot">19/19 byte-for-byte identical greedy outputs at k=1 · Novel prose flat · k=2, 3, 4 progressively slower.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="shell section">
+    <div class="section-heading">
+      <p class="label">Initial repeated brackets</p>
+      <h2>Same weights. Three clean launches.</h2>
+      <p>Default → one-token MTP → default on Forge Qwen3.5-9B Q4_K_M, RTX 4070, and Ollama 0.40.16. Each arm measured eight code and eight novel-prose prompts, 128 output tokens per request, one stream, and an 8,192-token context. Comparisons use the faster of the two neighboring controls.</p>
+      <p><strong>Code decode rose from 71.56–71.57 to 76.60 tok/s (+7.0%).</strong> Median code completion fell from 1.858–1.865 s to 1.748 s. An earlier matched bracket reached +6.9%. All eight visible code outputs matched both controls in each one-token bracket, and both near-full retrieval checks passed.</p>
+      <p>Prose throughput stayed flat, while four draft tokens dropped code decode to 55.91 tok/s (−22%) and prose to 50.94 tok/s (−29%). Peak board memory in the fresh one-token arm was 8,935 MiB against 8,475–8,499 MiB.</p>
+    </div>
+  </section>
+
+  <section class="shell section category" id="extended">
+    <div class="section-heading">
+      <p><span class="badge badge-labs">Measured by Inference Audit Labs</span></p>
+      <h2>Extended qualification: k=1..3, 4K context, and concurrency=2.</h2>
+      <p>A follow-up sweep ran <code>A1 (k=0) → k=1 → k=2 → k=3 → A2 (k=0)</code> on the same card, followed by a two-slot concurrency bracket (<code>OLLAMA_NUM_PARALLEL=2</code>). <strong><code>k=1</code> was the clear single-stream optimum</strong> across every panel.</p>
+    </div>
+    <div class="grid-3">
+      <article class="result"><p class="label">Structured Python</p><p class="big">+23.5<span>%</span></p><p class="detail">89.9 vs 72.8 tok/s against the faster control; median e2e fell from 2.82–3.19 s to 2.34 s.</p></article>
+      <article class="result"><p class="label">4K-context code</p><p class="big">+16.5<span>%</span></p><p class="detail">78.6 vs 67.5 tok/s at 4,098 prompt tokens; verify overhead did not erase the gain.</p></article>
+      <article class="result"><p class="label">Byte-for-byte matches</p><p class="big">19/19</p><p class="detail">Greedy outputs matched defaults on all 19 prompts; executable unit tests were identical (2/4).</p></article>
+    </div>
+    <div class="callout warn"><strong>Honest boundary: concurrency 2.</strong> With two parallel slots (4K/slot), <code>k=1</code> did not beat the faster interleaved default control (115.87 vs 111.14–121.88 pooled code tok/s), and peak board VRAM rose by <strong>+522 MiB</strong> (8,719 → 9,241 MiB). Do not enable it for multi-user serving without testing. In this sweep the plain code panel gained only +3.8% because the two controls differed by 7%, so the headline +7.0% single-stream claim rests on the cleaner repeat bracket.</div>
+    <figure class="poster">
+      <img src="assets/forge-mtp-poster.svg" width="1200" height="630" alt="Forge Qwen3.5-9B poster: 7.0% faster median code decode with one draft token, from 71.56–71.57 to 76.60 tok/s">
+      <figcaption><span>Shareable summary graphic from the clean repeat bracket.</span><a href="assets/forge-mtp-social.png">Download PNG (1200×630)</a></figcaption>
+    </figure>
+    <div class="explore">
+      <a href="evidence/forge-mtp.json">Download repeat-bracket JSON</a>
+      <a href="evidence/forge-mtp-extended.json">Download extended JSON</a>
+      <a href="https://github.com/somsom786/inference-audit/blob/main/docs/case-study/FORGE_MTP.md">Read the technical report</a>
+      <a href="inkling-hybrid.html">See the Inkling placement result</a>
+      <a href="index.html#economics">Model conditional savings</a>
+    </div>
+  </section>
+</main>
+<footer class="top"><div class="shell navigation"><span>Inference Audit Labs</span><nav aria-label="Footer"><a href="https://github.com/somsom786/inference-audit">Source</a><a href="evidence.html">Evidence</a><a href="license.txt">License</a></nav></div></footer>
+</body>
+</html>
